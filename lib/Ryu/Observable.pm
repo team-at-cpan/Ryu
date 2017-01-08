@@ -3,13 +3,15 @@ package Ryu::Observable;
 use strict;
 use warnings;
 
+=encoding utf8
+
 =head1 NAME
 
-Ryu::Observable
-
-=head1 SYNOPSIS
+Ryu::Observable - plus ça change
 
 =head1 DESCRIPTION
+
+This module is of little use to you in its current state.
 
 =cut
 
@@ -58,4 +60,14 @@ sub notify_all { my $self = shift; $_->($self->{value}) for @{$self->{subscripti
 sub set { my ($self, $v) = @_; $self->{value} = $v; $self->notify_all }
 
 1;
+
+__END__
+
+=head1 AUTHOR
+
+Tom Molesworth <TEAM@cpan.org>
+
+=head1 LICENSE
+
+Copyright Tom Molesworth 2011-2016. Licensed under the same terms as Perl itself.
 

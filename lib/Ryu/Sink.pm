@@ -9,9 +9,9 @@ use parent qw(Ryu::Node);
 
 Ryu::Sink - base representation for a source of events
 
-=head1 SYNOPSIS
-
 =head1 DESCRIPTION
+
+This is currently of limited utility.
 
 =cut
 
@@ -109,5 +109,5 @@ Tom Molesworth <TEAM@cpan.org>
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2011-2015. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2016. Licensed under the same terms as Perl itself.
 

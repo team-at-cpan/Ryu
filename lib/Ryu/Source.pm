@@ -9,9 +9,11 @@ use parent qw(Ryu::Node);
 
 Ryu::Source - base representation for a source of events
 
-=head1 SYNOPSIS
-
 =head1 DESCRIPTION
+
+This is probably the module you'd want to start with, if you were going to be
+using any of this. There's a disclaimer in L<Ryu> that may be relevant at this
+point.
 
 =cut
 
@@ -37,6 +39,7 @@ our $FUTURE_FACTORY = sub {
 	Future->new->set_label($_[1])
 };
 
+# It'd be nice if L<Future> already provided a method for this, maybe I should suggest it
 my $future_state = sub {
       $_[0]->is_done
     ? 'done'
@@ -47,28 +50,30 @@ my $future_state = sub {
     : 'pending'
 };
 
-#$log->debugf("Done: %s", $future_state->(Future->done));
-#$log->debugf("Failed: %s", $future_state->(Future->new->fail(x => 123)));
-#$log->debugf("Cancelled: %s", $future_state->(Future->new->cancel));
-#$log->debugf("Pending: %s", $future_state->(Future->new));
-
-=head1 METHODS - Class
-
-=cut
+=head1 METHODS
 
 =head2 new
+
+Takes named parameters.
 
 =cut
 
 sub new {
-	my $class = shift;
-	$class->SUPER::new(
-		is_paused => 0,
-		@_
-	)
+    my ($self, %args) = @_;
+    $args{label} //= 'unknown';
+    $self->SUPER::new(%args);
 }
 
+=head2 chained
+
+Returns a new L<Ryu::Source> chained from this one.
+
+=cut
+
 sub chained {
+	use Scalar::Util qw(weaken);
+    use namespace::clean qw(weaken);
+
 	my ($self) = shift;
 	if(my $class = ref($self)) {
 		my $src = $class->new(
@@ -76,6 +81,8 @@ sub chained {
 			parent     => $self,
 			@_
 		);
+        weaken($src->{parent});
+        push @{$self->{children}}, $src;
         $log->tracef("Constructing chained source for %s from %s (%s)", $src->label, $self->label, $future_state->($self->completed));
         return $src;
 	} else {
@@ -117,6 +124,12 @@ sub from {
     }
 }
 
+=head2 empty
+
+Creates an empty source, which finishes immediately.
+
+=cut
+
 sub empty {
 	my ($self, $code) = @_;
 
@@ -124,11 +137,23 @@ sub empty {
     $src->finish;
 }
 
+=head2 never
+
+An empty source that never finishes.
+
+=cut
+
 sub never {
 	my ($self, $code) = @_;
 
 	my $src = $self->chained(label => (caller 0)[3]);
 }
+
+=head2 throw
+
+Throws something. I don't know what, maybe a chair.
+
+=cut
 
 sub throw {
 	my $src = shift->new(@_);
@@ -136,6 +161,12 @@ sub throw {
 }
 
 =head1 METHODS - Instance
+
+=cut
+
+=head2 new_future
+
+Used internally to get a L<Future>.
 
 =cut
 
@@ -755,5 +786,5 @@ Tom Molesworth <TEAM@cpan.org>
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2011-2015. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2016. Licensed under the same terms as Perl itself.
 

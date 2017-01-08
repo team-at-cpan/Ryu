@@ -3,7 +3,7 @@ package Ryu 0.001;
 use strict;
 use warnings;
 
-=encoding UTF-8
+=encoding utf8
 
 =head1 NAME
 
@@ -15,9 +15,14 @@ Ryu - asynchronous stream building blocks
 
 =head1 DESCRIPTION
 
-Provides data flow processing for asynchronous coding purposes.
+B<This is an early preview release and not recommended for anything>.
+
+Provides data flow processing for asynchronous coding purposes. It's a bit like L<ReactiveX|https://reactivex.io> in
+concept.
 
 =head2 Why would I be using this?
+
+Eventually some documentation pages might appear, but at the moment they're unlikely to exist.
 
 =over 4
 
@@ -38,7 +43,8 @@ and on the verge of reaching for alternatives. The L</SEE ALSO> section may spee
 
 =head3 Streams
 
-A stream is a thing with a source. See L<Ryu::Stream>.
+A stream is a thing with a source. See L<Ryu::Stream>, which is likely to be something that does not yet
+exist.
 
 =head3 Sources
 
@@ -62,14 +68,13 @@ Items can be any scalar value - some examples:
 
 =back
 
-Sources and sinks can be chained together to form a pipeline. The standard way of handling this is
-through L<Ryu::Transform>.
+There's also a sink, which connects to a (chain of) sources and accepts values.
 
 =head2 What does this module do?
 
 Nothing. It's just a top-level loader for pulling in all the other components.
 
-# notes
+=head2 Some notes that might not relate to anything
 
 With a single parameter, L</from> and L</to> will use the given
 instance as a L<Ryu::Source> or L<Ryu::Sink> respectively.
@@ -113,16 +118,28 @@ our @EXPORT_OK = qw($ryu);
 
 sub new { bless { @_[1..$#_] }, $_[0] }
 
+=head2 from
+
+Helper method which returns a L<Ryu::Source> from a list of items.
+
+=cut
+
 sub from {
 	my $self = shift;
 	my $src = Ryu::Source->new;
 	$src->from(@_)
 }
 
+=head2 just
+
+Helper method which returns a single-item L<Ryu::Source>.
+
+=cut
+
 sub just {
 	my $self = shift;
 	my $src = Ryu::Source->new;
-	$src->from(shift)
+	$src->from(shift);
 }
 
 1;
@@ -130,15 +147,6 @@ sub just {
 __END__
 
 =head1 SEE ALSO
-
-=head2 Books
-
-If you want to see this module in a wider context - a.k.a. "how do I make me some async programs" - then there's a book. It is online. There may be
-a printed copy available, if it's in a printable state at the moment. Reading it is optional, but hopefully worthwhile.
-
-The link to this book is currently here:
-
-L<https://perlsite.co.uk/book/async>
 
 =head2 Other modules
 

@@ -7,13 +7,16 @@ use warnings;
 
 Ryu::Node - generic node
 
-=head1 SYNOPSIS
-
 =head1 DESCRIPTION
+
+This is a common base class for all sources, sinks and other related things.
+It does very little.
 
 =cut
 
 =head1 METHODS
+
+Not really. There's a constructor, but that's not particularly exciting.
 
 =cut
 
@@ -29,5 +32,5 @@ Tom Molesworth <TEAM@cpan.org>
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2011-2015. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2016. Licensed under the same terms as Perl itself.
 

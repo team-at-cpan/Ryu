@@ -1,4 +1,4 @@
-=encoding UTF-8
+=encoding utf8
 
 =head1 NAME
 
@@ -6,10 +6,7 @@ Ryu::Manual::Protocol - using L<Ryu> for dealing with network protocols
 
 =head1 DESCRIPTION
 
-You'll want the following features:
+TBD
 
-=over 4
-
-=item * 
 =cut
 
