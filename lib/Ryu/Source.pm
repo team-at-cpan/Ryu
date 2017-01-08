@@ -758,7 +758,7 @@ sub emit {
 				$code->($_);
 			} catch {
                 my $ex = $@;
-                warn "exception in " . (eval { $self->describe } // "<failed>") . " - $ex";
+                $log->warnf("Exception raised in %s - %s", (eval { $self->describe } // "<failed>"), "$ex");
 				$completion->fail($ex, source => 'exception in on_item callback');
 				die $ex;
 			}
