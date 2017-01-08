@@ -2,6 +2,7 @@ requires 'parent', 0;
 requires 'curry', 0;
 requires 'Future', '>= 0.30';
 requires 'Mixin::Event::Dispatch', '>= 2.000';
+requires 'Ref::Util', '>= 0.111';
 requires 'Log::Any', '>= 1.032';
 requires 'Syntax::Keyword::Try', '>= 0.04';
 requires 'namespace::clean', '>= 0.27';
