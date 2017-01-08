@@ -91,12 +91,24 @@ sub chained {
 	}
 }
 
+=head2 describe
+
+Returns a string describing this source and any parents - typically this will result in a chain
+like C<< from->combine_latest->count >>.
+
+=cut
+
 sub describe {
     my ($self) = @_;
-    ($self->parent ? $self->parent->describe . '->' : '') . $self->label($future_state->($self->completed));
+    ($self->parent ? $self->parent->describe . '=>' : '') . $self->label . '(' . $future_state->($self->completed) . ')';
 }
 
 =head2 from
+
+Creates a new source from things.
+
+The precise details of what this method supports may be somewhat ill-defined at this point in time.
+It is expected that the interface and internals of this method will vary greatly in versions to come.
 
 =cut
 
@@ -177,11 +189,23 @@ sub new_future {
 	)->($self, @_)
 }
 
+=head2 pause
+
+Does nothing useful.
+
+=cut
+
 sub pause {
 	my $self = shift;
 	$self->{is_paused} = 1;
 	$self
 }
+
+=head2 resume
+
+Is about as much use as L</pause>.
+
+=cut
 
 sub resume {
 	my $self = shift;
@@ -189,17 +213,39 @@ sub resume {
 	$self
 }
 
+=head2 is_paused
+
+Might return 1 or 0, but is generally meaningless.
+
+=cut
+
 sub is_paused { $_[0]->{is_paused} }
+
+=head2 debounce
+
+Not yet implemented.
+
+=cut
 
 sub debounce {
 	my ($self, $interval) = @_;
 	...
 }
 
+=head2 chomp
+
+Chomps all items with the current delimiter.
+
+Once you've instantiated this, it will stick with the delimiter which was in force at the time of instantiation.
+Said delimiter follows the usual rules of C<< $/ >>, whatever they happen to be.
+
+=cut
+
 sub chomp {
 	my ($self, $delim) = @_;
 	$delim //= $/;
 	$self->map(sub {
+        local $/ = $delim;
 		chomp(my $line = $_);
 		$line
 	})
@@ -207,13 +253,18 @@ sub chomp {
 
 =head2 map
 
+A bit like L<perlfunc/map>.
+
 =cut
 
 sub map : method {
 	my ($self, $code) = @_;
 
 	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready($src->completed);
+	$self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
 	$self->each_while_source(sub { $src->emit($code->($_)) }, $src);
 }
 
@@ -222,7 +273,10 @@ sub split : method {
 	$delim //= qr//;
 
 	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready($src->completed);
+	$self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
 	$self->each_while_source(sub { $src->emit($_) for split $delim, $_ }, $src);
 }
 
@@ -232,7 +286,10 @@ sub chunksize : method {
 
 	my $buffer = '';
 	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready($src->completed);
+	$self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
 	$self->each_while_source(sub {
         $buffer .= $_;
         $src->emit(substr $buffer, 0, $size, '') while length($buffer) >= $size;
@@ -245,7 +302,10 @@ sub by_line : method {
 
 	my $src = $self->chained(label => (caller 0)[3]);
 	my $buffer = '';
-	$self->completed->on_ready($src->completed);
+	$self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
 	$self->each_while_source(sub {
 		$buffer .= $_;
 		while($buffer =~ s/^(.*)\Q$delim//) {
@@ -306,6 +366,10 @@ sub with_latest_from : method {
 		$combined->emit([ $code->(@value) ]) if keys %seen;
 	});
 	$self->completed->on_ready($combined->completed);
+	$self->completed->on_ready(sub {
+        return if $combined->is_ready;
+        shift->on_ready($combined->completed);
+    });
 	$combined
 }
 
@@ -339,6 +403,10 @@ sub distinct {
 
 	my $src = $self->chained(label => (caller 0)[3]);
 	$self->completed->on_ready($src->completed);
+	$self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
 	my $active;
 	my $prev;
 	$self->each(sub {
@@ -366,7 +434,10 @@ sub skip {
 	$count //= 0;
 
 	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready($src->completed);
+	$self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
 	$self->each(sub {
 		$src->emit($_) unless $count-- > 0;
 	});
@@ -382,7 +453,10 @@ sub skip_last {
 	$count //= 0;
 
 	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready($src->completed);
+	$self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
 	my @pending;
 	$self->each(sub {
 		push @pending, $_;
@@ -397,28 +471,36 @@ sub skip_last {
 
 sub take {
 	my ($self, $count) = @_;
-	$count //= 0;
+    $count //= 0;
+    return $self->empty unless $count > 0;
 
 	my $src = $self->chained(label => (caller 0)[3]);
+	$self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
     # $self->completed->on_ready($src->completed);
 	$self->each_while_source(sub {
-		if($count--) {
-			$src->emit($_);
-		} else {
-			$src->completed->done 
-		}
+        $log->tracef("Still alive with %d remaining", $count);
+        $src->emit($_);
+        return if --$count;
+        $log->tracef("Count is zero, finishing");
+        $src->finish
 	}, $src);
 }
 
 sub each_while_source {
 	use Scalar::Util qw(refaddr);
 	use List::UtilsBy qw(extract_by);
-	use namespace::clean qw(refaddr extract_by);
+    use Devel::Refcount qw(refcount);
+    use Devel::Peek qw(Dump);
+    use Devel::MAT::Dumper;
+	use namespace::clean qw(refaddr extract_by refcount);
     my ($self, $code, $src) = @_;
 	$self->each($code);
 	$src->completed->on_ready(sub {
         my $count = extract_by { refaddr($_) == refaddr($code) } @{$self->{on_item}};
-        # warn "Found and removed $count cases of our coderef, on_item is now " . (0 + @{$self->{on_item}}) . " on " . $self->label;
+        $log->tracef("->e_w_s completed on %s and now refcount is %d for refaddr 0x%x", $self->describe, refcount($self), refaddr($self));
     });
 	$src
 }
@@ -601,7 +683,10 @@ sub filter {
 	my $self = shift;
 
 	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready($src->completed);
+	$self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
     $self->each_while_source((@_ > 1) ? do {
 		my %args = @_;
 		my $check = sub {
@@ -672,8 +757,10 @@ sub emit {
 			try {
 				$code->($_);
 			} catch {
-				$completion->fail($@, source => 'exception in on_item callback');
-				die $@;
+                my $ex = $@;
+                warn "exception in " . (eval { $self->describe } // "<failed>") . " - $ex";
+				$completion->fail($ex, source => 'exception in on_item callback');
+				die $ex;
 			}
 		}
 	}
@@ -682,19 +769,81 @@ sub emit {
 
 =head2 flat_map
 
-Expands out any arrayrefs into flattened lists. Note that this is not
-recursive.
+Similar to L</map>, but will flatten out some items:
+
+=over 4
+
+=item * an arrayref will be expanded out to emit the individual elements
+
+=item * for a L<Ryu::Source>, passes on any emitted elements
+
+=back
+
+This also means you can "merge" items from a series of sources.
+
+Note that this is not recursive - an arrayref of arrayrefs will be expanded out
+into the child arrayrefs, but no further.
 
 =cut
 
 sub flat_map {
-	my ($self) = @_;
+	use Scalar::Util qw(blessed weaken);
+    use Ref::Util qw(is_plain_arrayref is_plain_coderef);
+    use namespace::clean qw(blessed is_plain_arrayref is_plain_coderef weaken);
+
+	my ($self, $code) = splice @_, 0, 2;
+
+    # Upgrade ->flat_map(method => args...) to a coderef
+    if(!is_plain_coderef($code)) {
+        my $method = $code;
+        my @args = @_;
+        $code = sub { $_->$method(@args) }
+    }
 
 	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready($src->completed);
-	$self->each(sub {
-		$src->emit((ref($_) && !blessed($_) && ref($_) eq 'ARRAY') ? @$_ : $_)
-	});
+
+    weaken(my $weak_sauce = $src);
+    my $add = sub  {
+        my $v = shift;
+        my $src = $weak_sauce or return;
+
+        my $k = "$v";
+        $log->tracef("Adding %s which will bring our count to %d", $k, 0 + keys %{$src->{waiting}});
+        $src->{waiting}{$k} = $v->on_ready(sub {
+            return unless my $src = $weak_sauce;
+            delete $src->{waiting}{$k};
+            $src->finish unless %{$src->{waiting}};
+        })
+    };
+
+    $add->($self->completed);
+	$self->each_while_source(sub {
+        my $src = $weak_sauce or return;
+        for ($code->($_)) {
+            my $item = $_;
+            if(is_plain_arrayref($item)) {
+                $log->tracef("Have an arrayref of %d items", 0 + @$item);
+                for(@$item) {
+                    last if $src->is_ready;
+                    $src->emit($_);
+                }
+            } elsif(blessed($item) && $item->isa(__PACKAGE__)) {
+                $log->tracef("This item is a source");
+                $add->($item->completed);
+                $src->on_ready(sub {
+                    return if $item->is_ready;
+                    $log->tracef("Marking %s as ready because %s was", $item->describe, $src->describe);
+                    shift->on_ready($item->completed);
+                });
+                $item->each_while_source(sub {
+                    my $src = $weak_sauce or return;
+                    $src->emit($_)
+                }, $src)->on_ready(sub {
+                    undef $item;
+                });
+            }
+        }
+	}, $src);
 	$src
 }
 
@@ -714,13 +863,45 @@ sub each {
 
 sub completed {
 	my ($self) = @_;
-	$self->{completed} //= $self->new_future('completion')->on_ready($self->curry::weak::cleanup)
+	$self->{completed} //= $self->new_future(
+        'completion'
+    )->on_ready(
+        $self->curry::weak::cleanup
+    )
 }
 
 sub cleanup {
     my ($self) = @_;
-    # warn "completed $self as " . $self->label;
-    delete @{$self}{qw(on_item parent)};
+    $log->tracef("Cleanup for %s (f = %s)", $self->describe, 0 + $self->completed);
+    $self->parent->notify_child_completion($self) if $self->parent;
+    delete @{$self}{qw(on_item parent children)};
+    $log->tracef("Finished cleanup for %s", $self->describe);
+}
+
+sub notify_child_completion {
+	use List::UtilsBy qw(extract_by);
+    use Devel::Refcount qw(refcount);
+    use namespace::clean qw(extract_by refcount);
+
+    my ($self, $child) = @_;
+    if(extract_by { $child == $_ } @{$self->{children}}) {
+        $log->tracef(
+            "Removed completed child %s, have %d left and refcount %d",
+            $child->describe,
+            0 + @{$self->{children}},
+            refcount($self)
+        );
+        unless(@{$self->{children}}) {
+            $log->tracef(
+                "This was the last child, cancelling %s",
+                $self->describe
+            );
+            $self->cancel unless $self->is_ready;
+        }
+    } else {
+        $log->warnf("Child %s not found in list for %s", $child->describe, $self->describe);
+    }
+    $self
 }
 
 sub label { shift->{label} }
@@ -751,16 +932,19 @@ The following methods are proxied to our completion L<Future>:
 
 sub get {
 	my ($self) = @_;
+    my $f = $self->completed;
 	my @rslt;
 	$self->each(sub { push @rslt, $_ }) if defined wantarray;
 	if(my $parent = $self->parent) {
-		$parent->get
+        $parent->await
 	}
 	(delete $self->{on_get})->() if $self->{on_get};
-	$self->completed->transform(done => sub { @rslt })->get
+	$f->transform(done => sub {
+        @rslt
+    })->get
 }
 
-for my $k (qw(then fail on_ready transform is_ready is_done failure is_cancelled else await)) {
+for my $k (qw(then cancel fail on_ready transform is_ready is_done failure is_cancelled else await)) {
 	do { no strict 'refs'; *$k = $_ } for sub { shift->completed->$k(@_) }
 }
 
@@ -771,7 +955,7 @@ sub refresh { }
 sub DESTROY {
     my ($self) = @_;
     return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
-    $log->tracef("Destruction for %s which is marked as %s", $self->label, $future_state->($self->completed));
+    $log->tracef("Destruction for %s", $self->describe);
     # warn "destroy for " . $self->label;
     $self->completed->cancel unless $self->completed->is_ready;
 }
