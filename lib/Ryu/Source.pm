@@ -492,15 +492,12 @@ sub take {
 sub each_while_source {
 	use Scalar::Util qw(refaddr);
 	use List::UtilsBy qw(extract_by);
-    use Devel::Refcount qw(refcount);
-    use Devel::Peek qw(Dump);
-    use Devel::MAT::Dumper;
-	use namespace::clean qw(refaddr extract_by refcount);
+	use namespace::clean qw(refaddr extract_by);
     my ($self, $code, $src) = @_;
 	$self->each($code);
 	$src->completed->on_ready(sub {
         my $count = extract_by { refaddr($_) == refaddr($code) } @{$self->{on_item}};
-        $log->tracef("->e_w_s completed on %s and now refcount is %d for refaddr 0x%x", $self->describe, refcount($self), refaddr($self));
+        $log->tracef("->e_w_s completed on %s for refaddr 0x%x", $self->describe, refaddr($self));
     });
 	$src
 }
@@ -880,16 +877,14 @@ sub cleanup {
 
 sub notify_child_completion {
 	use List::UtilsBy qw(extract_by);
-    use Devel::Refcount qw(refcount);
-    use namespace::clean qw(extract_by refcount);
+    use namespace::clean qw(extract_by);
 
     my ($self, $child) = @_;
     if(extract_by { $child == $_ } @{$self->{children}}) {
         $log->tracef(
-            "Removed completed child %s, have %d left and refcount %d",
+            "Removed completed child %s, have %d left",
             $child->describe,
-            0 + @{$self->{children}},
-            refcount($self)
+            0 + @{$self->{children}}
         );
         unless(@{$self->{children}}) {
             $log->tracef(

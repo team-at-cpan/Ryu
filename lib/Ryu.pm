@@ -1,4 +1,4 @@
-package Ryu 0.001;
+package Ryu 0.002;
 # ABSTRACT: stream and data flow handling for async code
 use strict;
 use warnings;
