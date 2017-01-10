@@ -6,6 +6,7 @@ requires 'Ref::Util', '>= 0.111';
 requires 'Log::Any', '>= 1.032';
 requires 'Syntax::Keyword::Try', '>= 0.04';
 requires 'namespace::clean', '>= 0.27';
+requires 'List::UtilsBy', 0;
 
 recommends 'Check::UnitCheck', '>= 0.13';
 
