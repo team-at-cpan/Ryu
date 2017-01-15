@@ -905,31 +905,35 @@ sub cleanup {
     my ($self) = @_;
     $log->tracef("Cleanup for %s (f = %s)", $self->describe, 0 + $self->completed);
     $self->parent->notify_child_completion($self) if $self->parent;
-    delete @{$self}{qw(on_item parent children)};
+    delete @{$self}{qw(on_item)};
     $log->tracef("Finished cleanup for %s", $self->describe);
 }
 
 sub notify_child_completion {
+    use Scalar::Util qw(refaddr);
     use List::UtilsBy qw(extract_by);
-    use namespace::clean qw(extract_by);
+    use namespace::clean qw(refaddr extract_by);
 
     my ($self, $child) = @_;
-    if(extract_by { $child == $_ } @{$self->{children}}) {
+    if(extract_by { refaddr($child) == refaddr($_) } @{$self->{children}}) {
         $log->tracef(
             "Removed completed child %s, have %d left",
             $child->describe,
             0 + @{$self->{children}}
         );
-        unless(@{$self->{children}}) {
-            $log->tracef(
-                "This was the last child, cancelling %s",
-                $self->describe
-            );
-            $self->cancel unless $self->is_ready;
-        }
-    } else {
-        $log->warnf("Child %s not found in list for %s", $child->describe, $self->describe);
+        return $self if $self->is_ready;
+        return $self if @{$self->{children}};
+
+        $log->tracef(
+            "This was the last child, cancelling %s",
+            $self->describe
+        );
+        $self->cancel;
+        return $self;
     }
+
+    $log->warnf("Child %s (addr 0x%x) not found in list for %s", $child->describe, $self->describe);
+    $log->tracef("* %s (addr 0x%x)", $_->describe, refaddr($_)) for @{$self->{children}};
     $self
 }
 
