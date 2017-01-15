@@ -412,7 +412,7 @@ sub distinct {
 	$self->each(sub {
 		if($active) {
 			if(defined($prev) ^ defined($_)) {
-				$src->emit($_) 
+				$src->emit($_)
 			} elsif(defined($_)) {
 				$src->emit($_) if $prev ne $_;
 			}
