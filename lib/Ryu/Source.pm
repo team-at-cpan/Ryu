@@ -401,6 +401,24 @@ sub merge : method {
 	$combined
 }
 
+sub apply : method {
+	use Variable::Disposition qw(retain_future);
+	use namespace::clean qw(retain_future);
+	my ($self, @code) = @_;
+
+	my $combined = $self->chained(label => (caller 0)[3]);
+    my @pending;
+	for my $code (@code) {
+        push @pending, map $code->($_), $self;
+	}
+    retain_future(
+        Future->needs_all(
+            map $_->completed, @pending
+        )->on_ready($combined->completed)
+    );
+	$combined
+}
+
 =head2 distinct
 
 =cut
