@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+    * Ryu::Observable->subscribe callbacks now receive value in $_ as well as @_
 
 0.002     2017-01-11 01:01:04+08:00 Asia/Kuala_Lumpur
     No new features.
