@@ -385,7 +385,7 @@ sub merge : method {
     use namespace::clean qw(retain_future);
     my ($self, @sources) = @_;
 
-    my $combined = $self->chained(label => (caller 0)[3]) =~ /::([^:]+)/;
+    my $combined = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     unshift @sources, $self if ref $self;
     for my $src (@sources) {
         $src->each(sub {
