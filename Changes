@@ -1,6 +1,13 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    API changes:
+    * ->await now returns the source, not the completion Future.
+
+    Bug fixes:
+    * ->await didn't, instead it delegated to Future's ->await which provides
+    no guarantees about readiness when it returns. Fixed by looping until the
+    Future is ready.
 
 0.003     2017-01-16 01:38:09+08:00 Asia/Kuala_Lumpur
     New features:

@@ -939,8 +939,21 @@ sub get {
     })->get
 }
 
-for my $k (qw(then cancel fail on_ready transform is_ready is_done failure is_cancelled else await)) {
+for my $k (qw(then cancel fail on_ready transform is_ready is_done failure is_cancelled else)) {
 	do { no strict 'refs'; *$k = $_ } for sub { shift->completed->$k(@_) }
+}
+
+=head2 await
+
+Block until this source finishes.
+
+=cut
+
+sub await {
+    my ($self) = @_;
+    my $f = $self->completed;
+    $f->await until $f->is_ready;
+    $self
 }
 
 sub finish { shift->completed->done }
