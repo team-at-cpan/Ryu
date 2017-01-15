@@ -36,7 +36,7 @@ Example overrides might include:
 =cut
 
 our $FUTURE_FACTORY = sub {
-	Future->new->set_label($_[1])
+    Future->new->set_label($_[1])
 };
 
 # It'd be nice if L<Future> already provided a method for this, maybe I should suggest it
@@ -71,24 +71,24 @@ Returns a new L<Ryu::Source> chained from this one.
 =cut
 
 sub chained {
-	use Scalar::Util qw(weaken);
+    use Scalar::Util qw(weaken);
     use namespace::clean qw(weaken);
 
-	my ($self) = shift;
-	if(my $class = ref($self)) {
-		my $src = $class->new(
-			new_future => $self->{new_future},
-			parent     => $self,
-			@_
-		);
+    my ($self) = shift;
+    if(my $class = ref($self)) {
+        my $src = $class->new(
+            new_future => $self->{new_future},
+            parent     => $self,
+            @_
+        );
         weaken($src->{parent});
         push @{$self->{children}}, $src;
         $log->tracef("Constructing chained source for %s from %s (%s)", $src->label, $self->label, $future_state->($self->completed));
         return $src;
-	} else {
-		my $src = $self->new(@_);
+    } else {
+        my $src = $self->new(@_);
         $log->tracef("Constructing chained source for %s with no parent", $src->label, $self->label);
-	}
+    }
 }
 
 =head2 describe
@@ -113,25 +113,25 @@ It is expected that the interface and internals of this method will vary greatly
 =cut
 
 sub from {
-	my $class = shift;
-	my $src = (ref $class) ? $class : $class->new;
-	if(my $ref = ref($_[0])) {
-		if($ref eq 'GLOB') {
-			if(my $fh = *{$_[0]}{IO}) {
-				my $code = sub {
-					while(read $fh, my $buf, 4096) {
-						$src->emit($buf)
-					}
-					$src->finish
-				};
-				$src->{on_get} = $code;
-				return $src;
-			} else {
-				die "whatever"
-			}
-		}
-		die "unsupported ref type $ref";
-	} else {
+    my $class = shift;
+    my $src = (ref $class) ? $class : $class->new;
+    if(my $ref = ref($_[0])) {
+        if($ref eq 'GLOB') {
+            if(my $fh = *{$_[0]}{IO}) {
+                my $code = sub {
+                    while(read $fh, my $buf, 4096) {
+                        $src->emit($buf)
+                    }
+                    $src->finish
+                };
+                $src->{on_get} = $code;
+                return $src;
+            } else {
+                die "whatever"
+            }
+        }
+        die "unsupported ref type $ref";
+    } else {
         die "unknown item in ->from";
     }
 }
@@ -143,9 +143,9 @@ Creates an empty source, which finishes immediately.
 =cut
 
 sub empty {
-	my ($self, $code) = @_;
+    my ($self, $code) = @_;
 
-	my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3]);
     $src->finish;
 }
 
@@ -156,9 +156,9 @@ An empty source that never finishes.
 =cut
 
 sub never {
-	my ($self, $code) = @_;
+    my ($self, $code) = @_;
 
-	my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3]);
 }
 
 =head2 throw
@@ -168,8 +168,8 @@ Throws something. I don't know what, maybe a chair.
 =cut
 
 sub throw {
-	my $src = shift->new(@_);
-	$src->fail('...');
+    my $src = shift->new(@_);
+    $src->fail('...');
 }
 
 =head1 METHODS - Instance
@@ -183,10 +183,10 @@ Used internally to get a L<Future>.
 =cut
 
 sub new_future {
-	my $self = shift;
-	(
-		$self->{new_future} //= $FUTURE_FACTORY
-	)->($self, @_)
+    my $self = shift;
+    (
+        $self->{new_future} //= $FUTURE_FACTORY
+    )->($self, @_)
 }
 
 =head2 pause
@@ -196,9 +196,9 @@ Does nothing useful.
 =cut
 
 sub pause {
-	my $self = shift;
-	$self->{is_paused} = 1;
-	$self
+    my $self = shift;
+    $self->{is_paused} = 1;
+    $self
 }
 
 =head2 resume
@@ -208,9 +208,9 @@ Is about as much use as L</pause>.
 =cut
 
 sub resume {
-	my $self = shift;
-	$self->{is_paused} = 0;
-	$self
+    my $self = shift;
+    $self->{is_paused} = 0;
+    $self
 }
 
 =head2 is_paused
@@ -228,8 +228,8 @@ Not yet implemented.
 =cut
 
 sub debounce {
-	my ($self, $interval) = @_;
-	...
+    my ($self, $interval) = @_;
+    ...
 }
 
 =head2 chomp
@@ -242,13 +242,13 @@ Said delimiter follows the usual rules of C<< $/ >>, whatever they happen to be.
 =cut
 
 sub chomp {
-	my ($self, $delim) = @_;
-	$delim //= $/;
-	$self->map(sub {
+    my ($self, $delim) = @_;
+    $delim //= $/;
+    $self->map(sub {
         local $/ = $delim;
-		chomp(my $line = $_);
-		$line
-	})
+        chomp(my $line = $_);
+        $line
+    })
 }
 
 =head2 map
@@ -258,60 +258,60 @@ A bit like L<perlfunc/map>.
 =cut
 
 sub map : method {
-	my ($self, $code) = @_;
+    my ($self, $code) = @_;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready(sub {
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
-	$self->each_while_source(sub { $src->emit($code->($_)) }, $src);
+    $self->each_while_source(sub { $src->emit($code->($_)) }, $src);
 }
 
 sub split : method {
-	my ($self, $delim) = @_;
-	$delim //= qr//;
+    my ($self, $delim) = @_;
+    $delim //= qr//;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready(sub {
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
-	$self->each_while_source(sub { $src->emit($_) for split $delim, $_ }, $src);
+    $self->each_while_source(sub { $src->emit($_) for split $delim, $_ }, $src);
 }
 
 sub chunksize : method {
-	my ($self, $size) = @_;
+    my ($self, $size) = @_;
     die 'need positive chunk size parameter' unless $size && $size > 0;
 
-	my $buffer = '';
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready(sub {
+    my $buffer = '';
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
-	$self->each_while_source(sub {
+    $self->each_while_source(sub {
         $buffer .= $_;
         $src->emit(substr $buffer, 0, $size, '') while length($buffer) >= $size;
     }, $src);
 }
 
 sub by_line : method {
-	my ($self, $delim) = @_;
-	$delim //= $/;
+    my ($self, $delim) = @_;
+    $delim //= $/;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	my $buffer = '';
-	$self->completed->on_ready(sub {
+    my $src = $self->chained(label => (caller 0)[3]);
+    my $buffer = '';
+    $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
-	$self->each_while_source(sub {
-		$buffer .= $_;
-		while($buffer =~ s/^(.*)\Q$delim//) {
-			$src->emit($1)
-		}
-	}, $src);
+    $self->each_while_source(sub {
+        $buffer .= $_;
+        while($buffer =~ s/^(.*)\Q$delim//) {
+            $src->emit($1)
+        }
+    }, $src);
 }
 
 =head2 combine_latest
@@ -319,61 +319,61 @@ sub by_line : method {
 =cut
 
 sub combine_latest : method {
-	use Scalar::Util qw(blessed);
-	use Variable::Disposition qw(retain_future);
-	use namespace::clean qw(blessed retain_future);
-	my ($self, @sources) = @_;
-	push @sources, sub { @_ } if blessed $sources[-1];
-	my $code = pop @sources;
+    use Scalar::Util qw(blessed);
+    use Variable::Disposition qw(retain_future);
+    use namespace::clean qw(blessed retain_future);
+    my ($self, @sources) = @_;
+    push @sources, sub { @_ } if blessed $sources[-1];
+    my $code = pop @sources;
 
-	my $combined = $self->chained(label => (caller 0)[3]);
-	unshift @sources, $self if ref $self;
-	my @value;
-	my %seen;
-	for my $idx (0..$#sources) {
-		my $src = $sources[$idx];
-		$src->each(sub {
-			return if $combined->completed->is_ready;
-			$value[$idx] = $_;
-			$seen{$idx} ||= 1;
-			$combined->emit([ $code->(@value) ]) if @sources == keys %seen;
-		});
-	}
+    my $combined = $self->chained(label => (caller 0)[3]);
+    unshift @sources, $self if ref $self;
+    my @value;
+    my %seen;
+    for my $idx (0..$#sources) {
+        my $src = $sources[$idx];
+        $src->each(sub {
+            return if $combined->completed->is_ready;
+            $value[$idx] = $_;
+            $seen{$idx} ||= 1;
+            $combined->emit([ $code->(@value) ]) if @sources == keys %seen;
+        });
+    }
     retain_future(
         Future->needs_any(
             map $_->completed, @sources
         )->on_ready($combined->completed)
     );
-	$combined
+    $combined
 }
 
 sub with_latest_from : method {
-	use Scalar::Util qw(blessed);
-	use namespace::clean qw(blessed);
-	my ($self, @sources) = @_;
-	push @sources, sub { @_ } if blessed $sources[-1];
-	my $code = pop @sources;
+    use Scalar::Util qw(blessed);
+    use namespace::clean qw(blessed);
+    my ($self, @sources) = @_;
+    push @sources, sub { @_ } if blessed $sources[-1];
+    my $code = pop @sources;
 
-	my $combined = $self->chained(label => (caller 0)[3]);
-	my @value;
-	my %seen;
-	for my $idx (0..$#sources) {
-		my $src = $sources[$idx];
-		$src->each(sub {
-			return if $combined->completed->is_ready;
-			$value[$idx] = $_;
-			$seen{$idx} ||= 1;
-		});
-	}
-	$self->each(sub {
-		$combined->emit([ $code->(@value) ]) if keys %seen;
-	});
-	$self->completed->on_ready($combined->completed);
-	$self->completed->on_ready(sub {
+    my $combined = $self->chained(label => (caller 0)[3]);
+    my @value;
+    my %seen;
+    for my $idx (0..$#sources) {
+        my $src = $sources[$idx];
+        $src->each(sub {
+            return if $combined->completed->is_ready;
+            $value[$idx] = $_;
+            $seen{$idx} ||= 1;
+        });
+    }
+    $self->each(sub {
+        $combined->emit([ $code->(@value) ]) if keys %seen;
+    });
+    $self->completed->on_ready($combined->completed);
+    $self->completed->on_ready(sub {
         return if $combined->is_ready;
         shift->on_ready($combined->completed);
     });
-	$combined
+    $combined
 }
 
 =head2 merge
@@ -381,42 +381,42 @@ sub with_latest_from : method {
 =cut
 
 sub merge : method {
-	use Variable::Disposition qw(retain_future);
-	use namespace::clean qw(retain_future);
-	my ($self, @sources) = @_;
+    use Variable::Disposition qw(retain_future);
+    use namespace::clean qw(retain_future);
+    my ($self, @sources) = @_;
 
-	my $combined = $self->chained(label => (caller 0)[3]);
-	unshift @sources, $self if ref $self;
-	for my $src (@sources) {
-		$src->each(sub {
-			return if $combined->completed->is_ready;
-			$combined->emit($_)
-		});
-	}
+    my $combined = $self->chained(label => (caller 0)[3]);
+    unshift @sources, $self if ref $self;
+    for my $src (@sources) {
+        $src->each(sub {
+            return if $combined->completed->is_ready;
+            $combined->emit($_)
+        });
+    }
     retain_future(
         Future->needs_all(
             map $_->completed, @sources
         )->on_ready($combined->completed)
     );
-	$combined
+    $combined
 }
 
 sub apply : method {
-	use Variable::Disposition qw(retain_future);
-	use namespace::clean qw(retain_future);
-	my ($self, @code) = @_;
+    use Variable::Disposition qw(retain_future);
+    use namespace::clean qw(retain_future);
+    my ($self, @code) = @_;
 
-	my $combined = $self->chained(label => (caller 0)[3]);
+    my $combined = $self->chained(label => (caller 0)[3]);
     my @pending;
-	for my $code (@code) {
+    for my $code (@code) {
         push @pending, map $code->($_), $self;
-	}
+    }
     retain_future(
         Future->needs_all(
             map $_->completed, @pending
         )->on_ready($combined->completed)
     );
-	$combined
+    $combined
 }
 
 =head2 distinct
@@ -424,30 +424,30 @@ sub apply : method {
 =cut
 
 sub distinct {
-	my $self = shift;
+    my $self = shift;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready($src->completed);
-	$self->completed->on_ready(sub {
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->completed->on_ready($src->completed);
+    $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
-	my $active;
-	my $prev;
-	$self->each(sub {
-		if($active) {
-			if(defined($prev) ^ defined($_)) {
-				$src->emit($_)
-			} elsif(defined($_)) {
-				$src->emit($_) if $prev ne $_;
-			}
-		} else {
-			$active = 1;
-			$src->emit($_);
-		}
-		$prev = $_;
-	});
-	$src
+    my $active;
+    my $prev;
+    $self->each(sub {
+        if($active) {
+            if(defined($prev) ^ defined($_)) {
+                $src->emit($_)
+            } elsif(defined($_)) {
+                $src->emit($_) if $prev ne $_;
+            }
+        } else {
+            $active = 1;
+            $src->emit($_);
+        }
+        $prev = $_;
+    });
+    $src
 }
 
 =head2 skip
@@ -455,18 +455,18 @@ sub distinct {
 =cut
 
 sub skip {
-	my ($self, $count) = @_;
-	$count //= 0;
+    my ($self, $count) = @_;
+    $count //= 0;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready(sub {
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
-	$self->each(sub {
-		$src->emit($_) unless $count-- > 0;
-	});
-	$src
+    $self->each(sub {
+        $src->emit($_) unless $count-- > 0;
+    });
+    $src
 }
 
 =head2 skip_last
@@ -474,20 +474,20 @@ sub skip {
 =cut
 
 sub skip_last {
-	my ($self, $count) = @_;
-	$count //= 0;
+    my ($self, $count) = @_;
+    $count //= 0;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready(sub {
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
-	my @pending;
-	$self->each(sub {
-		push @pending, $_;
-		$src->emit(shift @pending) if @pending > $count;
-	});
-	$src
+    my @pending;
+    $self->each(sub {
+        push @pending, $_;
+        $src->emit(shift @pending) if @pending > $count;
+    });
+    $src
 }
 
 =head2 take
@@ -495,36 +495,36 @@ sub skip_last {
 =cut
 
 sub take {
-	my ($self, $count) = @_;
+    my ($self, $count) = @_;
     $count //= 0;
     return $self->empty unless $count > 0;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready(sub {
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
     # $self->completed->on_ready($src->completed);
-	$self->each_while_source(sub {
+    $self->each_while_source(sub {
         $log->tracef("Still alive with %d remaining", $count);
         $src->emit($_);
         return if --$count;
         $log->tracef("Count is zero, finishing");
         $src->finish
-	}, $src);
+    }, $src);
 }
 
 sub each_while_source {
-	use Scalar::Util qw(refaddr);
-	use List::UtilsBy qw(extract_by);
-	use namespace::clean qw(refaddr extract_by);
+    use Scalar::Util qw(refaddr);
+    use List::UtilsBy qw(extract_by);
+    use namespace::clean qw(refaddr extract_by);
     my ($self, $code, $src) = @_;
-	$self->each($code);
-	$src->completed->on_ready(sub {
+    $self->each($code);
+    $src->completed->on_ready(sub {
         my $count = extract_by { refaddr($_) == refaddr($code) } @{$self->{on_item}};
         $log->tracef("->e_w_s completed on %s for refaddr 0x%x", $self->describe, refaddr($self));
     });
-	$src
+    $src
 }
 
 =head2 some
@@ -532,24 +532,24 @@ sub each_while_source {
 =cut
 
 sub some {
-	my ($self, $code) = @_;
+    my ($self, $code) = @_;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready(sub {
-		my $sf = $src->completed;
-		return if $sf->is_ready;
-		my $f = shift;
-		return $f->on_ready($sf) unless $f->is_done;
-		$src->emit(0);
-		$sf->done;
-	});
-	$self->each(sub {
-		return if $src->completed->is_ready;
-		return unless $code->($_);
-		$src->emit(1);
-		$src->completed->done 
-	});
-	$src
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->completed->on_ready(sub {
+        my $sf = $src->completed;
+        return if $sf->is_ready;
+        my $f = shift;
+        return $f->on_ready($sf) unless $f->is_done;
+        $src->emit(0);
+        $sf->done;
+    });
+    $self->each(sub {
+        return if $src->completed->is_ready;
+        return unless $code->($_);
+        $src->emit(1);
+        $src->completed->done 
+    });
+    $src
 }
 
 =head2 every
@@ -557,21 +557,21 @@ sub some {
 =cut
 
 sub every {
-	my ($self, $code) = @_;
+    my ($self, $code) = @_;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_done(sub {
-		return if $src->completed->is_ready;
-		$src->emit(1);
-		$src->completed->done 
-	});
-	$self->each(sub {
-		return if $src->completed->is_ready;
-		return if $code->($_);
-		$src->emit(0);
-		$src->completed->done 
-	});
-	$src
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->completed->on_done(sub {
+        return if $src->completed->is_ready;
+        $src->emit(1);
+        $src->completed->done 
+    });
+    $self->each(sub {
+        return if $src->completed->is_ready;
+        return if $code->($_);
+        $src->emit(0);
+        $src->completed->done 
+    });
+    $src
 }
 
 =head2 count
@@ -579,15 +579,15 @@ sub every {
 =cut
 
 sub count {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	my $count = 0;
+    my $count = 0;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->each(sub { ++$count });
-	$self->completed->on_done(sub { $src->emit($count) })
-		->on_ready($src->completed);
-	$src
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->each(sub { ++$count });
+    $self->completed->on_done(sub { $src->emit($count) })
+        ->on_ready($src->completed);
+    $src
 }
 
 =head2 sum
@@ -595,15 +595,15 @@ sub count {
 =cut
 
 sub sum {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	my $sum = 0;
+    my $sum = 0;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->each(sub { $sum += $_ });
-	$self->completed->on_done(sub { $src->emit($sum) })
-		->on_ready($src->completed);
-	$src
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->each(sub { $sum += $_ });
+    $self->completed->on_done(sub { $src->emit($sum) })
+        ->on_ready($src->completed);
+    $src
 }
 
 =head2 mean
@@ -611,16 +611,16 @@ sub sum {
 =cut
 
 sub mean {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	my $sum = 0;
-	my $count = 0;
+    my $sum = 0;
+    my $count = 0;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->each(sub { ++$count; $sum += $_ });
-	$self->completed->on_done(sub { $src->emit($sum / ($count || 1)) })
-		->on_ready($src->completed);
-	$src
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->each(sub { ++$count; $sum += $_ });
+    $self->completed->on_done(sub { $src->emit($sum / ($count || 1)) })
+        ->on_ready($src->completed);
+    $src
 }
 
 =head2 max
@@ -628,17 +628,17 @@ sub mean {
 =cut
 
 sub max {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	my $max;
-	$self->each(sub {
-		return if defined $max and $max > $_;
-		$max = $_;
-	});
-	$self->completed->on_done(sub { $src->emit($max) })
-		->on_ready($src->completed);
-	$src
+    my $src = $self->chained(label => (caller 0)[3]);
+    my $max;
+    $self->each(sub {
+        return if defined $max and $max > $_;
+        $max = $_;
+    });
+    $self->completed->on_done(sub { $src->emit($max) })
+        ->on_ready($src->completed);
+    $src
 }
 
 =head2 min
@@ -646,17 +646,17 @@ sub max {
 =cut
 
 sub min {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	my $min;
-	$self->each(sub {
-		return if defined $min and $min < $_;
-		$min = $_;
-	});
-	$self->completed->on_done(sub { $src->emit($min) })
-		->on_ready($src->completed);
-	$src
+    my $src = $self->chained(label => (caller 0)[3]);
+    my $min;
+    $self->each(sub {
+        return if defined $min and $min < $_;
+        $min = $_;
+    });
+    $self->completed->on_done(sub { $src->emit($min) })
+        ->on_ready($src->completed);
+    $src
 }
 
 =head2 statistics
@@ -666,33 +666,33 @@ Emits a single hashref of statistics once the source completes.
 =cut
 
 sub statistics {
-	my ($self) = @_;
+    my ($self) = @_;
 
-	my $sum = 0;
-	my $count = 0;
-	my $min;
-	my $max;
+    my $sum = 0;
+    my $count = 0;
+    my $min;
+    my $max;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->each(sub {
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->each(sub {
         $min //= $_;
         $max //= $_;
         $min = $_ if $_ < $min;
         $max = $_ if $_ > $max;
-		++$count;
-		$sum += $_
-	});
-	$self->completed->on_done(sub {
-		$src->emit({
-			count => $count,
-			sum   => $sum,
-			min   => $min,
-			max   => $max,
-			mean  => ($sum / ($count || 1))
-		})
-	})
-		->on_ready($src->completed);
-	$src
+        ++$count;
+        $sum += $_
+    });
+    $self->completed->on_done(sub {
+        $src->emit({
+            count => $count,
+            sum   => $sum,
+            min   => $min,
+            max   => $max,
+            mean  => ($sum / ($count || 1))
+        })
+    })
+        ->on_ready($src->completed);
+    $src
 }
 
 =head2 filter
@@ -700,55 +700,55 @@ sub statistics {
 =cut
 
 sub filter {
-	use Scalar::Util qw(blessed);
-	use namespace::clean qw(blessed);
-	my $self = shift;
+    use Scalar::Util qw(blessed);
+    use namespace::clean qw(blessed);
+    my $self = shift;
 
-	my $src = $self->chained(label => (caller 0)[3]);
-	$self->completed->on_ready(sub {
+    my $src = $self->chained(label => (caller 0)[3]);
+    $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
     $self->each_while_source((@_ > 1) ? do {
-		my %args = @_;
-		my $check = sub {
-			my ($k, $v) = @_;
-			if(my $ref = ref $args{$k}) {
-				if($ref eq 'Regexp') {
-					return 0 unless $v =~ $args{$k};
-				} elsif($ref eq 'CODE') {
-					return 0 for grep !$args{$k}->($_), $v;
-				} else {
-					die "Unsure what to do with $args{$k} which seems to be a $ref";
-				}
-			} else {
-				return 0 unless $v eq $args{$k};
-			}
-			return 1;
-		};
-		sub {
-			my $item = shift;
-			if(blessed $item) {
-				for my $k (keys %args) {
-					my $v = $item->$k;
-					return unless $check->($k, $v);
-				}
-			} elsif(my $ref = ref $item) {
-				if($ref eq 'HASH') {
-					for my $k (keys %args) {
-						my $v = $item->{$k};
-						return unless $check->($k, $v);
-					}
-				} else {
-					die 'not a ref we know how to handle: ' . $ref;
-				}
-			} else {
-				die 'not a ref, not sure what to do now';
-			}
-			$src->emit($item);
-		}
-	} : do {
-		my $code = shift;
+        my %args = @_;
+        my $check = sub {
+            my ($k, $v) = @_;
+            if(my $ref = ref $args{$k}) {
+                if($ref eq 'Regexp') {
+                    return 0 unless $v =~ $args{$k};
+                } elsif($ref eq 'CODE') {
+                    return 0 for grep !$args{$k}->($_), $v;
+                } else {
+                    die "Unsure what to do with $args{$k} which seems to be a $ref";
+                }
+            } else {
+                return 0 unless $v eq $args{$k};
+            }
+            return 1;
+        };
+        sub {
+            my $item = shift;
+            if(blessed $item) {
+                for my $k (keys %args) {
+                    my $v = $item->$k;
+                    return unless $check->($k, $v);
+                }
+            } elsif(my $ref = ref $item) {
+                if($ref eq 'HASH') {
+                    for my $k (keys %args) {
+                        my $v = $item->{$k};
+                        return unless $check->($k, $v);
+                    }
+                } else {
+                    die 'not a ref we know how to handle: ' . $ref;
+                }
+            } else {
+                die 'not a ref, not sure what to do now';
+            }
+            $src->emit($item);
+        }
+    } : do {
+        my $code = shift;
         if(my $ref = ref($code)) {
             if($ref eq 'Regexp') {
                 my $re = $code;
@@ -759,10 +759,10 @@ sub filter {
                 die "not sure how to handle $ref";
             }
         }
-		sub {
-			my $item = shift;
-			$src->emit($item) if $code->($item);
-		}
+        sub {
+            my $item = shift;
+            $src->emit($item) if $code->($item);
+        }
     }, $src);
 }
 
@@ -771,22 +771,22 @@ sub filter {
 =cut
 
 sub emit {
-	my $self = shift;
-	my $completion = $self->completed;
-	for (@_) {
-		for my $code (@{$self->{on_item}}) {
-			die 'already completed' if $completion->is_ready;
-			try {
-				$code->($_);
-			} catch {
+    my $self = shift;
+    my $completion = $self->completed;
+    for (@_) {
+        for my $code (@{$self->{on_item}}) {
+            die 'already completed' if $completion->is_ready;
+            try {
+                $code->($_);
+            } catch {
                 my $ex = $@;
                 $log->warnf("Exception raised in %s - %s", (eval { $self->describe } // "<failed>"), "$ex");
-				$completion->fail($ex, source => 'exception in on_item callback');
-				die $ex;
-			}
-		}
-	}
-	$self
+                $completion->fail($ex, source => 'exception in on_item callback');
+                die $ex;
+            }
+        }
+    }
+    $self
 }
 
 =head2 flat_map
@@ -809,11 +809,11 @@ into the child arrayrefs, but no further.
 =cut
 
 sub flat_map {
-	use Scalar::Util qw(blessed weaken);
+    use Scalar::Util qw(blessed weaken);
     use Ref::Util qw(is_plain_arrayref is_plain_coderef);
     use namespace::clean qw(blessed is_plain_arrayref is_plain_coderef weaken);
 
-	my ($self, $code) = splice @_, 0, 2;
+    my ($self, $code) = splice @_, 0, 2;
 
     # Upgrade ->flat_map(method => args...) to a coderef
     if(!is_plain_coderef($code)) {
@@ -822,7 +822,7 @@ sub flat_map {
         $code = sub { $_->$method(@args) }
     }
 
-	my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3]);
 
     weaken(my $weak_sauce = $src);
     my $add = sub  {
@@ -839,7 +839,7 @@ sub flat_map {
     };
 
     $add->($self->completed);
-	$self->each_while_source(sub {
+    $self->each_while_source(sub {
         my $src = $weak_sauce or return;
         for ($code->($_)) {
             my $item = $_;
@@ -865,8 +865,8 @@ sub flat_map {
                 });
             }
         }
-	}, $src);
-	$src
+    }, $src);
+    $src
 }
 
 =head2 each
@@ -874,9 +874,9 @@ sub flat_map {
 =cut
 
 sub each {
-	my ($self, $code, %args) = @_;
-	push @{$self->{on_item}}, $code;
-	$self;
+    my ($self, $code, %args) = @_;
+    push @{$self->{on_item}}, $code;
+    $self;
 }
 
 =head2 completed
@@ -884,8 +884,8 @@ sub each {
 =cut
 
 sub completed {
-	my ($self) = @_;
-	$self->{completed} //= $self->new_future(
+    my ($self) = @_;
+    $self->{completed} //= $self->new_future(
         'completion'
     )->on_ready(
         $self->curry::weak::cleanup
@@ -901,7 +901,7 @@ sub cleanup {
 }
 
 sub notify_child_completion {
-	use List::UtilsBy qw(extract_by);
+    use List::UtilsBy qw(extract_by);
     use namespace::clean qw(extract_by);
 
     my ($self, $child) = @_;
@@ -951,21 +951,21 @@ The following methods are proxied to our completion L<Future>:
 =cut
 
 sub get {
-	my ($self) = @_;
+    my ($self) = @_;
     my $f = $self->completed;
-	my @rslt;
-	$self->each(sub { push @rslt, $_ }) if defined wantarray;
-	if(my $parent = $self->parent) {
+    my @rslt;
+    $self->each(sub { push @rslt, $_ }) if defined wantarray;
+    if(my $parent = $self->parent) {
         $parent->await
-	}
-	(delete $self->{on_get})->() if $self->{on_get};
-	$f->transform(done => sub {
+    }
+    (delete $self->{on_get})->() if $self->{on_get};
+    $f->transform(done => sub {
         @rslt
     })->get
 }
 
 for my $k (qw(then cancel fail on_ready transform is_ready is_done failure is_cancelled else)) {
-	do { no strict 'refs'; *$k = $_ } for sub { shift->completed->$k(@_) }
+    do { no strict 'refs'; *$k = $_ } for sub { shift->completed->$k(@_) }
 }
 
 =head2 await
