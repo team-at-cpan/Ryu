@@ -51,7 +51,13 @@ sub subscribe { my $self = shift; push @{$self->{subscriptions}}, @_; $self }
 
 =cut
 
-sub notify_all { my $self = shift; $_->($self->{value}) for @{$self->{subscriptions}}; $self }
+sub notify_all {
+	my $self = shift;
+	for my $sub (@{$self->{subscriptions}}) {
+		$sub->($_) for $self->{value}
+	}
+	$self
+}
 
 =head2 set
 

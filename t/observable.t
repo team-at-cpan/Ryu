@@ -16,6 +16,7 @@ subtest 'subscription' => sub {
 	my $expected = 124;
 	my $called;
 	$v->subscribe(sub {
+		is($_, $_[0], 'value was passed in $_ and @_');
 		is(shift, $expected, 'have expected value');
 		++$called;
 	});
