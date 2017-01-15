@@ -320,7 +320,8 @@ sub by_line : method {
 
 sub combine_latest : method {
 	use Scalar::Util qw(blessed);
-	use namespace::clean qw(blessed);
+	use Variable::Disposition qw(retain_future);
+	use namespace::clean qw(blessed retain_future);
 	my ($self, @sources) = @_;
 	push @sources, sub { @_ } if blessed $sources[-1];
 	my $code = pop @sources;
@@ -338,9 +339,11 @@ sub combine_latest : method {
 			$combined->emit([ $code->(@value) ]) if @sources == keys %seen;
 		});
 	}
-	Future->needs_any(
-		map $_->completed, @sources
-	)->on_ready($combined->completed);
+    retain_future(
+        Future->needs_any(
+            map $_->completed, @sources
+        )->on_ready($combined->completed)
+    );
 	$combined
 }
 
@@ -378,6 +381,8 @@ sub with_latest_from : method {
 =cut
 
 sub merge : method {
+	use Variable::Disposition qw(retain_future);
+	use namespace::clean qw(retain_future);
 	my ($self, @sources) = @_;
 
 	my $combined = $self->chained(label => (caller 0)[3]);
@@ -388,9 +393,11 @@ sub merge : method {
 			$combined->emit($_)
 		});
 	}
-	Future->needs_all(
-		map $_->completed, @sources
-	)->on_ready($combined->completed);
+    retain_future(
+        Future->needs_all(
+            map $_->completed, @sources
+        )->on_ready($combined->completed)
+    );
 	$combined
 }
 
