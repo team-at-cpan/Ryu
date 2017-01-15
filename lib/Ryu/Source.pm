@@ -414,9 +414,12 @@ sub apply : method {
     retain_future(
         Future->needs_all(
             map $_->completed, @pending
-        )->on_ready($combined->completed)
+        )->on_ready($src->completed)
     );
-    $combined
+    # Pass through the original events
+    $self->each_while_source(sub {
+        $src->emit($_)
+    }, $src)
 }
 
 =head2 distinct
