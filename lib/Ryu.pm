@@ -1,7 +1,9 @@
-package Ryu 0.002;
+package Ryu;
 # ABSTRACT: stream and data flow handling for async code
 use strict;
 use warnings;
+
+our $VERSION = '0.003';
 
 =encoding utf8
 

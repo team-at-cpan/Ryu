@@ -4,6 +4,10 @@ Revision history for {{$dist->name}}
     New features:
     * Ryu::Observable->subscribe callbacks now receive value in $_ as well as @_
 
+    Dependency fixes:
+    * Missing deps - Variable::Disposition, etc. - added
+    * Moved some unessential modules to recommends/suggests
+
 0.002     2017-01-11 01:01:04+08:00 Asia/Kuala_Lumpur
     No new features.
 
