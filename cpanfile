@@ -1,18 +1,24 @@
 requires 'parent', 0;
 requires 'curry', 0;
-requires 'Future', '>= 0.30';
+requires "Future", ">= 0.34";
 requires 'Mixin::Event::Dispatch', '>= 2.000';
+requires "Scalar::Util", ">= 1.47";
 requires 'Ref::Util', '>= 0.111';
-requires 'Log::Any', '>= 1.032';
+requires "List::UtilsBy", ">= 0.10";
+requires "Log::Any", ">= 1.045";
+requires "Log::Any::Adapter", ">= 1.045";
 requires 'Syntax::Keyword::Try', '>= 0.04';
 requires 'namespace::clean', '>= 0.27';
+requires "Variable::Disposition", ">= 0.004";
 
-recommends 'Check::UnitCheck', '>= 0.13';
+# Used for transcoding - not essential, but commonly used
+recommends 'Encode', '>= 1.98';
+recommends 'MIME::Base64', 0;
+recommends 'JSON::MaybeXS', 0;
 
-requires 'Encode', '>= 1.98';
-requires 'MIME::Base64', 0;
-requires 'JSON::MaybeXS', 0;
-requires 'JSON::SL', '>= 1.0.6';
+# Not so common
+suggests 'JSON::SL', '>= 1.0.6';
+suggests 'XML::LibXML::SAX::ChunkParser', '>= 0.00008';
 
 on 'test' => sub {
 	requires 'Test::More', '>= 0.98';
