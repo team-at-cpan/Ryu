@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.004     2017-01-16 02:34:22+08:00 Asia/Kuala_Lumpur
     API changes:
     * ->await now returns the source, not the completion Future.
 
