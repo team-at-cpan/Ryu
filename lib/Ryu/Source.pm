@@ -265,7 +265,7 @@ sub map : method {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
-    $self->each_while_source(sub { $src->emit($code->($_)) }, $src);
+    $self->each_while_source(sub { $src->emit($_->$code) }, $src);
 }
 
 sub split : method {
