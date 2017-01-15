@@ -145,7 +145,7 @@ Creates an empty source, which finishes immediately.
 sub empty {
     my ($self, $code) = @_;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $src->finish;
 }
 
@@ -158,7 +158,7 @@ An empty source that never finishes.
 sub never {
     my ($self, $code) = @_;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
 }
 
 =head2 throw
@@ -260,7 +260,7 @@ A bit like L<perlfunc/map>.
 sub map : method {
     my ($self, $code) = @_;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
@@ -272,7 +272,7 @@ sub split : method {
     my ($self, $delim) = @_;
     $delim //= qr//;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
@@ -285,7 +285,7 @@ sub chunksize : method {
     die 'need positive chunk size parameter' unless $size && $size > 0;
 
     my $buffer = '';
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
@@ -300,7 +300,7 @@ sub by_line : method {
     my ($self, $delim) = @_;
     $delim //= $/;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     my $buffer = '';
     $self->completed->on_ready(sub {
         return if $src->is_ready;
@@ -326,7 +326,7 @@ sub combine_latest : method {
     push @sources, sub { @_ } if blessed $sources[-1];
     my $code = pop @sources;
 
-    my $combined = $self->chained(label => (caller 0)[3]);
+    my $combined = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     unshift @sources, $self if ref $self;
     my @value;
     my %seen;
@@ -354,7 +354,7 @@ sub with_latest_from : method {
     push @sources, sub { @_ } if blessed $sources[-1];
     my $code = pop @sources;
 
-    my $combined = $self->chained(label => (caller 0)[3]);
+    my $combined = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     my @value;
     my %seen;
     for my $idx (0..$#sources) {
@@ -385,7 +385,7 @@ sub merge : method {
     use namespace::clean qw(retain_future);
     my ($self, @sources) = @_;
 
-    my $combined = $self->chained(label => (caller 0)[3]);
+    my $combined = $self->chained(label => (caller 0)[3]) =~ /::([^:]+)/;
     unshift @sources, $self if ref $self;
     for my $src (@sources) {
         $src->each(sub {
@@ -406,7 +406,7 @@ sub apply : method {
     use namespace::clean qw(retain_future);
     my ($self, @code) = @_;
 
-    my $combined = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     my @pending;
     for my $code (@code) {
         push @pending, map $code->($_), $self;
@@ -426,7 +426,7 @@ sub apply : method {
 sub distinct {
     my $self = shift;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->completed->on_ready($src->completed);
     $self->completed->on_ready(sub {
         return if $src->is_ready;
@@ -458,7 +458,7 @@ sub skip {
     my ($self, $count) = @_;
     $count //= 0;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
@@ -477,7 +477,7 @@ sub skip_last {
     my ($self, $count) = @_;
     $count //= 0;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
@@ -499,7 +499,7 @@ sub take {
     $count //= 0;
     return $self->empty unless $count > 0;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
@@ -534,7 +534,7 @@ sub each_while_source {
 sub some {
     my ($self, $code) = @_;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->completed->on_ready(sub {
         my $sf = $src->completed;
         return if $sf->is_ready;
@@ -559,7 +559,7 @@ sub some {
 sub every {
     my ($self, $code) = @_;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->completed->on_done(sub {
         return if $src->completed->is_ready;
         $src->emit(1);
@@ -583,11 +583,13 @@ sub count {
 
     my $count = 0;
 
-    my $src = $self->chained(label => (caller 0)[3]);
-    $self->each(sub { ++$count });
-    $self->completed->on_done(sub { $src->emit($count) })
-        ->on_ready($src->completed);
-    $src
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
+    $self->completed->on_done(sub {
+        $src->emit($count)
+    })->on_ready(
+        $src->completed
+    );
+    $self->each_while_source(sub { ++$count }, $src);
 }
 
 =head2 sum
@@ -599,11 +601,15 @@ sub sum {
 
     my $sum = 0;
 
-    my $src = $self->chained(label => (caller 0)[3]);
-    $self->each(sub { $sum += $_ });
-    $self->completed->on_done(sub { $src->emit($sum) })
-        ->on_ready($src->completed);
-    $src
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
+    $self->completed->on_done(sub {
+        $src->emit($sum)
+    })->on_ready(
+        $src->completed
+    );
+    $self->each_while_source(sub {
+        $sum += $_
+    }, $src);
 }
 
 =head2 mean
@@ -616,7 +622,7 @@ sub mean {
     my $sum = 0;
     my $count = 0;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->each(sub { ++$count; $sum += $_ });
     $self->completed->on_done(sub { $src->emit($sum / ($count || 1)) })
         ->on_ready($src->completed);
@@ -630,7 +636,7 @@ sub mean {
 sub max {
     my ($self) = @_;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     my $max;
     $self->each(sub {
         return if defined $max and $max > $_;
@@ -648,7 +654,7 @@ sub max {
 sub min {
     my ($self) = @_;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     my $min;
     $self->each(sub {
         return if defined $min and $min < $_;
@@ -673,7 +679,7 @@ sub statistics {
     my $min;
     my $max;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->each(sub {
         $min //= $_;
         $max //= $_;
@@ -704,7 +710,7 @@ sub filter {
     use namespace::clean qw(blessed);
     my $self = shift;
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
     $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
@@ -822,7 +828,7 @@ sub flat_map {
         $code = sub { $_->$method(@args) }
     }
 
-    my $src = $self->chained(label => (caller 0)[3]);
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)/);
 
     weaken(my $weak_sauce = $src);
     my $add = sub  {
