@@ -11,7 +11,7 @@ Ryu::Observable - plus ça change
 
 =head1 DESCRIPTION
 
-This module is of little use to you in its current state.
+This module is still of no great use to you in its current state.
 
 =cut
 
@@ -64,6 +64,40 @@ sub notify_all {
 =cut
 
 sub set { my ($self, $v) = @_; $self->{value} = $v; $self->notify_all }
+
+=head2 set_numeric
+
+Applies a new numeric value, and notifies subscribers if the value is numerically
+different to the previous one (or if we had no previous value).
+
+Returns C<$self>.
+
+=cut
+
+sub set_numeric {
+	my ($self, $v) = @_;
+	my $prev = $self->{value};
+	return $self if defined($prev) && $prev == $v;
+	$self->{value} = $v;
+	$self->notify_all
+}
+
+=head2 set_string
+
+Applies a new string value, and notifies subscribers if the value stringifies to a
+different value than the previous one (or if we had no previous value).
+
+Returns C<$self>.
+
+=cut
+
+sub set_string {
+	my ($self, $v) = @_;
+	my $prev = $self->{value};
+	return $self if defined($prev) && $prev eq $v;
+	$self->{value} = $v;
+	$self->notify_all
+}
 
 1;
 

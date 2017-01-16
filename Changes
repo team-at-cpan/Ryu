@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+    * ->set_numeric and ->set_string for Ryu::Observable
+
     Cosmetic changes:
     * Automatic labels for operators now omit the Ryu::Source:: prefix
 
