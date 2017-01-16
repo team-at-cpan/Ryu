@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Cosmetic changes:
+    * Automatic labels for operators now omit the Ryu::Source:: prefix
 
 0.004     2017-01-16 02:34:22+08:00 Asia/Kuala_Lumpur
     API changes:
