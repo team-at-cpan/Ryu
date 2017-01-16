@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.005     2017-01-16 20:26:27+08:00 Asia/Kuala_Lumpur
     New features:
     * ->set_numeric and ->set_string for Ryu::Observable
 
