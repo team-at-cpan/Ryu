@@ -27,7 +27,7 @@ subtest 'Future handling' => sub {
 	]);
 	my $f = Future->new;
 	is(exception {
-		$ex->fail($f);
+		is($ex->fail($f), $f, '->fail returns the Future it was passed');
 	}, undef, 'can ->fail without errors');
 	ok($f->is_ready, '$f is ready');
 	ok(!$f->is_done, '... and not done');
