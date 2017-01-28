@@ -78,7 +78,8 @@ sub fail {
 	use namespace::clean qw(blessed);
 	my ($self, $f) = @_;
 	die "expects a Future" unless blessed($f) && $f->isa('Future');
-	return $self->future->on_ready($f);
+	$self->as_future->on_ready($f);
+    $f;
 }
 
 =head2 as_future
