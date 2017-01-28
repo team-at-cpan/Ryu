@@ -23,7 +23,13 @@ use overload
 	'bool' => sub { shift->as_number },
 	fallback => 1;
 
+=head1 METHODS
+
+Public API, such as it is.
+
 =head2 as_string
+
+Returns the string representation of this value.
 	
 =cut
 
@@ -31,11 +37,17 @@ sub as_string { '' . shift->{value} }
 
 =head2 as_number
 
+Returns the numeric representation of this value.
+
 =cut
 
 sub as_number { 0 + shift->{value} }
 
 =head2 new
+
+Instantiates with the given value.
+
+ my $observed = Ryu::Observable->new('whatever');
 
 =cut
 
@@ -43,27 +55,54 @@ sub new { bless { value => $_[1] }, $_[0] }
 
 =head2 subscribe
 
+Requests notifications when the value changes.
+
+ my $observed = Ryu::Observable->new('whatever')
+   ->subscribe(sub { print "New value - $_\n" });
+
 =cut
 
 sub subscribe { my $self = shift; push @{$self->{subscriptions}}, @_; $self }
 
-=head2 notify_all
+=head2 unsubscribe
+
+Removes an existing callback.
+
+ my $code;
+ my $observed = Ryu::Observable->new('whatever')
+   ->subscribe($code = sub { print "New value - $_\n" })
+   ->set_string('test')
+   ->unsubscribe($code);
 
 =cut
 
-sub notify_all {
-	my $self = shift;
-	for my $sub (@{$self->{subscriptions}}) {
-		$sub->($_) for $self->{value}
+sub unsubscribe {
+    use Scalar::Util qw(refaddr);
+    use List::UtilsBy qw(extract_by);
+    use namespace::clean qw(refaddr extract_by);
+	my ($self, @code) = @_;
+	for my $addr (map refaddr($_), @code) {
+		extract_by { refaddr($_) == $addr } @{$self->{subscriptions}};
 	}
 	$self
 }
 
 =head2 set
 
+Sets the value to the given scalar, then notifies all subscribers (regardless
+of whether the value has changed or not).
+
 =cut
 
 sub set { my ($self, $v) = @_; $self->{value} = $v; $self->notify_all }
+
+=head2 value
+
+Returns the raw value.
+
+=cut
+
+sub value { shift->{value} }
 
 =head2 set_numeric
 
@@ -97,6 +136,56 @@ sub set_string {
 	return $self if defined($prev) && $prev eq $v;
 	$self->{value} = $v;
 	$self->notify_all
+}
+
+=head2 source
+
+Returns a L<Ryu::Source>, which will emit each new value
+until the observable is destroyed.
+
+=cut
+
+sub source {
+    use Scalar::Util qw(weaken);
+    use namespace::clean qw(weaken);
+	my ($self) = @_;
+	my $src = Ryu::Source->new;
+	weaken(my $copy = $self);
+	$self->subscribe(my $code = sub {
+		return unless $copy;
+		$src->emit($copy->value)
+	});
+	$src->completion->on_ready(sub {
+		$copy->unsubscribe($code) if $copy;
+		undef $code;
+	});
+	$src
+}
+
+=head1 METHODS - Internal
+
+Don't use these.
+
+=head2 notify_all
+
+Notifies all currently-subscribed callbacks with the current value.
+
+=cut
+
+sub notify_all {
+	my $self = shift;
+	for my $sub (@{$self->{subscriptions}}) {
+		$sub->($_) for $self->{value}
+	}
+	$self
+}
+
+sub DESTROY {
+	my ($self) = @_;
+	return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
+	$_->finish for splice @{$self->{sources} || []};
+	delete $self->{value};
+	return;
 }
 
 1;
