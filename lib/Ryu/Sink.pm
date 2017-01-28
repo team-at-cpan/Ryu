@@ -7,7 +7,7 @@ use parent qw(Ryu::Node);
 
 =head1 NAME
 
-Ryu::Sink - base representation for a source of events
+Ryu::Sink - base representation for a thing that receives events
 
 =head1 DESCRIPTION
 
@@ -43,7 +43,7 @@ sub from {
 	if($src->isa('Ryu::Source')) {
 		$src->add_sink($self);
 	} else {
-		die 'wtf not a source cannot proceed'
+		die 'expected a subclass of Ryu::Source, received ' . $src . ' instead';
 	}
 	return $self
 }
