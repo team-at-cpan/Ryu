@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.006     2017-01-29 01:06:51+08:00 Asia/Kuala_Lumpur
     API changes:
     * Ryu::Exception->future renamed to ->as_future, old method is
     still available but will be dropped by 1.0.
