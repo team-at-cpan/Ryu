@@ -11,7 +11,7 @@ Ryu::Exception - support for L<Future>-style failure information
 
  use Ryu::Exception;
  my $exception = Ryu::Exception->new(
-  type => 'http',
+  type    => 'http',
   message => '404 response'
   details => [ $response, $request ]
  );
@@ -81,17 +81,21 @@ sub fail {
 	return $self->future->on_ready($f);
 }
 
-=head2 future
+=head2 as_future
 
 Returns a failed L<Future> containing the message, type and details from
 this exception.
 
 =cut
 
-sub future {
+sub as_future {
 	my ($self) = @_;
 	return Future->fail($self->message, $self->type, $self->details);
 }
+
+# Legacy support - will be dropped in 1.0,
+# probably should warn before then anyway.
+*future = *as_future;
 
 =head2 from_future
 
@@ -108,7 +112,7 @@ sub from_future {
 	my ($msg, $type, @details) = $f->failure or die "Future is not failed?";
 	$class->new(
 		message => $msg,
-		type => $type,
+		type    => $type,
 		details => \@details
 	)
 }
