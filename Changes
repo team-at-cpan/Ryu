@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.007     2017-02-12 18:51:17+08:00 Asia/Kuala_Lumpur
     Bug fixes:
     * Discard values when finishing ->combine_latest and ->with_latest_from
     * Better protection against finish-after-failure errors
