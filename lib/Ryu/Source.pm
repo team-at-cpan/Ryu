@@ -64,33 +64,6 @@ sub new {
     $self->SUPER::new(%args);
 }
 
-=head2 chained
-
-Returns a new L<Ryu::Source> chained from this one.
-
-=cut
-
-sub chained {
-    use Scalar::Util qw(weaken);
-    use namespace::clean qw(weaken);
-
-    my ($self) = shift;
-    if(my $class = ref($self)) {
-        my $src = $class->new(
-            new_future => $self->{new_future},
-            parent     => $self,
-            @_
-        );
-        weaken($src->{parent});
-        push @{$self->{children}}, $src;
-        $log->tracef("Constructing chained source for %s from %s (%s)", $src->label, $self->label, $future_state->($self->completed));
-        return $src;
-    } else {
-        my $src = $self->new(@_);
-        $log->tracef("Constructing chained source for %s with no parent", $src->label, $self->label);
-    }
-}
-
 =head2 describe
 
 Returns a string describing this source and any parents - typically this will result in a chain
@@ -565,19 +538,6 @@ sub take {
     }, $src);
 }
 
-sub each_while_source {
-    use Scalar::Util qw(refaddr);
-    use List::UtilsBy qw(extract_by);
-    use namespace::clean qw(refaddr extract_by);
-    my ($self, $code, $src) = @_;
-    $self->each($code);
-    $src->completed->on_ready(sub {
-        my $count = extract_by { refaddr($_) == refaddr($code) } @{$self->{on_item}};
-        $log->tracef("->e_w_s completed on %s for refaddr 0x%x", $self->describe, refaddr($self));
-    });
-    $src
-}
-
 =head2 some
 
 =cut
@@ -1042,9 +1002,57 @@ sub await {
     $self
 }
 
+=head2 finish
+
+Mark this source as completed.
+
+=cut
+
 sub finish { shift->completed->done }
 
 sub refresh { }
+
+=head1 METHODS - Internal
+
+=head2 chained
+
+Returns a new L<Ryu::Source> chained from this one.
+
+=cut
+
+sub chained {
+    use Scalar::Util qw(weaken);
+    use namespace::clean qw(weaken);
+
+    my ($self) = shift;
+    if(my $class = ref($self)) {
+        my $src = $class->new(
+            new_future => $self->{new_future},
+            parent     => $self,
+            @_
+        );
+        weaken($src->{parent});
+        push @{$self->{children}}, $src;
+        $log->tracef("Constructing chained source for %s from %s (%s)", $src->label, $self->label, $future_state->($self->completed));
+        return $src;
+    } else {
+        my $src = $self->new(@_);
+        $log->tracef("Constructing chained source for %s with no parent", $src->label, $self->label);
+    }
+}
+
+sub each_while_source {
+    use Scalar::Util qw(refaddr);
+    use List::UtilsBy qw(extract_by);
+    use namespace::clean qw(refaddr extract_by);
+    my ($self, $code, $src) = @_;
+    $self->each($code);
+    $src->completed->on_ready(sub {
+        my $count = extract_by { refaddr($_) == refaddr($code) } @{$self->{on_item}};
+        $log->tracef("->e_w_s completed on %s for refaddr 0x%x", $self->describe, refaddr($self));
+    });
+    $src
+}
 
 sub DESTROY {
     my ($self) = @_;
