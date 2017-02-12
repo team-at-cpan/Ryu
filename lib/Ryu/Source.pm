@@ -359,10 +359,18 @@ sub combine_latest : method {
     retain_future(
         Future->needs_any(
             map $_->completed, @sources
-        )->on_ready($combined->completed)
+        )->on_ready(sub {
+            @value = ();
+            return if $combined->completed->is_ready;
+            shift->on_ready($combined->completed)
+        })
     );
     $combined
 }
+
+=head2 with_latest_from
+
+=cut
 
 sub with_latest_from : method {
     use Scalar::Util qw(blessed);
@@ -387,6 +395,7 @@ sub with_latest_from : method {
     });
     $self->completed->on_ready($combined->completed);
     $self->completed->on_ready(sub {
+        @value = ();
         return if $combined->is_ready;
         shift->on_ready($combined->completed);
     });
