@@ -225,6 +225,8 @@ sub is_paused { $_[0]->{is_paused} }
 
 Not yet implemented.
 
+Requires timing support, see implementations such as L<Ryu::Async> instead.
+
 =cut
 
 sub debounce {
@@ -268,6 +270,12 @@ sub map : method {
     $self->each_while_source(sub { $src->emit($_->$code) }, $src);
 }
 
+=head2 split
+
+Splits the input into chunks. By default, will split into characters.
+
+=cut
+
 sub split : method {
     my ($self, $delim) = @_;
     $delim //= qr//;
@@ -279,6 +287,15 @@ sub split : method {
     });
     $self->each_while_source(sub { $src->emit($_) for split $delim, $_ }, $src);
 }
+
+=head2 chunksize
+
+Splits input into fixed-size chunks.
+
+Note that output is always guaranteed to be a full chunk - if there is partial input
+at the time the input stream finishes, those extra bytes will be discarded.
+
+=cut
 
 sub chunksize : method {
     my ($self, $size) = @_;
@@ -401,6 +418,15 @@ sub merge : method {
     $combined
 }
 
+=head2 apply
+
+Used for setting up multiple streams.
+
+Accepts a variable number of coderefs, will call each one and gather L<Ryu::Source>
+results.
+
+=cut
+
 sub apply : method {
     use Variable::Disposition qw(retain_future);
     use namespace::clean qw(retain_future);
@@ -423,6 +449,10 @@ sub apply : method {
 }
 
 =head2 distinct
+
+Emits new distinct items.
+
+Given 1,2,3,2,3,2,4,1,5, you'd get the sequence 1,2,3,4,5.
 
 =cut
 
@@ -455,6 +485,8 @@ sub distinct {
 
 =head2 skip
 
+Skips the first N items.
+
 =cut
 
 sub skip {
@@ -473,6 +505,8 @@ sub skip {
 }
 
 =head2 skip_last
+
+Skips the last N items.
 
 =cut
 
@@ -494,6 +528,11 @@ sub skip_last {
 }
 
 =head2 take
+
+Takes a limited number of items.
+
+Given a sequence of C< 1,2,3,4,5 > and C<< ->take(3) >>, you'd get 1,2,3 and then the stream
+would finish.
 
 =cut
 
