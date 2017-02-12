@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Bug fixes:
+    * Discard values when finishing ->combine_latest and ->with_latest_from
+    * Better protection against finish-after-failure errors
 
 0.006     2017-01-29 01:06:51+08:00 Asia/Kuala_Lumpur
     API changes:
