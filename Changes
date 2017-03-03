@@ -1,6 +1,12 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Bug fixes:
+    * ->distinct now works more like it's described
+
+    New features:
+    * ->ordered_futures method
+    * ->distinct_until_changed
 
 0.007     2017-02-12 18:51:17+08:00 Asia/Kuala_Lumpur
     Bug fixes:

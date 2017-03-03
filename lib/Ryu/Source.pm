@@ -430,11 +430,34 @@ sub apply : method {
     }, $src)
 }
 
+=head2 ordered_futures
+
+Given a stream of L<Future>s, will emit the results as each L<Future>
+is marked ready. If any fail, the stream will fail.
+
+This is a terrible name for a method, expect it to change.
+
+=cut
+
+sub ordered_futures {
+    use Variable::Disposition qw(retain_future);
+    use namespace::clean qw(retain_future);
+    my ($self) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->each_while_source(sub {
+        retain_future(
+            $_->on_done($src->curry::weak::emit)
+              ->on_fail($src->curry::weak::fail)
+        )
+    }, $src);
+}
+
 =head2 distinct
 
-Emits new distinct items.
+Emits new distinct items, using string equality with an exception for
+C<undef> (i.e. C<undef> is treated differently from empty string or 0).
 
-Given 1,2,3,2,3,2,4,1,5, you'd get the sequence 1,2,3,4,5.
+Given 1,2,3,undef,2,3,undef,'2',2,4,1,5, you'd expect to get the sequence 1,2,3,undef,4,5.
 
 =cut
 
@@ -442,14 +465,30 @@ sub distinct {
     my $self = shift;
 
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
-    $self->completed->on_ready($src->completed);
-    $self->completed->on_ready(sub {
-        return if $src->is_ready;
-        shift->on_ready($src->completed);
-    });
+    my %seen;
+    my $undef;
+    $self->each_while_source(sub {
+        if(defined) {
+            $src->emit($_) unless $seen{$_}++;
+        } else {
+            $src->emit($_) unless $undef++;
+        }
+    }, $src);
+}
+
+=head2 distinct_until_changed
+
+Removes contiguous duplicates, defined by string equality.
+
+=cut
+
+sub distinct_until_changed {
+    my $self = shift;
+
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my $active;
     my $prev;
-    $self->each(sub {
+    $self->each_while_source(sub {
         if($active) {
             if(defined($prev) ^ defined($_)) {
                 $src->emit($_)
@@ -461,7 +500,7 @@ sub distinct {
             $src->emit($_);
         }
         $prev = $_;
-    });
+    }, $src);
     $src
 }
 
