@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.008     2017-03-03 23:03:06+08:00 Asia/Kuala_Lumpur
     Bug fixes:
     * ->distinct now works more like it's described
 
