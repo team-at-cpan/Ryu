@@ -50,6 +50,54 @@ my $future_state = sub {
     : 'pending'
 };
 
+our %ENCODER = (
+    utf8 => sub {
+        use Encode qw(encode_utf8);
+        use namespace::clean qw(encode_utf8);
+        sub {
+            encode_utf8($_)
+        }
+    },
+    json => sub {
+        require JSON::MaybeXS;
+        my $json = JSON::MaybeXS->new(@_);
+        sub {
+            $json->encode($_)
+        }
+    },
+    base64 => sub {
+        require MIME::Base64;
+        sub {
+            MIME::Base64::encode_base64($_, '');
+        }
+    },
+);
+
+our %DECODER = (
+    utf8 => sub {
+        use Encode qw(decode_utf8 FB_QUIET);
+        use namespace::clean qw(decode_utf8 FB_QUIET);
+        my $data = '';
+        sub {
+            $data .= $_;
+            decode_utf8($data, FB_QUIET)
+        }
+    },
+    json => sub {
+        require JSON::MaybeXS;
+        my $json = JSON::MaybeXS->new(@_);
+        sub {
+            $json->decode($_)
+        }
+    },
+    base64 => sub {
+        require MIME::Base64;
+        sub {
+            MIME::Base64::decode_base64($_, '');
+        }
+    },
+);
+
 =head1 METHODS
 
 =head2 new
@@ -100,13 +148,65 @@ sub from {
                 $src->{on_get} = $code;
                 return $src;
             } else {
-                die "whatever"
+                die "have a GLOB with no IO entry, this is not supported"
             }
         }
         die "unsupported ref type $ref";
     } else {
         die "unknown item in ->from";
     }
+}
+
+=head2 encode
+
+=cut
+
+=head2 encode
+
+Passes each item through an encoder.
+
+The first parameter is the encoder to use, the remainder are
+used as options for the selected encoder.
+
+Examples:
+
+ $src->encode('json')
+ $src->encode('utf8')
+ $src->encode('base64')
+
+=cut
+
+sub encode {
+    my ($self, $type) = splice @_, 0, 2;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    my $code = ($ENCODER{$type} || $self->can('encode_' . $type) or die "unsupported encoding $type")->(@_);
+    $self->each_while_source(sub {
+        $src->emit($code->($_))
+    }, $src);
+}
+
+=head2 decode
+
+Passes each item through a decoder.
+
+The first parameter is the decoder to use, the remainder are
+used as options for the selected decoder.
+
+Examples:
+
+ $src->decode('json')
+ $src->decode('utf8')
+ $src->decode('base64')
+
+=cut
+
+sub decode {
+    my ($self, $type) = splice @_, 0, 2;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    my $code = ($DECODER{$type} || $self->can('decode_' . $type) or die "unsupported encoding $type")->(@_);
+    $self->each_while_source(sub {
+        $src->emit($code->($_))
+    }, $src);
 }
 
 =head2 empty
