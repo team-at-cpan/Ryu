@@ -72,6 +72,7 @@ our %ENCODER = (
         }
     },
 );
+$ENCODER{'UTF-8'} = $ENCODER{utf8};
 
 our %DECODER = (
     utf8 => sub {
@@ -97,6 +98,7 @@ our %DECODER = (
         }
     },
 );
+$DECODER{'UTF-8'} = $DECODER{utf8};
 
 =head1 METHODS
 

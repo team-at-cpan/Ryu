@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+    * 'UTF-8' is now supported as an alias for utf8 in ->encode
+    and ->decode.
 
 0.010     2017-03-04 14:20:06+08:00 Asia/Kuala_Lumpur
     New features:
