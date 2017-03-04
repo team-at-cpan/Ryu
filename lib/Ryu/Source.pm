@@ -159,10 +159,6 @@ sub from {
 
 =head2 encode
 
-=cut
-
-=head2 encode
-
 Passes each item through an encoder.
 
 The first parameter is the encoder to use, the remainder are
@@ -207,6 +203,31 @@ sub decode {
     $self->each_while_source(sub {
         $src->emit($code->($_))
     }, $src);
+}
+
+=head2 say
+
+Shortcut for C< ->each(sub { print "\n" }) >.
+
+=cut
+
+sub say {
+    my ($self) = @_;
+    $self->each(sub { print "$_\n" });
+}
+
+=head2 print
+
+Shortcut for C< ->each(sub { print }) >, except this will
+also save the initial state of C< $\ > and use that for each
+call for consistency.
+
+=cut
+
+sub print {
+    my ($self) = @_;
+    my $delim = $\;
+    $self->each(sub { local $\ = $delim; print });
 }
 
 =head2 empty
