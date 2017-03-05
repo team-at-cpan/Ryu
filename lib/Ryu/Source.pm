@@ -429,6 +429,75 @@ sub by_line : method {
     }, $src);
 }
 
+sub prefix {
+    my ($self, $txt) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->completed->on_ready(sub {
+        shift->on_ready($src->completed) unless $src->completed->is_ready
+    });
+    $self->each_while_source(sub {
+        $src->emit($txt . $_)
+    }, $src);
+}
+
+sub suffix {
+    my ($self, $txt) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->completed->on_ready(sub {
+        shift->on_ready($src->completed) unless $src->completed->is_ready
+    });
+    $self->each_while_source(sub {
+        $src->emit($_ . $txt)
+    }, $src);
+}
+
+=head2 as_list
+
+Resolves to a list consisting of all items emitted by this source.
+
+=cut
+
+sub as_list {
+    my ($self) = @_;
+    my @data;
+    $self->each(sub {
+        push @data, $_
+    });
+    $self->completed->transform(done => sub { @data })
+}
+
+=head2 as_arrayref
+
+Resolves to a single arrayref consisting of all items emitted by this source.
+
+=cut
+
+sub as_arrayref {
+    my ($self) = @_;
+    my @data;
+    $self->each(sub {
+        push @data, $_
+    });
+    $self->completed->transform(done => sub { \@data })
+}
+
+=head2 as_string
+
+Concatenates all items into a single string.
+
+Returns a L<Future> which will resolve on completion.
+
+=cut
+
+sub as_string {
+    my ($self) = @_;
+    my $data = '';
+    $self->each(sub {
+        $data .= $_;
+    });
+    $self->completed->transform(done => sub { $data })
+}
+
 =head2 combine_latest
 
 =cut
