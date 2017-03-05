@@ -9,6 +9,13 @@ use parent qw(Ryu::Node);
 
 Ryu::Source - base representation for a source of events
 
+=head1 SYNOPSIS
+
+ my $src = Ryu::Source->new;
+ my $chained = $src->map(sub { $_ * $_ })->prefix('value: ')->say;
+ $src->emit($_) for 1..5;
+ $src->finish;
+
 =head1 DESCRIPTION
 
 This is probably the module you'd want to start with, if you were going to be
@@ -20,10 +27,14 @@ point.
 no indirect;
 
 use Future;
-use Syntax::Keyword::Try;
 use curry::weak;
 
 use Log::Any qw($log);
+
+# Implementation note: it's likely that many new methods will be added to this
+# class over time. Most methods have an attempt at "scope-local imports" using
+# namespace::clean functionality, this is partly to make it easier to copy/paste
+# the code elsewhere for testing, and partly to avoid namespace pollution.
 
 =head1 GLOBALS
 
@@ -1275,6 +1286,13 @@ sub chained {
     }
 }
 
+=head2 each_while_source
+
+Like L</each>, but removes the source from the callback list once the
+parent completes.
+
+=cut
+
 sub each_while_source {
     use Scalar::Util qw(refaddr);
     use List::UtilsBy qw(extract_by);
@@ -1292,7 +1310,6 @@ sub DESTROY {
     my ($self) = @_;
     return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
     $log->tracef("Destruction for %s", $self->describe);
-    # warn "destroy for " . $self->label;
     $self->completed->cancel unless $self->completed->is_ready;
 }
 
