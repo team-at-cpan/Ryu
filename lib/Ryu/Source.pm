@@ -516,12 +516,11 @@ sub combine_latest : method {
     my %seen;
     for my $idx (0..$#sources) {
         my $src = $sources[$idx];
-        $src->each(sub {
-            return if $combined->completed->is_ready;
+        $src->each_while_source(sub {
             $value[$idx] = $_;
             $seen{$idx} ||= 1;
             $combined->emit([ $code->(@value) ]) if @sources == keys %seen;
-        });
+        }, $combined);
     }
     retain_future(
         Future->needs_any(
