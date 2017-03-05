@@ -27,6 +27,7 @@ my %WriteMakefileArgs = (
     "Syntax::Keyword::Try" => "0.04",
     "Variable::Disposition" => "0.004",
     "curry" => 0,
+    "indirect" => 0,
     "namespace::clean" => "0.27",
     "parent" => 0
   },
@@ -44,7 +45,7 @@ my %WriteMakefileArgs = (
     "Test::Refcount" => "0.07",
     "Test::Warnings" => "0.024"
   },
-  "VERSION" => "0.010",
+  "VERSION" => "0.011",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -74,6 +75,7 @@ my %FallbackPrereqs = (
   "Test::Warnings" => "0.024",
   "Variable::Disposition" => "0.004",
   "curry" => 0,
+  "indirect" => 0,
   "namespace::clean" => "0.27",
   "parent" => 0
 );

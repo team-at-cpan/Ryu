@@ -1021,6 +1021,8 @@ sub filter {
 =cut
 
 sub emit {
+    use Syntax::Keyword::Try;
+    use namespace::clean qw(try catch finally);
     my $self = shift;
     my $completion = $self->completed;
     for (@_) {
@@ -1293,6 +1295,27 @@ sub DESTROY {
     $log->tracef("Destruction for %s", $self->describe);
     # warn "destroy for " . $self->label;
     $self->completed->cancel unless $self->completed->is_ready;
+}
+
+sub catch {
+    use Scalar::Util qw(blessed);
+    use namespace::clean qw(blessed);
+    my ($self, $code) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->completed->on_fail(sub {
+        my @failure = @_;
+        my $sub = $code->(@failure);
+        if(blessed $sub && $sub->isa('Ryu::Source')) {
+            $sub->each_while_source(sub {
+                $src->emit($_)
+            }, $src);
+        } else {
+            $sub->fail(@failure);
+        }
+    });
+    $self->each_while_source(sub {
+        $src->emit($_)
+    }, $src);
 }
 
 1;
