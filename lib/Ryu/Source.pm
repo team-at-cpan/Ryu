@@ -17,6 +17,8 @@ point.
 
 =cut
 
+no indirect;
+
 use Future;
 use Syntax::Keyword::Try;
 use curry::weak;

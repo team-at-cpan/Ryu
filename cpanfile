@@ -1,5 +1,6 @@
 requires 'parent', 0;
 requires 'curry', 0;
+requires 'indirect', 0;
 requires "Future", ">= 0.34";
 requires 'Mixin::Event::Dispatch', '>= 2.000';
 requires "Scalar::Util", ">= 1.47";
