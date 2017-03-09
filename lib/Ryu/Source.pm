@@ -545,6 +545,21 @@ sub combine_latest : method {
     $combined
 }
 
+=head2 with_index
+
+Emits arrayrefs consisting of C<< [ $item, $idx ] >>.
+
+=cut
+
+sub with_index {
+    my ($self) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    my $idx = 0;
+    $self->each_while_source(sub {
+        $src->emit([ $_, $idx++ ])
+    }, $src);
+}
+
 =head2 with_latest_from
 
 =cut
