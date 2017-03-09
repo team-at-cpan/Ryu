@@ -107,7 +107,7 @@ our %DECODER = (
     base64 => sub {
         require MIME::Base64;
         sub {
-            MIME::Base64::decode_base64($_, '');
+            MIME::Base64::decode_base64($_);
         }
     },
 );
