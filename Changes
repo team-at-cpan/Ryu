@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.011     2017-03-09 22:47:41+08:00 Asia/Kuala_Lumpur
     Bug fixes:
     * Base64 decode - too many parameters were being passed to MIME::Base64::decode_base64
 
