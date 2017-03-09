@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Bug fixes:
+    * Base64 decode - too many parameters were being passed to MIME::Base64::decode_base64
+
     New features:
     * 'UTF-8' is now supported as an alias for utf8 in ->encode
     and ->decode.
