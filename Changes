@@ -2,7 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
     New features:
-    * ->with_index
+    * ->with_index annotates items with index information
+    * ->sort_by for text sorting on a key
+    * ->nsort_by for numeric sorting
+    * ->extract_all for regex m//gc extraction
 
 0.011     2017-03-09 22:47:41+08:00 Asia/Kuala_Lumpur
     Bug fixes:

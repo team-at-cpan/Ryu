@@ -723,6 +723,83 @@ sub distinct_until_changed {
     $src
 }
 
+=head2 sort_by
+
+Emits items sorted by the given key.
+
+The algorithm is taken from L<List::UtilsBy>.
+
+=cut
+
+sub sort_by {
+    my ($self, $code) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    my @items;
+    my @keys;
+    $self->completed->on_done(sub {
+        $src->emit($_) for @items[sort { $keys[$a] cmp $keys[$b] } 0 .. $#items];
+    })->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
+    $self->each_while_source(sub {
+        push @items, $_;
+        push @keys, $_->$code;
+    }, $src);
+}
+
+=head2 nsort_by
+
+Emits items numerically sorted by the given key.
+
+See L</sort_by>.
+
+=cut
+
+sub nsort_by {
+    my ($self, $code) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    my @items;
+    my @keys;
+    $self->completed->on_done(sub {
+        $src->emit($_) for @items[sort { $keys[$a] <=> $keys[$b] } 0 .. $#items];
+    })->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
+    $self->each_while_source(sub {
+        push @items, $_;
+        push @keys, $_->$code;
+    }, $src);
+}
+
+=head2 extract_all
+
+Expects a regular expression and emits hashrefs containing
+the named capture buffers.
+
+The regular expression will be applied using the m//gc operator.
+
+Example:
+
+ $src->extract_all(qr{/(?<component>[^/]+)})
+
+=cut
+
+sub extract_all {
+    my ($self, $pattern) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
+    $self->each_while_source(sub {
+        while(/$pattern/gc) {
+            $src->emit(+{ %+ });
+        }
+    }, $src);
+}
+
 =head2 skip
 
 Skips the first N items.
