@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.012     2017-03-10 00:38:22+08:00 Asia/Kuala_Lumpur
     New features:
     * ->with_index annotates items with index information
     * ->sort_by for text sorting on a key
