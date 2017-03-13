@@ -775,6 +775,58 @@ sub nsort_by {
     }, $src);
 }
 
+=head2 rev_sort_by
+
+Emits items sorted by the given key. This is a stable sort function.
+
+The algorithm is taken from L<List::UtilsBy>.
+
+=cut
+
+sub rev_sort_by {
+    use sort qw(stable);
+    my ($self, $code) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    my @items;
+    my @keys;
+    $self->completed->on_done(sub {
+        $src->emit($_) for @items[sort { $keys[$b] cmp $keys[$a] } 0 .. $#items];
+    })->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
+    $self->each_while_source(sub {
+        push @items, $_;
+        push @keys, $_->$code;
+    }, $src);
+}
+
+=head2 rev_nsort_by
+
+Emits items numerically sorted by the given key. This is a stable sort function.
+
+See L</sort_by>.
+
+=cut
+
+sub rev_nsort_by {
+    use sort qw(stable);
+    my ($self, $code) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    my @items;
+    my @keys;
+    $self->completed->on_done(sub {
+        $src->emit($_) for @items[sort { $keys[$b] <=> $keys[$a] } 0 .. $#items];
+    })->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
+    $self->each_while_source(sub {
+        push @items, $_;
+        push @keys, $_->$code;
+    }, $src);
+}
+
 =head2 extract_all
 
 Expects a regular expression and emits hashrefs containing
