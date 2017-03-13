@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+    * ->rev_sort_by (and ->rev_nsort_by) for reverse sorting
+    * sorting functions are now guaranteed stable
 
 0.012     2017-03-10 00:38:22+08:00 Asia/Kuala_Lumpur
     New features:

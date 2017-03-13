@@ -3,7 +3,7 @@ package Ryu;
 use strict;
 use warnings;
 
-our $VERSION = '0.012';
+our $VERSION = '0.013';
 
 =encoding utf8
 
