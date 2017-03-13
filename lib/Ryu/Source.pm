@@ -837,6 +837,7 @@ The regular expression will be applied using the m//gc operator.
 Example:
 
  $src->extract_all(qr{/(?<component>[^/]+)})
+ # emits { component => '...' }, { component => '...' }
 
 =cut
 
@@ -848,9 +849,7 @@ sub extract_all {
         shift->on_ready($src->completed);
     });
     $self->each_while_source(sub {
-        while(/$pattern/gc) {
-            $src->emit(+{ %+ });
-        }
+        $src->emit(+{ %+ }) while m/$pattern/gc;
     }, $src);
 }
 
