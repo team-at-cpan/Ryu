@@ -725,13 +725,14 @@ sub distinct_until_changed {
 
 =head2 sort_by
 
-Emits items sorted by the given key.
+Emits items sorted by the given key. This is a stable sort function.
 
 The algorithm is taken from L<List::UtilsBy>.
 
 =cut
 
 sub sort_by {
+    use sort qw(stable);
     my ($self, $code) = @_;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my @items;
@@ -750,13 +751,14 @@ sub sort_by {
 
 =head2 nsort_by
 
-Emits items numerically sorted by the given key.
+Emits items numerically sorted by the given key. This is a stable sort function.
 
 See L</sort_by>.
 
 =cut
 
 sub nsort_by {
+    use sort qw(stable);
     my ($self, $code) = @_;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my @items;
