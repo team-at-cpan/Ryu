@@ -44,7 +44,7 @@ This is a coderef which should return a new L<Future>-compatible instance.
 
 Example overrides might include:
 
- $Ryu::Source::FUTURE_FACTORY = sub { Mojo::Future->new->set_label(shift) };
+ $Ryu::Source::FUTURE_FACTORY = sub { Mojo::Future->new->set_label($_[1]) };
 
 =cut
 
