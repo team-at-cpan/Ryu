@@ -462,6 +462,18 @@ sub suffix {
     }, $src);
 }
 
+sub sprintf_methods {
+    my ($self, $fmt, @methods) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->completed->on_ready(sub {
+        shift->on_ready($src->completed) unless $src->completed->is_ready
+    });
+    $self->each_while_source(sub {
+        my ($item) = @_;
+        $src->emit(sprintf $fmt, map $item->$_, @methods)
+    }, $src);
+}
+
 =head2 as_list
 
 Resolves to a list consisting of all items emitted by this source.

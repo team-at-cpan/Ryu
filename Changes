@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+    * sprintf_methods as shorthand for ->map(sprintf '...', $_->x, $_->y, ...)
 
 0.013     2017-03-14 00:10:19+08:00 Asia/Kuala_Lumpur
     New features:
