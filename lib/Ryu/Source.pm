@@ -151,7 +151,25 @@ It is expected that the interface and internals of this method will vary greatly
 sub from {
     my $class = shift;
     my $src = (ref $class) ? $class : $class->new;
-    if(my $ref = ref($_[0])) {
+    if(my $from_class = blessed($_[0])) {
+        if($from_class->isa('Future')) {
+            retain_future(
+                $_[0]->on_ready(sub {
+                    my ($f) = @_;
+                    if($f->failure) {
+                        $src->fail($f->from_future);
+                    } elsif(!$f->is_cancelled) {
+                        $src->finish;
+                    } else {
+                        $src->emit($f->get);
+                        $src->finish;
+                    }
+                })
+            )
+        } else {
+            die 'Unknown class ' . $from_class . ', cannot turn it into a source';
+        }
+    } elsif(my $ref = ref($_[0])) {
         if($ref eq 'GLOB') {
             if(my $fh = *{$_[0]}{IO}) {
                 my $code = sub {
