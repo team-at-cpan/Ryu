@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.014     2017-03-25 22:45:14+08:00 Asia/Kuala_Lumpur
     New features:
     * sprintf_methods as shorthand for ->map(sprintf '...', $_->x, $_->y, ...)
     * Ryu::Source->from(Future), ->from(ARRAY)
