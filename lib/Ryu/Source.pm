@@ -165,12 +165,19 @@ sub from {
                         $src->finish;
                     }
                 })
-            )
+            );
+            return $src;
         } else {
             die 'Unknown class ' . $from_class . ', cannot turn it into a source';
         }
     } elsif(my $ref = ref($_[0])) {
-        if($ref eq 'GLOB') {
+        if($ref eq 'ARRAY') {
+            $src->{on_get} = sub {
+                $src->emit($_) for @{$_[0]};
+                $src->finish;
+            };
+            return $src;
+        } elsif($ref eq 'GLOB') {
             if(my $fh = *{$_[0]}{IO}) {
                 my $code = sub {
                     while(read $fh, my $buf, 4096) {
