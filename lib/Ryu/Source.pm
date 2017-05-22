@@ -723,6 +723,15 @@ sub each_as_source : method {
 
 Given a condition, will select one of the alternatives based on stringified result.
 
+Example:
+
+ $src->switch_str(
+  sub { $_->name }, # our condition
+  smith => sub { $_->id }, # if this matches the condition, the code will be called with $_ set to the current item
+  jones => sub { $_->parent->id },
+  sub { undef } # and this is our default case
+ );
+
 =cut
 
 sub switch_str {
