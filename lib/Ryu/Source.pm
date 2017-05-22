@@ -686,6 +686,37 @@ sub apply : method {
     }, $src)
 }
 
+=head2 each_as_source
+
+=cut
+
+sub each_as_source : method {
+    use Variable::Disposition qw(retain_future);
+    use namespace::clean qw(retain_future);
+    my ($self, @code) = @_;
+
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    my @active;
+    $self->completed->on_ready(sub {
+        retain_future(
+            Future->needs_all(
+                grep $_, @active
+            )->on_ready(sub {
+                $src->finish
+            })
+        );
+    });
+
+    $self->each_while_source(sub {
+        my @pending;
+        for my $code (@code) {
+            push @pending, $code->($_);
+        }
+        push @active, map $_->completed, @pending;
+        $src->emit($_);
+    }, $src)
+}
+
 =head2 ordered_futures
 
 Given a stream of L<Future>s, will emit the results as each L<Future>
