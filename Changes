@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.015     2017-05-22 21:22:25+08:00 Asia/Kuala_Lumpur
     New features:
 
     * ->each_as_source - similar to ->each, but treats items as sources
