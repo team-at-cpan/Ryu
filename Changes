@@ -1,6 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    * ->each_as_source - similar to ->each, but treats items as sources
+    * ->switch_str - switch-like operator on stringified values
 
 0.014     2017-03-25 22:45:14+08:00 Asia/Kuala_Lumpur
     New features:
