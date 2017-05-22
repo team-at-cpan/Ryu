@@ -5,6 +5,8 @@ use warnings;
 
 use parent qw(Ryu::Node);
 
+# VERSION
+
 =head1 NAME
 
 Ryu::Sink - base representation for a thing that receives events

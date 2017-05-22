@@ -3,6 +3,8 @@ package Ryu::Observable;
 use strict;
 use warnings;
 
+# VERSION
+
 =encoding utf8
 
 =head1 NAME

@@ -3,6 +3,8 @@ package Ryu::Exception;
 use strict;
 use warnings;
 
+# VERSION
+
 =head1 NAME
 
 Ryu::Exception - support for L<Future>-style failure information

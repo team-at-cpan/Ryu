@@ -5,6 +5,8 @@ use warnings;
 
 use parent qw(Ryu::Node);
 
+# VERSION
+
 =head1 NAME
 
 Ryu::Source - base representation for a source of events

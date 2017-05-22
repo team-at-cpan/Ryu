@@ -3,6 +3,8 @@ package Ryu::Node;
 use strict;
 use warnings;
 
+# VERSION
+
 =head1 NAME
 
 Ryu::Node - generic node
