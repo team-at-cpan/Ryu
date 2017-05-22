@@ -1050,6 +1050,27 @@ sub take {
     }, $src);
 }
 
+=head2 first
+
+Returns a source which provides the first item from the stream.
+
+=cut
+
+sub first {
+    my ($self) = @_;
+
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
+
+    $self->each_while_source(sub {
+        $src->emit($_);
+        $src->finish
+    }, $src);
+}
+
 =head2 some
 
 =cut
