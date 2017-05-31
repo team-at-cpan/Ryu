@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Documentation:
+
+    * bring much-needed clarity to the documentation for Ryu::Observable.
 
 0.016     2017-05-31 22:56:43+08:00 Asia/Kuala_Lumpur
     New features:
@@ -104,3 +109,4 @@ Revision history for {{$dist->name}}
 
 0.001     2017-01-08 19:45:18+08:00 Asia/Kuala_Lumpur
     Initial CPAN release
+
