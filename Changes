@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.016     2017-05-31 22:56:43+08:00 Asia/Kuala_Lumpur
     New features:
 
     * ->first - convenience wrapper for ->take(1)
