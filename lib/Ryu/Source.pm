@@ -1316,6 +1316,29 @@ sub filter {
     }, $src);
 }
 
+=head2 filter_isa
+
+Emits only the items which C<< ->isa >> one of the given parameters.
+
+=cut
+
+sub filter_isa {
+    use Scalar::Util qw(blessed);
+    use namespace::clean qw(blessed);
+    my ($self, @isa) = @_;
+
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
+    $self->each_while_source(sub {
+        my ($item) = @_;
+        return unless blessed $item;
+        $src->emit($_) if grep $item->isa($_), @isa;
+    }, $src);
+}
+
 =head2 emit
 
 =cut
