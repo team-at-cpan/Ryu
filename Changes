@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.018     2017-06-11 03:38:39+08:00 Asia/Kuala_Lumpur
     New features:
 
     * ->filter_isa - filter by object classes
