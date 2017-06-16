@@ -17,7 +17,7 @@ Ryu - asynchronous stream building blocks
 
 =head1 DESCRIPTION
 
-B<This is an early preview release and not recommended for anything>.
+B<This is an early preview release, but is almost useful for some limited tasks>.
 
 Provides data flow processing for asynchronous coding purposes. It's a bit like L<ReactiveX|https://reactivex.io> in
 concept. Where possible, it tries to provide a similar API. It is not a directly-compatible implementation, however.
