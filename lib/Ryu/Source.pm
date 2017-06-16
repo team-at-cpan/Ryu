@@ -253,7 +253,7 @@ sub decode {
 
 =head2 say
 
-Shortcut for C< ->each(sub { print "\n" }) >.
+Shortcut for C<< ->each(sub { print "$_\n" }) >>.
 
 =cut
 
