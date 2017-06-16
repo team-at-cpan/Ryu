@@ -55,7 +55,7 @@ our $FUTURE_FACTORY = sub {
 };
 
 # It'd be nice if L<Future> already provided a method for this, maybe I should suggest it
-my $future_state = sub {
+our $future_state = sub {
       $_[0]->is_done
     ? 'done'
     : $_[0]->is_failed
@@ -242,6 +242,10 @@ sub decode {
     my ($self, $type) = splice @_, 0, 2;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my $code = ($DECODER{$type} || $self->can('decode_' . $type) or die "unsupported encoding $type")->(@_);
+    $self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
     $self->each_while_source(sub {
         $src->emit($code->($_))
     }, $src);
