@@ -489,6 +489,21 @@ sub suffix {
     }, $src);
 }
 
+=head2 sprintf_methods
+
+Convenience method for generating a string from a L</sprintf>-style format
+string and a set of method names to call.
+
+Note that any C<undef> items will be mapped to an empty string.
+
+Example:
+
+ $src->sprintf_methods('%d has name %s', qw(id name))
+     ->say
+     ->await;
+
+=cut
+
 sub sprintf_methods {
     my ($self, $fmt, @methods) = @_;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
@@ -497,7 +512,7 @@ sub sprintf_methods {
     });
     $self->each_while_source(sub {
         my ($item) = @_;
-        $src->emit(sprintf $fmt, map $item->$_, @methods)
+        $src->emit(sprintf $fmt, map $item->$_ // '', @methods)
     }, $src);
 }
 
