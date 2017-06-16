@@ -218,6 +218,10 @@ sub encode {
     my ($self, $type) = splice @_, 0, 2;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my $code = ($ENCODER{$type} || $self->can('encode_' . $type) or die "unsupported encoding $type")->(@_);
+    $self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
     $self->each_while_source(sub {
         $src->emit($code->($_))
     }, $src);
