@@ -1,6 +1,13 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Bugs fixed:
+
+    * ->sprintf_methods now defaults undef values, to avoid warnings. It
+    also gains some documentation in the process.
+
 
 0.018     2017-06-11 03:38:39+08:00 Asia/Kuala_Lumpur
     New features:
