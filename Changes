@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Documentation:
+    * Tidy up method ordering in Ryu::Source
+    * More examples
 
 0.020     2017-06-17 01:39:34+08:00 Asia/Kuala_Lumpur
     No new features.
