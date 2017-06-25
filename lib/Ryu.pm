@@ -180,6 +180,8 @@ Some perl modules of relevance:
 
 =item * L<Evo>
 
+=item * L<Async::Stream> - early release, but seems to be very similar in concept to L<Ryu::Source>
+
 =back
 
 =head2 Other references
@@ -191,6 +193,8 @@ There are various documents, specifications and discussions relating to the conc
 =item * L<http://www.reactivemanifesto.org/>
 
 =item * Java 8 L<streams API|https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html>
+
+=item * C++ L<range-v3|https://github.com/ericniebler/range-v3>
 
 =back
 
