@@ -54,17 +54,6 @@ our $FUTURE_FACTORY = sub {
     Future->new->set_label($_[1])
 };
 
-# It'd be nice if L<Future> already provided a method for this, maybe I should suggest it
-our $future_state = sub {
-      $_[0]->is_done
-    ? 'done'
-    : $_[0]->is_failed
-    ? 'failed'
-    : $_[0]->is_cancelled
-    ? 'cancelled'
-    : 'pending'
-};
-
 our %ENCODER = (
     utf8 => sub {
         use Encode qw(encode_utf8);
@@ -129,18 +118,6 @@ sub new {
     $self->SUPER::new(%args);
 }
 
-=head2 describe
-
-Returns a string describing this source and any parents - typically this will result in a chain
-like C<< from->combine_latest->count >>.
-
-=cut
-
-sub describe {
-    my ($self) = @_;
-    ($self->parent ? $self->parent->describe . '=>' : '') . $self->label . '(' . $future_state->($self->completed) . ')';
-}
-
 =head2 from
 
 Creates a new source from things.
@@ -199,6 +176,57 @@ sub from {
     }
 }
 
+=head2 empty
+
+Creates an empty source, which finishes immediately.
+
+=cut
+
+sub empty {
+    my ($class) = @_;
+
+    $class->new(label => (caller 0)[3] =~ /::([^:]+)$/)->finish
+}
+
+=head2 never
+
+An empty source that never finishes.
+
+=cut
+
+sub never {
+    my ($class) = @_;
+
+    $class->new(label => (caller 0)[3] =~ /::([^:]+)$/)
+}
+
+=head1 METHODS - Instance
+
+=cut
+
+=head2 describe
+
+Returns a string describing this source and any parents - typically this will result in a chain
+like C<< from->combine_latest->count >>.
+
+=cut
+
+# It'd be nice if L<Future> already provided a method for this, maybe I should suggest it
+our $future_state = sub {
+      $_[0]->is_done
+    ? 'done'
+    : $_[0]->is_failed
+    ? 'failed'
+    : $_[0]->is_cancelled
+    ? 'cancelled'
+    : 'pending'
+};
+
+sub describe {
+    my ($self) = @_;
+    ($self->parent ? $self->parent->describe . '=>' : '') . $self->label . '(' . $future_state->($self->completed) . ')';
+}
+
 =head2 encode
 
 Passes each item through an encoder.
@@ -255,17 +283,6 @@ sub decode {
     }, $src);
 }
 
-=head2 say
-
-Shortcut for C<< ->each(sub { print "$_\n" }) >>.
-
-=cut
-
-sub say {
-    my ($self) = @_;
-    $self->each(sub { print "$_\n" });
-}
-
 =head2 print
 
 Shortcut for C< ->each(sub { print }) >, except this will
@@ -280,29 +297,15 @@ sub print {
     $self->each(sub { local $\ = $delim; print });
 }
 
-=head2 empty
+=head2 say
 
-Creates an empty source, which finishes immediately.
-
-=cut
-
-sub empty {
-    my ($self, $code) = @_;
-
-    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
-    $src->finish;
-}
-
-=head2 never
-
-An empty source that never finishes.
+Shortcut for C<< ->each(sub { print "$_\n" }) >>.
 
 =cut
 
-sub never {
-    my ($self, $code) = @_;
-
-    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+sub say {
+    my ($self) = @_;
+    $self->each(sub { print "$_\n" });
 }
 
 =head2 throw
@@ -314,23 +317,6 @@ Throws something. I don't know what, maybe a chair.
 sub throw {
     my $src = shift->new(@_);
     $src->fail('...');
-}
-
-=head1 METHODS - Instance
-
-=cut
-
-=head2 new_future
-
-Used internally to get a L<Future>.
-
-=cut
-
-sub new_future {
-    my $self = shift;
-    (
-        $self->{new_future} //= $FUTURE_FACTORY
-    )->($self, @_)
 }
 
 =head2 pause
@@ -1530,6 +1516,29 @@ sub label { shift->{label} }
 
 sub parent { shift->{parent} }
 
+=head2 await
+
+Block until this source finishes.
+
+=cut
+
+sub await {
+    my ($self) = @_;
+    my $f = $self->completed;
+    $f->await until $f->is_ready;
+    $self
+}
+
+=head2 finish
+
+Mark this source as completed.
+
+=cut
+
+sub finish { $_[0]->completed->done; $_[0] }
+
+sub refresh { }
+
 =head1 METHODS - Proxied
 
 The following methods are proxied to our completion L<Future>:
@@ -1569,29 +1578,6 @@ sub get {
 for my $k (qw(then cancel fail on_ready transform is_ready is_done failure is_cancelled else)) {
     do { no strict 'refs'; *$k = $_ } for sub { shift->completed->$k(@_) }
 }
-
-=head2 await
-
-Block until this source finishes.
-
-=cut
-
-sub await {
-    my ($self) = @_;
-    my $f = $self->completed;
-    $f->await until $f->is_ready;
-    $self
-}
-
-=head2 finish
-
-Mark this source as completed.
-
-=cut
-
-sub finish { shift->completed->done }
-
-sub refresh { }
 
 =head1 METHODS - Internal
 
@@ -1640,6 +1626,19 @@ sub each_while_source {
         $log->tracef("->e_w_s completed on %s for refaddr 0x%x", $self->describe, refaddr($self));
     });
     $src
+}
+
+=head2 new_future
+
+Used internally to get a L<Future>.
+
+=cut
+
+sub new_future {
+    my $self = shift;
+    (
+        $self->{new_future} //= $FUTURE_FACTORY
+    )->($self, @_)
 }
 
 sub DESTROY {
