@@ -11,7 +11,7 @@ requires 'Log::Any::Adapter', '>= 1.045';
 requires 'Syntax::Keyword::Try', '>= 0.04';
 requires 'namespace::clean', '>= 0.27';
 requires 'Variable::Disposition', '>= 0.004';
-require 'Encode', '>= 1.98';
+requires 'Encode', '>= 1.98';
 
 # Used for transcoding - not essential, but commonly used
 recommends 'MIME::Base64', 0;
