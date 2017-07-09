@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.022     2017-07-09 14:33:16+08:00 Asia/Kuala_Lumpur
     New features:
 
     * Basic CSV encoder/decoder support - does not handle embedded newlines
