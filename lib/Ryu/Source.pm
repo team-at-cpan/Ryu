@@ -1581,7 +1581,7 @@ sub emit {
 
 =cut
 
-sub each {
+sub each : method {
     my ($self, $code, %args) = @_;
     push @{$self->{on_item}}, $code;
     $self;
