@@ -15,6 +15,11 @@ Ryu::Sink - base representation for a thing that receives events
 
 This is currently of limited utility.
 
+ my $src = Ryu::Source->new;
+ my $sink = Ryu::Sink->new;
+ $sink->from($src);
+ $sink->source->say;
+
 =cut
 
 use Future;
@@ -27,7 +32,6 @@ sub new {
 	my $class = shift;
 	$class->SUPER::new(
 		is_paused => 0,
-		pending => [ ],
 		@_
 	)
 }
@@ -40,41 +44,21 @@ Given a source, will attach it as the input for this sink.
 sub from {
 	my ($self, $src, %args) = @_;
 
-	$self = $self->new unless ref $self;
+    die 'expected a subclass of Ryu::Source, received ' . $src . ' instead' unless $src->isa('Ryu::Source');
 
-	if($src->isa('Ryu::Source')) {
-		$src->add_sink($self);
-	} else {
-		die 'expected a subclass of Ryu::Source, received ' . $src . ' instead';
-	}
+	$self = $self->new unless ref $self;
+    $src->each(sub {
+            $self->
+        }
+    $self->{source} = $src;
 	return $self
 }
 
-sub deliver {
-	push @{$_[0]{pending}}, $_[1];
-	$_[0]->dispatch if $_[0]->output;
-	$_[0]
-}
-
-sub output { shift->{output} }
-
-sub dispatch {
-	my $out = $_[0]->{output};
-	$out->($_) for splice @{$_[0]->{pending}}, 0;
-	$_[0]
-}
-
-sub drain {
-	my ($self, $out) = @_;
-	$self->{output} = $out;
-	return $self unless $self->have_pending;
-	$self->dispatch
-}
-
-sub finish {
-	my $self = shift;
-	$self->completion->done;
-	$self
+sub source {
+    my ($self) = @_;
+    $self->{source} //= (
+        $self->{new_source} //= sub { Ryu::Source->new }
+    )->()
 }
 
 sub new_future {
@@ -85,21 +69,6 @@ sub new_future {
 		}
 	)->(@_)
 }
-
-sub completion {
-	$_[0]->{completion} //= $_[0]->new_future($_[0] . ' completion')
-}
-
-=head2 pending_count
-
-Returns the number of pending items that have not been processed by all
-active sinks.
-
-=cut
-
-sub pending_count { 0 + @{ $_[0]{pending} } }
-
-sub have_pending { @{ $_[0]{pending} } ? 1 : 0 }
 
 1;
 
