@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.024     2017-09-01 20:50:54+08:00 Asia/Kuala_Lumpur
     New features:
 
     * Ryu::Sink API updated in preparation for Ryu::Async release (might
