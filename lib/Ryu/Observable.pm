@@ -163,7 +163,7 @@ sub source {
 		return unless my $self = $copy;
 		$src->emit($self->value)
 	});
-	$src->completion->on_ready(sub {
+	$src->completed->on_ready(sub {
 		$copy->unsubscribe($code) if $copy;
 		undef $code;
 	});
