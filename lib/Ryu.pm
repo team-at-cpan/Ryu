@@ -182,6 +182,8 @@ Some perl modules of relevance:
 
 =item * L<Async::Stream> - early release, but seems to be very similar in concept to L<Ryu::Source>
 
+=item * L<Data::Monad>
+
 =back
 
 =head2 Other references
