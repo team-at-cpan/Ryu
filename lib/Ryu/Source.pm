@@ -724,8 +724,7 @@ item.
 
 sub combine_latest : method {
     use Scalar::Util qw(blessed);
-    use Variable::Disposition qw(retain_future);
-    use namespace::clean qw(blessed retain_future);
+    use namespace::clean qw(blessed);
     my ($self, @sources) = @_;
     push @sources, sub { @_ } if blessed $sources[-1];
     my $code = pop @sources;
@@ -742,15 +741,13 @@ sub combine_latest : method {
             $combined->emit([ $code->(@value) ]) if @sources == keys %seen;
         }, $combined);
     }
-    retain_future(
-        Future->needs_any(
-            map $_->completed, @sources
-        )->on_ready(sub {
-            @value = ();
-            return if $combined->completed->is_ready;
-            shift->on_ready($combined->completed)
-        })
-    );
+    Future->needs_any(
+        map $_->completed, @sources
+    )->on_ready(sub {
+        @value = ();
+        return if $combined->completed->is_ready;
+        shift->on_ready($combined->completed)
+    })->retain;
     $combined
 }
 
@@ -818,8 +815,6 @@ Example:
 =cut
 
 sub merge : method {
-    use Variable::Disposition qw(retain_future);
-    use namespace::clean qw(retain_future);
     my ($self, @sources) = @_;
 
     my $combined = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
@@ -830,11 +825,10 @@ sub merge : method {
             $combined->emit($_)
         });
     }
-    retain_future(
-        Future->needs_all(
-            map $_->completed, @sources
-        )->on_ready($combined->completed)
-    );
+    Future->needs_all(
+        map $_->completed, @sources
+    )->on_ready($combined->completed)
+     ->retain;
     $combined
 }
 
@@ -848,8 +842,6 @@ results.
 =cut
 
 sub apply : method {
-    use Variable::Disposition qw(retain_future);
-    use namespace::clean qw(retain_future);
     my ($self, @code) = @_;
 
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
@@ -857,11 +849,10 @@ sub apply : method {
     for my $code (@code) {
         push @pending, map $code->($_), $self;
     }
-    retain_future(
-        Future->needs_all(
-            map $_->completed, @pending
-        )->on_ready($src->completed)
-    );
+    Future->needs_all(
+        map $_->completed, @pending
+    )->on_ready($src->completed)
+     ->retain;
     # Pass through the original events
     $self->each_while_source(sub {
         $src->emit($_)
@@ -1746,7 +1737,7 @@ sub chained {
         );
         weaken($src->{parent});
         push @{$self->{children}}, $src;
-        $log->tracef("Constructing chained source for %s from %s (%s)", $src->label, $self->label, $future_state->($self->completed));
+        $log->tracef("Constructing chained source for %s from %s (%s)", $src->label, $self->label, $self->completed->state);
         return $src;
     } else {
         my $src = $self->new(@_);
