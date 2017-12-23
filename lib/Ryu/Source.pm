@@ -421,11 +421,11 @@ Often useful in conjunction with a C<< do >> block to provide a closure.
 Examples:
 
  $src->map(do {
-           my $idx = 0;
-           sub {
-            [ @$_, ++$idx ]
-           }
-       })
+   my $idx = 0;
+   sub {
+    [ @$_, ++$idx ]
+   }
+ })
 
 =cut
 
