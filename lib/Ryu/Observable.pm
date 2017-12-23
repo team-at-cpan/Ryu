@@ -19,8 +19,6 @@ the things they used to be, but are indeed now possessed of some detectable
 difference which may be of relevance to the thing that makes use of this thing
 which notifies as per the aforementioned conditions.
 
-
-
 =cut
 
 use overload

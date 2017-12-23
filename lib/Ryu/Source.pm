@@ -164,19 +164,17 @@ sub from {
     my $src = (ref $class) ? $class : $class->new;
     if(my $from_class = blessed($_[0])) {
         if($from_class->isa('Future')) {
-            retain_future(
-                $_[0]->on_ready(sub {
-                    my ($f) = @_;
-                    if($f->failure) {
-                        $src->fail($f->from_future);
-                    } elsif(!$f->is_cancelled) {
-                        $src->finish;
-                    } else {
-                        $src->emit($f->get);
-                        $src->finish;
-                    }
-                })
-            );
+            $_[0]->on_ready(sub {
+                my ($f) = @_;
+                if($f->failure) {
+                    $src->fail($f->from_future);
+                } elsif(!$f->is_cancelled) {
+                    $src->finish;
+                } else {
+                    $src->emit($f->get);
+                    $src->finish;
+                }
+            })->retain;
             return $src;
         } else {
             die 'Unknown class ' . $from_class . ', cannot turn it into a source';
