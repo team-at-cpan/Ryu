@@ -923,15 +923,28 @@ This is a terrible name for a method, expect it to change.
 =cut
 
 sub ordered_futures {
-    use Variable::Disposition qw(retain_future);
-    use namespace::clean qw(retain_future);
     my ($self) = @_;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     $self->each_while_source(sub {
-        retain_future(
-            $_->on_done($src->curry::weak::emit)
-              ->on_fail($src->curry::weak::fail)
-        )
+        $_->on_done($src->curry::weak::emit)
+          ->on_fail($src->curry::weak::fail)
+          ->retain
+    }, $src);
+}
+
+*resolve = *ordered_futures;
+
+=head2 concurrent
+
+=cut
+
+sub concurrent {
+    my ($self) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->each_while_source(sub {
+        $_->on_done($src->curry::weak::emit)
+          ->on_fail($src->curry::weak::fail)
+          ->retain
     }, $src);
 }
 
