@@ -1830,6 +1830,31 @@ sub each_while_source {
     $src
 }
 
+=head2 map_source
+
+Provides a L</chained> source which has more control over what it
+emits than a standard L</map> or L</filter> implementation.
+
+ $original->map_source(sub {
+  my ($item, $src) = @_;
+  $src->emit('' . reverse $item);
+ });
+
+=cut
+
+sub map_source {
+    my ($self, $code) = @_;
+
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
+    $self->each_while_source(sub {
+        $code->($_, $src) for $_;
+    }, $src);
+}
+
 =head2 new_future
 
 Used internally to get a L<Future>.
