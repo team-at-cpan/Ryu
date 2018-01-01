@@ -328,6 +328,58 @@ sub say {
     $self->each(sub { local $\; print "$_\n" });
 }
 
+=head2 hexdump
+
+Convert input bytes to a hexdump representation, for example:
+
+ 00000000 00 00 12 04 00 00 00 00 00 00 03 00 00 00 80 00 >................<
+ 00000010 04 00 01 00 00 00 05 00 ff ff ff 00 00 04 08 00 >................<
+ 00000020 00 00 00 00 7f ff 00 00                         >........<
+
+One line is emitted for each 16 bytes.
+
+Takes the following named parameters:
+
+=over 4
+
+=item * C<continuous> - accumulates data for a continuous stream, and
+does not reset the offset counter. Note that this may cause the last
+output to be delayed until the source completes.
+
+=back
+
+=cut
+
+sub hexdump {
+    my ($self, %args) = @_;
+
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
+    my $offset = 0;
+    my $in = '';
+    $self->each_while_source(sub {
+        my @out;
+        if($args{continuous}) {
+            $in .= $_;
+            return if length($in) < 16;
+        } else {
+            $in = $_;
+            $offset = 0;
+        }
+        while(length(my $bytes = substr $in, 0, 16, '')) {
+            my $encoded = join '', unpack 'H*' => $bytes;
+            $encoded =~ s/[[:xdigit:]]{2}\K(?=[[:xdigit:]])/ /g;
+            my $ascii = $bytes =~ s{[^[:print:]]}{.}gr;
+            $src->emit(sprintf '%08x %-47.47s %-18.18s', $offset, $encoded, ">$ascii<");
+            $offset += length($bytes);
+            return if $args{continuous} and length($in) < 16;
+        }
+    }, $src);
+}
+
 =head2 throw
 
 Throws something. I don't know what, maybe a chair.
