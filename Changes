@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.027     2018-01-02 00:52:31+08:00 Asia/Kuala_Lumpur
     New features:
 
     - ->hexdump, mainly intended for debugging protocol handling
