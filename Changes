@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - handle undef better in ->filter, and support arrayref as list
+    of options (string match only so far, but this will eventually
+    be a recursive match)
 
 0.027     2018-01-02 00:52:31+08:00 Asia/Kuala_Lumpur
     New features:
