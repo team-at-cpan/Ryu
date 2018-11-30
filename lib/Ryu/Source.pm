@@ -1806,7 +1806,8 @@ sub chained {
         return $src;
     } else {
         my $src = $self->new(@_);
-        $log->tracef("Constructing chained source for %s with no parent", $src->label, $self->label);
+        $log->tracef("Constructing chained source for %s with no parent", $src->label);
+        return $src;
     }
 }
 
