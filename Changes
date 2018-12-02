@@ -1,6 +1,12 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Bugs fixed:
+
+    - ensure we retain sources when merging
+    - allow merging with no parent source (Ryu::Source->merge)
 
 0.028     2018-10-14 00:03:50+08:00 Asia/Kuala_Lumpur
     New features:
