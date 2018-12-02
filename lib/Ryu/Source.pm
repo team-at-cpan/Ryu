@@ -880,6 +880,7 @@ sub merge : method {
     Future->needs_all(
         map $_->completed, @sources
     )->on_ready($combined->completed)
+     ->on_ready(sub { @sources = () })
      ->retain;
     $combined
 }
