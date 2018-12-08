@@ -174,6 +174,9 @@ Some perl modules of relevance:
 
 =item * L<Rx.pl|https://github.com/eilara/Rx.pl> - a Perl version of the L<http://reactivex.io> Reactive API
 
+=item * L<Perlude> - combines features of the shell / UNIX streams and Haskell, pipeline
+syntax is "backwards" (same as grep/map chains in Perl)
+
 =item * L<IO::Pipeline>
 
 =item * L<DS>
