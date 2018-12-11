@@ -48,7 +48,11 @@ sub from {
     die 'expected a subclass of Ryu::Source, received ' . $src . ' instead' unless $src->isa('Ryu::Source');
 
 	$self = $self->new unless ref $self;
-    $self->{source} = $src;
+    $src->each_while_source(sub {
+        $self->emit($_)
+    }, $self->source);
+    $src->completed->on_ready($self->source->completed);
+# $self->{source} = $src;
 	return $self
 }
 
