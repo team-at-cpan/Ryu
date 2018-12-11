@@ -1742,7 +1742,7 @@ Mark this source as completed.
 
 =cut
 
-sub finish { $_[0]->completed->done; $_[0] }
+sub finish { $_[0]->completed->done unless $_[0]->completed->is_ready; $_[0] }
 
 sub refresh { }
 
