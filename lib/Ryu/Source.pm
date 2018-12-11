@@ -1610,9 +1610,10 @@ sub emit {
     use namespace::clean qw(try catch finally);
     my $self = shift;
     my $completion = $self->completed;
+    my @handlers = @{$self->{on_item} || []} or return $self;
     for (@_) {
         die 'already completed' if $completion->is_ready;
-        for my $code (@{$self->{on_item}}) {
+        for my $code (@handlers) {
             try {
                 $code->($_);
             } catch {
