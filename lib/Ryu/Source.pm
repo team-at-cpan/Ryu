@@ -1611,8 +1611,8 @@ sub emit {
     my $self = shift;
     my $completion = $self->completed;
     for (@_) {
+        die 'already completed' if $completion->is_ready;
         for my $code (@{$self->{on_item}}) {
-            die 'already completed' if $completion->is_ready;
             try {
                 $code->($_);
             } catch {
