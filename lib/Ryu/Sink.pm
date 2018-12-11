@@ -35,6 +35,7 @@ sub new {
 		@_
 	)
 }
+
 =head2 from
 
 Given a source, will attach it as the input for this sink.
