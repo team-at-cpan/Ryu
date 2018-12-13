@@ -9,7 +9,9 @@ use Ryu;
 
 my $src = new_ok('Ryu::Source');
 my $buffered = $src->buffer(3);
-my $target = $buffered->count;
+my $target = $buffered->merge;
+my $total = 0;
+my $count = $target->count->each(sub { $total = $_ });
 my @received;
 $target->each(sub { push @received, $_ });
 cmp_deeply(\@received, [], 'start with no items');
@@ -21,15 +23,7 @@ cmp_deeply(\@received, ['x'], 'still that one item');
 $target->resume;
 cmp_deeply(\@received, ['x', 'y'], 'now have the next item');
 $src->finish;
-$target->
-
-is(exception {
-    my $chained = Ryu::Source->chained;
-    isa_ok($chained, 'Ryu::Source');
-    is($chained->label, 'unknown', 'starts off with "unknown" label');
-    is($chained->parent, undef, 'has no parent');
-}, undef, 'can create ->chained source without issues');
-
+is($total, 2, 'have the expected 2 items');
 done_testing;
 
 
