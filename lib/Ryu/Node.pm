@@ -45,7 +45,7 @@ sub pause {
     if(my $parent = $self->parent) {
         $parent->pause($self) if $self->{pause_propagation};
     }
-    if(my $flow_control = $self->{pause_source}) {
+    if(my $flow_control = $self->{flow_control}) {
         $flow_control->emit(0) unless $was_paused;
     }
     $self
@@ -66,7 +66,7 @@ sub resume {
         if(my $parent = $self->parent) {
             $parent->resume($self) if $self->{pause_propagation};
         }
-        if(my $flow_control = $self->{pause_source}) {
+        if(my $flow_control = $self->{flow_control}) {
             $flow_control->emit(1);
         }
     }
