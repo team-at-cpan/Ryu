@@ -17,8 +17,6 @@ Ryu - asynchronous stream building blocks
 
 =head1 DESCRIPTION
 
-B<This is an early preview release, but is almost useful for some limited tasks>.
-
 Provides data flow processing for asynchronous coding purposes. It's a bit like L<ReactiveX|https://reactivex.io> in
 concept. Where possible, it tries to provide a similar API. It is not a directly-compatible implementation, however.
 
@@ -43,11 +41,6 @@ and on the verge of reaching for alternatives. The L</SEE ALSO> section may spee
 
 =head2 Components
 
-=head3 Streams
-
-A stream is a thing with a source. See L<Ryu::Stream>, which is likely to be something that does not yet
-exist.
-
 =head3 Sources
 
 A source emits items. See L<Ryu::Source>.
@@ -70,7 +63,14 @@ Items can be any scalar value - some examples:
 
 =back
 
-There's also a sink, which connects to a (chain of) sources and accepts values.
+=head3 Sinks
+
+A sink receives items. It's the counterpart to a source. See L<Ryu::Sink>.
+
+=head3 Streams
+
+A stream is a thing with a source. See L<Ryu::Stream>, which is likely to be something that does not yet
+exist.
 
 =head2 What does this module do?
 
