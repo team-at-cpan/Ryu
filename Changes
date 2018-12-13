@@ -6,6 +6,14 @@ Revision history for {{$dist->name}}
     - flow control expanded and moved to the Ryu::Node
     parent class
 
+    Bugs fixed:
+
+    - resolved some edge cases where handlers can be
+    added/removed during callback loops
+    - the ->source inside a Ryu::Sink for handling events
+    is now preserved when attaching an external source
+    via ->from
+
 0.029     2018-12-02 14:20:37+08:00 Asia/Kuala_Lumpur
     No new features.
 
