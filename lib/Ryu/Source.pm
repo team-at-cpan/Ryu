@@ -1814,7 +1814,7 @@ sub each_while_source {
     $self->each($code);
     $src->completed->on_ready(sub {
         my $count = extract_by { refaddr($_) == refaddr($code) } @{$self->{on_item}};
-        $log->tracef("->e_w_s completed on %s for refaddr 0x%x", $self->describe, refaddr($self));
+        $log->tracef("->each_while_source completed on %s for refaddr 0x%x, removed %d on_item handlers", $self->describe, refaddr($self), $count);
     });
     $src
 }
