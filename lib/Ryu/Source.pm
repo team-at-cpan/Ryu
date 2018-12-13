@@ -707,6 +707,14 @@ sub buffer {
     }), $src);
 }
 
+sub retain {
+    my ($self) = @_;
+    $self->{_self} = $self;
+    $self->completed
+        ->on_ready(sub { delete $self->{_self} });
+    $self
+}
+
 =head2 as_list
 
 Resolves to a list consisting of all items emitted by this source.
