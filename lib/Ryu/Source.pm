@@ -1688,10 +1688,6 @@ sub notify_child_completion {
     $self
 }
 
-sub label { shift->{label} }
-
-sub parent { shift->{parent} }
-
 =head2 await
 
 Block until this source finishes.

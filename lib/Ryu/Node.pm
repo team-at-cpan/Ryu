@@ -31,8 +31,18 @@ Does nothing useful.
 =cut
 
 sub pause {
-    my $self = shift;
-    $self->{is_paused} = 1;
+    use Scalar::Util qw(refaddr);
+    my ($self, $src) = @_;
+    my $k = (refaddr $src) // 0;
+
+    my $was_paused = keys %{$self->{is_paused}};
+    ++$self->{is_paused}{$k};
+    if(my $parent = $self->parent) {
+        $parent->pause($self);
+    }
+    if(my $flow_control = $self->{pause_source}) {
+        $flow_control->emit(0) unless $was_paused;
+    }
     $self
 }
 
@@ -43,8 +53,18 @@ Is about as much use as L</pause>.
 =cut
 
 sub resume {
-    my $self = shift;
-    $self->{is_paused} = 0;
+    use Scalar::Util qw(refaddr);
+    my ($self, $src) = @_;
+    my $k = refaddr($src) // 0;
+    delete $self->{is_paused}{$k} unless --$self->{is_paused}{$k} > 0;
+    unless(keys %{$self->{is_paused} || {} }) {
+        if(my $parent = $self->parent) {
+            $parent->resume($self);
+        }
+        if(my $flow_control = $self->{pause_source}) {
+            $flow_control->emit(1);
+        }
+    }
     $self
 }
 
@@ -54,7 +74,18 @@ Might return 1 or 0, but is generally meaningless.
 
 =cut
 
-sub is_paused { $_[0]->{is_paused} }
+sub is_paused { keys %{ $_[0]->{is_paused} } ? 1 : 0 }
+
+sub flow_control {
+    my ($self) = @_;
+    $self->{flow_control} //= Ryu::Source->new(
+        new_future => $self->{new_future}
+    )
+}
+
+sub label { shift->{label} }
+
+sub parent { shift->{parent} }
 
 1;
 
