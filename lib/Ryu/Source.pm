@@ -391,38 +391,6 @@ sub throw {
     $src->fail('...');
 }
 
-=head2 pause
-
-Does nothing useful.
-
-=cut
-
-sub pause {
-    my $self = shift;
-    $self->{is_paused} = 1;
-    $self
-}
-
-=head2 resume
-
-Is about as much use as L</pause>.
-
-=cut
-
-sub resume {
-    my $self = shift;
-    $self->{is_paused} = 0;
-    $self
-}
-
-=head2 is_paused
-
-Might return 1 or 0, but is generally meaningless.
-
-=cut
-
-sub is_paused { $_[0]->{is_paused} }
-
 =head2 debounce
 
 Not yet implemented.

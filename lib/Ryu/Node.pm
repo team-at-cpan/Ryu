@@ -24,6 +24,38 @@ Not really. There's a constructor, but that's not particularly exciting.
 
 sub new { bless { @_[1..$#_] }, $_[0] }
 
+=head2 pause
+
+Does nothing useful.
+
+=cut
+
+sub pause {
+    my $self = shift;
+    $self->{is_paused} = 1;
+    $self
+}
+
+=head2 resume
+
+Is about as much use as L</pause>.
+
+=cut
+
+sub resume {
+    my $self = shift;
+    $self->{is_paused} = 0;
+    $self
+}
+
+=head2 is_paused
+
+Might return 1 or 0, but is generally meaningless.
+
+=cut
+
+sub is_paused { $_[0]->{is_paused} }
+
 1;
 
 __END__
