@@ -22,7 +22,12 @@ Not really. There's a constructor, but that's not particularly exciting.
 
 =cut
 
-sub new { bless { @_[1..$#_] }, $_[0] }
+sub new {
+    bless {
+        pause_propagation => 1,
+        @_[1..$#_]
+    }, $_[0]
+}
 
 =head2 pause
 
@@ -38,7 +43,7 @@ sub pause {
     my $was_paused = keys %{$self->{is_paused}};
     ++$self->{is_paused}{$k};
     if(my $parent = $self->parent) {
-        $parent->pause($self);
+        $parent->pause($self) if $self->{pause_propagation};
     }
     if(my $flow_control = $self->{pause_source}) {
         $flow_control->emit(0) unless $was_paused;
@@ -59,7 +64,7 @@ sub resume {
     delete $self->{is_paused}{$k} unless --$self->{is_paused}{$k} > 0;
     unless(keys %{$self->{is_paused} || {} }) {
         if(my $parent = $self->parent) {
-            $parent->resume($self);
+            $parent->resume($self) if $self->{pause_propagation};
         }
         if(my $flow_control = $self->{pause_source}) {
             $flow_control->emit(1);
