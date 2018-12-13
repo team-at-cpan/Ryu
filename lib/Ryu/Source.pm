@@ -692,13 +692,19 @@ sub buffer {
     $self->completed->on_ready(sub {
         shift->on_ready($src->completed) unless $src->completed->is_ready
     });
+    $src->flow_control
+        ->each($src->$curry::weak(sub {
+            my ($src) = @_;
+            return unless $_;
+            $src->emit(shift @pending) while @pending and not $src->is_paused;
+        }))->retain;
     $self->each_while_source($self->$curry::weak(sub {
         my ($self, $item) = @_;
         push @pending, $item;
         $self->pause($src) if @pending >= $count;
         $src->emit(shift @pending) while @pending and not $src->is_paused;
         $self->resume($src) if @pending < $count;
-    }, $src);
+    }), $src);
 }
 
 =head2 as_list
