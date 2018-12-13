@@ -683,6 +683,24 @@ sub sprintf_methods {
     }, $src);
 }
 
+sub buffer {
+    my ($self, $count) = @_;
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $src->{pause_propagation} = 0;
+    $count ||= 10;
+    my @pending;
+    $self->completed->on_ready(sub {
+        shift->on_ready($src->completed) unless $src->completed->is_ready
+    });
+    $self->each_while_source($self->$curry::weak(sub {
+        my ($self, $item) = @_;
+        push @pending, $item;
+        $self->pause($src) if @pending >= $count;
+        $src->emit(shift @pending) while @pending and not $src->is_paused;
+        $self->resume($src) if @pending < $count;
+    }, $src);
+}
+
 =head2 as_list
 
 Resolves to a list consisting of all items emitted by this source.
