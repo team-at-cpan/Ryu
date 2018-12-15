@@ -79,7 +79,15 @@ Might return 1 or 0, but is generally meaningless.
 
 =cut
 
-sub is_paused { keys %{ $_[0]->{is_paused} } ? 1 : 0 }
+sub is_paused {
+    use Scalar::Util qw(refaddr);
+    my ($self, $obj) = @_;
+    return keys %{ $self->{is_paused} } ? 1 : 0 unless defined $obj;
+    my $k = refaddr($obj);
+    return exists $self->{is_paused}{$k}
+    ? 0 + $self->{is_paused}{$k}
+    : 0;
+}
 
 sub flow_control {
     my ($self) = @_;
