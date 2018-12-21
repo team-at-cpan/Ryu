@@ -1,6 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Bugs fixed:
+
+    - the ordered futures method ->resolve should not complete
+    until all incoming entries are received and resolved
 
 0.032     2018-12-15 20:20:24+08:00 Asia/Kuala_Lumpur
     New features:
