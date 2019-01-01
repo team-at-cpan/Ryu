@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Bugs fixed:
+
+    - dist.ini file should now be included, thanks Grinnz
 
 0.034     2019-01-02 00:19:29+08:00 Asia/Kuala_Lumpur
     Bugs fixed:
