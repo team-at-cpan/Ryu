@@ -12,7 +12,7 @@ use Future;
 my $src = Ryu::Source->new;
 my @actual;
 $src->ordered_futures->each(sub {
-	push @actual, $_;
+    push @actual, $_;
 });
 my @f = map Future->new, 0..2;
 $src->emit(@f);

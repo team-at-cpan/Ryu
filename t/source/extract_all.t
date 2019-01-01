@@ -10,7 +10,7 @@ use Ryu;
 my $src = Ryu::Source->new;
 my @actual;
 $src->extract_all(qr{(?<word>\w+)})->each(sub {
-	push @actual, $_;
+    push @actual, $_;
 });
 $src->emit($_) for 'this is a list of words', 'in several', 'parts';
 cmp_deeply(\@actual, [

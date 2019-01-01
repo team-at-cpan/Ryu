@@ -10,7 +10,7 @@ use Ryu;
 my $first = Ryu::Source->new;
 my @actual;
 $first->sum->each(sub {
-	push @actual, $_;
+    push @actual, $_;
 });
 $first->emit($_) for 1..5;
 $first->finish;

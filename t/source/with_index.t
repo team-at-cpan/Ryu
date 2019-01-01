@@ -10,7 +10,7 @@ use Ryu;
 my $src = Ryu::Source->new;
 my @actual;
 $src->with_index->each(sub {
-	push @actual, $_;
+    push @actual, $_;
 });
 $src->emit($_) for qw(x y z);
 cmp_deeply(\@actual, [

@@ -11,9 +11,9 @@ my $first = Ryu::Source->new;
 my $second = Ryu::Source->new;
 my @actual;
 my $merged = $first->merge(
-	$second
+    $second
 )->each(sub {
-	push @actual, $_;
+    push @actual, $_;
 });
 $first->emit(1);
 $second->emit(2);

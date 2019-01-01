@@ -10,7 +10,7 @@ use Ryu;
 my $first = Ryu::Source->new;
 my @actual;
 $first->every(sub { $_ > 5 })->each(sub {
-	push @actual, $_;
+    push @actual, $_;
 });
 $first->emit($_) for 6,8,9,10,5.1;
 $first->finish;

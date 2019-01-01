@@ -15,7 +15,7 @@ $src->switch_str(
     second => sub { 'two' },
     sub { 'many' }
 )->each(sub {
-	push @actual, $_;
+    push @actual, $_;
 });
 $src->emit($_) for qw(first second third);
 cmp_deeply(\@actual, [ qw(one two many) ], 'switch_str operation was performed');

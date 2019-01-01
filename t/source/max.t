@@ -10,7 +10,7 @@ use Ryu;
 my $first = Ryu::Source->new;
 my @actual;
 $first->max->each(sub {
-	push @actual, $_;
+    push @actual, $_;
 });
 $first->emit($_) for 5,2,8,-2,3,0,-100,4;
 $first->finish;

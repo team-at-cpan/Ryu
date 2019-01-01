@@ -10,7 +10,7 @@ use Ryu;
 my $first = Ryu::Source->new;
 my @actual;
 $first->mean->each(sub {
-	push @actual, $_;
+    push @actual, $_;
 });
 $first->emit($_) for 2,4,2,4;
 $first->finish;
