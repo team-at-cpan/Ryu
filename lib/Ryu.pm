@@ -127,9 +127,9 @@ Helper method which returns a L<Ryu::Source> from a list of items.
 =cut
 
 sub from {
-	my $self = shift;
-	my $src = Ryu::Source->new;
-	$src->from(@_)
+    my $self = shift;
+    my $src = Ryu::Source->new;
+    $src->from(@_)
 }
 
 =head2 just
@@ -139,9 +139,9 @@ Helper method which returns a single-item L<Ryu::Source>.
 =cut
 
 sub just {
-	my $self = shift;
-	my $src = Ryu::Source->new;
-	$src->from(shift);
+    my $self = shift;
+    my $src = Ryu::Source->new;
+    $src->from(shift);
 }
 
 1;
