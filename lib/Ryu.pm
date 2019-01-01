@@ -168,7 +168,7 @@ Some perl modules of relevance:
 
 =item * L<Flow> - quite similar in concept to this module, maybe a bit short on documentation, doesn't provide integration with other sources such as files or L<IO::Async::Stream>
 
-=item * L<Flux> - more like the java8 streams API, sync-based 
+=item * L<Flux> - more like the java8 streams API, sync-based
 
 =item * L<Message::Passing> - on initial glance seemed more of a commandline tool, sadly based on L<AnyEvent>
 
@@ -209,5 +209,5 @@ Tom Molesworth <TEAM@cpan.org>
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2011-2018. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2019. Licensed under the same terms as Perl itself.
 
