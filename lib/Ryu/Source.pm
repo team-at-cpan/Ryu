@@ -1367,7 +1367,7 @@ sub every {
         return if $src->completed->is_ready;
         return if $code->($_);
         $src->emit(0);
-        $src->completed->done 
+        $src->completed->done
     });
     $src
 }
