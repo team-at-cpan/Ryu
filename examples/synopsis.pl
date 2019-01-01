@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Ryu qw($ryu);
-my ($lines) = 
+my ($lines) =
 	$ryu->from(\*STDIN)
 		->by_line
 		->filter(qr/\h/)
