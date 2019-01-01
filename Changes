@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.034     2019-01-02 00:19:29+08:00 Asia/Kuala_Lumpur
     Bugs fixed:
 
     - better support for sync chains: we now call the `->{on_get}` callback
