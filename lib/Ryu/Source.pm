@@ -1361,7 +1361,7 @@ sub every {
     $self->completed->on_done(sub {
         return if $src->completed->is_ready;
         $src->emit(1);
-        $src->completed->done 
+        $src->completed->done
     });
     $self->each(sub {
         return if $src->completed->is_ready;
@@ -1763,6 +1763,7 @@ Block until this source finishes.
 
 sub await {
     my ($self) = @_;
+    $self->prepare_await;
     my $f = $self->completed;
     $f->await until $f->is_ready;
     $self
@@ -1808,7 +1809,6 @@ sub get {
     if(my $parent = $self->parent) {
         $parent->await
     }
-    (delete $self->{on_get})->() if $self->{on_get};
     $f->transform(done => sub {
         @rslt
     })->get
@@ -1819,6 +1819,25 @@ for my $k (qw(then cancel fail on_ready transform is_ready is_done failure is_ca
 }
 
 =head1 METHODS - Internal
+
+=head2 prepare_await
+
+Run any pre-completion callbacks (recursively) before
+we go into an await cycle.
+
+Used for compatibility with sync bridges when there's
+no real async event loop available.
+
+=cut
+
+sub prepare_await {
+    my ($self) = @_;
+    (delete $self->{on_get})->() if $self->{on_get};
+    return unless my $parent = $self->parent;
+    my $code = $parent->can('prepare_await');
+    local @_ = ($parent);
+    goto &$code;
+}
 
 =head2 chained
 
