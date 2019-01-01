@@ -36,7 +36,7 @@ Public API, such as it is.
 =head2 as_string
 
 Returns the string representation of this value.
-    
+
 =cut
 
 sub as_string { '' . shift->{value} }

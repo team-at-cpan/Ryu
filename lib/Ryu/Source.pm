@@ -1342,7 +1342,7 @@ sub some {
         return if $src->completed->is_ready;
         return unless $code->($_);
         $src->emit(1);
-        $src->completed->done 
+        $src->completed->done
     });
     $src
 }
