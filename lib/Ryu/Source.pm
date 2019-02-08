@@ -1262,32 +1262,38 @@ sub skip_last {
     $src
 }
 
-=head2 skip_until_done
+=head2 skip_until
 
-Skips the items that arrive before a given Future is done.
+Skips the items that arrive before a given condition is reached.
 
 =over 4
 
-=item * A Future to wait before skip
+=item * Either a L<Future> instance (we skip all items until it's marked as `done`), or a coderef,
+which we call for each item until it first returns true
 
 =back
 
 =cut
 
-sub skip_until_done {
-    my ($self, $wait_f) = @_;
-    $wait_f //= Future->done;
+sub skip_until {
+    my ($self, $condition) = @_;
 
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     $self->completed->on_ready(sub {
         return if $src->is_ready;
         shift->on_ready($src->completed);
     });
-    $wait_f->on_fail($src->completed)->on_cancel($src->completed);
-    $self->each(sub {
-        $src->emit($_) if $wait_f->is_done;
-    });
-    $src
+    $self->each_while_source(do {
+        if(ref($condition) eq 'CODE') {
+            my $reached = 0;
+            sub { return $src->emit($_) if $reached ||= $condition->($_); }
+        } elsif(blessed($condition) && $condition->isa('Future')) {
+            $condition->on_fail($src->completed)->on_cancel($src->completed);
+            sub { $src->emit($_) if $condition->is_done; }
+        } else {
+            die 'unknown type for condition: ' . $condition;
+        }
+    }, $src);
 }
 
 =head2 take
