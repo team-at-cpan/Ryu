@@ -1,10 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
-
-    New feature:
+    New features:
     
-    - ->skip_until_done skips items until the given Future is done
+    - ->skip_until will filter out any items until the given condition
+    is reached (either Future being true, or coderef returning true)
 
 0.035     2019-01-02 01:37:38+08:00 Asia/Kuala_Lumpur
     No new features.
