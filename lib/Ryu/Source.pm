@@ -1262,6 +1262,34 @@ sub skip_last {
     $src
 }
 
+=head2 skip_until_done
+
+Skips the items that arrive before a given Future is done.
+
+=over 4
+
+=item * A Future to wait before skip
+
+=back
+
+=cut
+
+sub skip_until_done {
+    my ($self, $wait_f) = @_;
+    $wait_f //= Future->done;
+
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    $self->completed->on_ready(sub {
+        return if $src->is_ready;
+        shift->on_ready($src->completed);
+    });
+    $wait_f->on_fail($src->completed)->on_cancel($src->completed);
+    $self->each(sub {
+        $src->emit($_) if $wait_f->is_done;
+    });
+    $src
+}
+
 =head2 take
 
 Takes a limited number of items.
