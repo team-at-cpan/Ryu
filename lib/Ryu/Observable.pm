@@ -3,6 +3,8 @@ package Ryu::Observable;
 use strict;
 use warnings;
 
+use utf8;
+
 # VERSION
 
 =encoding utf8
@@ -26,7 +28,7 @@ use overload
     '0+'   => sub { shift->as_number },
     '++'   => sub { my $v = ++$_[0]->{value}; $_[0]->notify_all; $v },
     '--'   => sub { my $v = --$_[0]->{value}; $_[0]->notify_all; $v },
-    'bool' => sub { shift->as_number },
+    'bool' => sub { !!shift->{value} },
     fallback => 1;
 
 =head1 METHODS
