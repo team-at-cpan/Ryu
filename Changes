@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Bugs fixed:
+
+    - boolean comparison on Ryu::Observable instances caused a warning
 
 0.036     2019-02-08 17:14:51+08:00 Asia/Kuala_Lumpur
     New features:
