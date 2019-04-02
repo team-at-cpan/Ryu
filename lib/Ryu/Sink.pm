@@ -31,7 +31,6 @@ use Future;
 sub new {
     my $class = shift;
     $class->SUPER::new(
-        is_paused => 0,
         @_
     )
 }

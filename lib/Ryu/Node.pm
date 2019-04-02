@@ -40,7 +40,7 @@ sub pause {
     my ($self, $src) = @_;
     my $k = (refaddr $src) // 0;
 
-    my $was_paused = keys %{$self->{is_paused}};
+    my $was_paused = $self->{is_paused} && keys %{$self->{is_paused}};
     ++$self->{is_paused}{$k};
     if(my $parent = $self->parent) {
         $parent->pause($self) if $self->{pause_propagation};
@@ -62,7 +62,7 @@ sub resume {
     my ($self, $src) = @_;
     my $k = refaddr($src) // 0;
     delete $self->{is_paused}{$k} unless --$self->{is_paused}{$k} > 0;
-    unless(keys %{$self->{is_paused} || {} }) {
+    unless($self->{is_paused} and keys %{$self->{is_paused}}) {
         if(my $parent = $self->parent) {
             $parent->resume($self) if $self->{pause_propagation};
         }
