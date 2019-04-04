@@ -38,7 +38,7 @@ Does nothing useful.
 sub pause {
     use Scalar::Util qw(refaddr);
     my ($self, $src) = @_;
-    my $k = (refaddr $src) // 0;
+    my $k = refaddr($src) // 0;
 
     my $was_paused = $self->{is_paused} && keys %{$self->{is_paused}};
     ++$self->{is_paused}{$k};
