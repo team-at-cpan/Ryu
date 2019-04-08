@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.000     2019-04-08 22:56:19+08:00 Asia/Kuala_Lumpur
     New features:
 
     - ->ignore method added: this throws away all its input
