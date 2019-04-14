@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.001     2019-04-15 05:44:47+08:00 Asia/Kuala_Lumpur
     New features:
 
     - sources populated from an immediate source (e.g. from an arrayref)
