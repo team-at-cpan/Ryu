@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-    - image: perl/5.28-slim
+    - image: perl:5.28
     steps:
     - checkout
     - run:
