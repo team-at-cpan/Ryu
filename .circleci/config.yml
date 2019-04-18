@@ -7,7 +7,7 @@ jobs:
     - checkout
     - run:
         command: |
-          cpanm Dist::Zilla
+          cpanm -n Dist::Zilla
           cpanm -n $(dzil authordeps)
           cpanm --installdeps .
           dzil test
