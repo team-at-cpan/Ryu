@@ -596,6 +596,38 @@ sub chunksize : method {
     }, $src);
 }
 
+=head2 batch
+
+Splits input into arrayref batches of a given size.
+
+Note that the last item emitted may have fewer elements (or none at all).
+
+ $src->batch(10)
+  ->map(sub { "Next 10 (or fewer) items: @$_" })
+  ->say;
+
+=cut
+
+sub batch : method {
+    my ($self, $size) = @_;
+    die 'need positive batch parameter' unless $size && $size > 0;
+
+    my $buffer = '';
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    my @batch;
+    $self->completed->on_ready(sub {
+        return if $src->is_ready;
+        $src->emit([ splice @batch ]) if @batch;
+        shift->on_ready($src->completed);
+    });
+    $self->each_while_source(sub {
+        push @batch, $_;
+        while(@batch >= $size and my (@items) = splice @batch, 0, $size) {
+            $src->emit(\@items)
+        }
+    }, $src);
+}
+
 =head2 by_line
 
 Emits one item for each line in the input. Similar to L</split> with a C<< \n >> parameter,
