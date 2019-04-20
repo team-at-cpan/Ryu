@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.002     2019-04-21 00:21:55+08:00 Asia/Kuala_Lumpur
     New features:
 
     - ->batch method for grouping items into arrayrefs
