@@ -305,7 +305,7 @@ sub decode {
 
 =head2 print
 
-Shortcut for C< ->each(sub { print }) >, except this will
+Shortcut for C<< ->each(sub { print }) >>, except this will
 also save the initial state of C< $\ > and use that for each
 call for consistency.
 
