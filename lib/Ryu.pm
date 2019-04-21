@@ -1,7 +1,9 @@
-package Ryu 0.002;
+package Ryu;
 # ABSTRACT: stream and data flow handling for async code
 use strict;
 use warnings;
+
+our $VERSION = '1.002';
 
 =encoding utf8
 
@@ -14,8 +16,6 @@ Ryu - asynchronous stream building blocks
 # EXAMPLE: examples/synopsis.pl
 
 =head1 DESCRIPTION
-
-B<This is an early preview release and not recommended for anything>.
 
 Provides data flow processing for asynchronous coding purposes. It's a bit like L<ReactiveX|https://reactivex.io> in
 concept. Where possible, it tries to provide a similar API. It is not a directly-compatible implementation, however.
@@ -41,11 +41,6 @@ and on the verge of reaching for alternatives. The L</SEE ALSO> section may spee
 
 =head2 Components
 
-=head3 Streams
-
-A stream is a thing with a source. See L<Ryu::Stream>, which is likely to be something that does not yet
-exist.
-
 =head3 Sources
 
 A source emits items. See L<Ryu::Source>.
@@ -68,7 +63,14 @@ Items can be any scalar value - some examples:
 
 =back
 
-There's also a sink, which connects to a (chain of) sources and accepts values.
+=head3 Sinks
+
+A sink receives items. It's the counterpart to a source. See L<Ryu::Sink>.
+
+=head3 Streams
+
+A stream is a thing with a source. See L<Ryu::Stream>, which is likely to be something that does not yet
+exist.
 
 =head2 What does this module do?
 
@@ -125,9 +127,9 @@ Helper method which returns a L<Ryu::Source> from a list of items.
 =cut
 
 sub from {
-	my $self = shift;
-	my $src = Ryu::Source->new;
-	$src->from(@_)
+    my $self = shift;
+    my $src = Ryu::Source->new;
+    $src->from(@_)
 }
 
 =head2 just
@@ -137,9 +139,9 @@ Helper method which returns a single-item L<Ryu::Source>.
 =cut
 
 sub just {
-	my $self = shift;
-	my $src = Ryu::Source->new;
-	$src->from(shift);
+    my $self = shift;
+    my $src = Ryu::Source->new;
+    $src->from(shift);
 }
 
 1;
@@ -166,17 +168,24 @@ Some perl modules of relevance:
 
 =item * L<Flow> - quite similar in concept to this module, maybe a bit short on documentation, doesn't provide integration with other sources such as files or L<IO::Async::Stream>
 
-=item * L<Flux> - more like the java8 streams API, sync-based 
+=item * L<Flux> - more like the java8 streams API, sync-based
 
 =item * L<Message::Passing> - on initial glance seemed more of a commandline tool, sadly based on L<AnyEvent>
 
 =item * L<Rx.pl|https://github.com/eilara/Rx.pl> - a Perl version of the L<http://reactivex.io> Reactive API
+
+=item * L<Perlude> - combines features of the shell / UNIX streams and Haskell, pipeline
+syntax is "backwards" (same as grep/map chains in Perl)
 
 =item * L<IO::Pipeline>
 
 =item * L<DS>
 
 =item * L<Evo>
+
+=item * L<Async::Stream> - early release, but seems to be very similar in concept to L<Ryu::Source>
+
+=item * L<Data::Monad>
 
 =back
 
@@ -190,6 +199,8 @@ There are various documents, specifications and discussions relating to the conc
 
 =item * Java 8 L<streams API|https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html>
 
+=item * C++ L<range-v3|https://github.com/ericniebler/range-v3>
+
 =back
 
 =head1 AUTHOR
@@ -198,5 +209,5 @@ Tom Molesworth <TEAM@cpan.org>
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2011-2016. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2019. Licensed under the same terms as Perl itself.
 

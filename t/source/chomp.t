@@ -9,11 +9,10 @@ use Ryu;
 
 my $first = Ryu::Source->new;
 my @actual;
-$first->min->each(sub {
-	push @actual, $_;
+$first->some(sub { $_ < 0 })->each(sub {
+    push @actual, $_;
 });
-$first->emit($_) for 5,2,8,-2,3,0,-100,4;;
+$first->emit($_) for 2,8,3,-1,5;
 $first->finish;
-cmp_deeply(\@actual, [ -100 ], 'min operation was performed');
+cmp_deeply(\@actual, [ 1 ], 'some operation was performed');
 done_testing;
-

@@ -9,11 +9,10 @@ use Ryu;
 
 my $first = Ryu::Source->new;
 my @actual;
-$first->sum->each(sub {
-	push @actual, $_;
+$first->take(2)->each(sub {
+    push @actual, $_;
 });
-$first->emit($_) for 1..5;
-$first->finish;
-cmp_deeply(\@actual, [ 15 ], 'sum operation was performed');
+$first->emit($_) for 'a'..'z';
+cmp_deeply(\@actual, [ qw(a b) ], 'take operation was performed');
 done_testing;
 

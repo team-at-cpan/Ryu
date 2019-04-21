@@ -5,13 +5,20 @@ use warnings;
 
 use parent qw(Ryu::Node);
 
+# VERSION
+
 =head1 NAME
 
-Ryu::Sink - base representation for a source of events
+Ryu::Sink - base representation for a thing that receives events
 
 =head1 DESCRIPTION
 
 This is currently of limited utility.
+
+ my $src = Ryu::Source->new;
+ my $sink = Ryu::Sink->new;
+ $sink->from($src);
+ $sink->source->say;
 
 =cut
 
@@ -22,13 +29,12 @@ use Future;
 =cut
 
 sub new {
-	my $class = shift;
-	$class->SUPER::new(
-		is_paused => 0,
-		pending => [ ],
-		@_
-	)
+    my $class = shift;
+    $class->SUPER::new(
+        @_
+    )
 }
+
 =head2 from
 
 Given a source, will attach it as the input for this sink.
@@ -36,68 +42,40 @@ Given a source, will attach it as the input for this sink.
 =cut
 
 sub from {
-	my ($self, $src, %args) = @_;
+    my ($self, $src, %args) = @_;
 
-	$self = $self->new unless ref $self;
+    die 'expected a subclass of Ryu::Source, received ' . $src . ' instead' unless $src->isa('Ryu::Source');
 
-	if($src->isa('Ryu::Source')) {
-		$src->add_sink($self);
-	} else {
-		die 'wtf not a source cannot proceed'
-	}
-	return $self
+    $self = $self->new unless ref $self;
+    $src->each_while_source(sub {
+        $self->emit($_)
+    }, $self->source);
+    $src->completed->on_ready($self->source->completed);
+# $self->{source} = $src;
+    return $self
 }
 
-sub deliver {
-	push @{$_[0]{pending}}, $_[1];
-	$_[0]->dispatch if $_[0]->output;
-	$_[0]
+sub emit {
+    my ($self, $data) = @_;
+    $self->source->emit($data);
+    $self
 }
 
-sub output { shift->{output} }
-
-sub dispatch {
-	my $out = $_[0]->{output};
-	$out->($_) for splice @{$_[0]->{pending}}, 0;
-	$_[0]
-}
-
-sub drain {
-	my ($self, $out) = @_;
-	$self->{output} = $out;
-	return $self unless $self->have_pending;
-	$self->dispatch
-}
-
-sub finish {
-	my $self = shift;
-	$self->completion->done;
-	$self
+sub source {
+    my ($self) = @_;
+    $self->{source} //= (
+        $self->{new_source} //= sub { Ryu::Source->new }
+    )->()
 }
 
 sub new_future {
-	my $self = shift;
-	(
-		$self->{new_future} //= sub {
-			Future->new->set_label(shift)
-		}
-	)->(@_)
+    my $self = shift;
+    (
+        $self->{new_future} //= sub {
+            Future->new->set_label(shift)
+        }
+    )->(@_)
 }
-
-sub completion {
-	$_[0]->{completion} //= $_[0]->new_future($_[0] . ' completion')
-}
-
-=head2 pending_count
-
-Returns the number of pending items that have not been processed by all
-active sinks.
-
-=cut
-
-sub pending_count { 0 + @{ $_[0]{pending} } }
-
-sub have_pending { @{ $_[0]{pending} } ? 1 : 0 }
 
 1;
 
@@ -109,5 +87,5 @@ Tom Molesworth <TEAM@cpan.org>
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2011-2016. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2019. Licensed under the same terms as Perl itself.
 

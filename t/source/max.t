@@ -9,11 +9,11 @@ use Ryu;
 
 my $first = Ryu::Source->new;
 my @actual;
-$first->every(sub { $_ > 5 })->each(sub {
-	push @actual, $_;
+$first->max->each(sub {
+    push @actual, $_;
 });
-$first->emit($_) for 6,8,9,10,5.1;
+$first->emit($_) for 5,2,8,-2,3,0,-100,4;
 $first->finish;
-cmp_deeply(\@actual, [ 1 ], 'every operation was performed');
+cmp_deeply(\@actual, [ 8 ], 'max operation was performed');
 done_testing;
 

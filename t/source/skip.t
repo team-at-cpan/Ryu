@@ -9,10 +9,10 @@ use Ryu;
 
 my $first = Ryu::Source->new;
 my @actual;
-$first->take(2)->each(sub {
-	push @actual, $_;
+$first->skip(2)->each(sub {
+    push @actual, $_;
 });
-$first->emit($_) for 'a'..'z';
-cmp_deeply(\@actual, [ qw(a b) ], 'take operation was performed');
+$first->emit($_) for 1..5;
+cmp_deeply(\@actual, [ 3..5 ], 'skip operation was performed');
 done_testing;
 

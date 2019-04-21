@@ -2,12 +2,304 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+1.002     2019-04-21 00:21:55+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->batch method for grouping items into arrayrefs
+
+1.001     2019-04-15 05:44:47+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - sources populated from an immediate source (e.g. from an arrayref)
+    will stream data via the `->{on_get}` callback the first time
+    ->completed is called, since there's no guarantee we will be calling
+    ->await on the top-level source.
+
+    Bugs fixed:
+
+    - ->buffer sources now only complete once the queue is drained.
+
+1.000     2019-04-08 22:56:19+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->ignore method added: this throws away all its input
+
+    Bugs fixed:
+
+    - pause handling on sinks could previously report errors if nothing
+    had called `->pause($src)` before the ->is_paused check
+
+0.037     2019-03-25 17:42:43+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - boolean comparison on Ryu::Observable instances caused a warning
+
+0.036     2019-02-08 17:14:51+08:00 Asia/Kuala_Lumpur
+    New features:
+    
+    - ->skip_until will filter out any items until the given condition
+    is reached (either Future being true, or coderef returning true)
+
+0.035     2019-01-02 01:37:38+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - dist.ini file should now be included, thanks Grinnz
+
+0.034     2019-01-02 00:19:29+08:00 Asia/Kuala_Lumpur
+    Bugs fixed:
+
+    - better support for sync chains: we now call the `->{on_get}` callback
+    recursively if available.
+
+    Developer updates:
+
+    - moved from the old manual dist.ini content to a plugin bundle,
+    hopefully this doesn't cause too much breakage
+
+0.033     2018-12-21 15:35:22+08:00 Asia/Kuala_Lumpur
+    Bugs fixed:
+
+    - the ordered futures method ->resolve should not complete
+    until all incoming entries are received and resolved
+
+0.032     2018-12-15 20:20:24+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->buffer now supports high/low watermark
+    - ->is_paused($obj) will check to see if the node is
+    paused on request from $obj
+
+0.031     2018-12-13 23:03:16+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->buffer method for collecting items while a source/sink
+    are paused
+    - ->retain method for keeping sources around
+
+0.030     2018-12-13 20:58:38+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - flow control expanded and moved to the Ryu::Node
+    parent class
+
+    Bugs fixed:
+
+    - resolved some edge cases where handlers can be
+    added/removed during callback loops
+    - the ->source inside a Ryu::Sink for handling events
+    is now preserved when attaching an external source
+    via ->from
+
+0.029     2018-12-02 14:20:37+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - ensure we retain sources when merging
+    - allow merging with no parent source (Ryu::Source->merge)
+
+0.028     2018-10-14 00:03:50+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - handle undef better in ->filter, and support arrayref as list
+    of options (string match only so far, but this will eventually
+    be a recursive match)
+
+0.027     2018-01-02 00:52:31+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->hexdump, mainly intended for debugging protocol handling
+    - ->map_from_source, allowing control over what is emitted (and
+    when) compared to ->map
+
+0.026     2017-12-28 01:11:07+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Internal changes:
+
+    - Clean up duplicated code which is now available in upstream Future.pm 0.37
+    
+
+0.025     2017-10-22 17:06:29+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - Minor update to Ryu::Observable to fix a typo in a method call
+
+0.024     2017-09-01 20:50:54+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - Ryu::Sink API updated in preparation for Ryu::Async release (might
+    even gain some documentation in the next release)
+
+0.023     2017-07-29 22:25:42+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->map with a string parameter will use that as a hashref key lookup
+    on plain hashref items
+
+0.022     2017-07-09 14:33:16+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - Basic CSV encoder/decoder support - does not handle embedded newlines
+
+0.021     2017-06-26 02:04:15+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Documentation:
+
+    - Tidy up method ordering in Ryu::Source
+    - More examples
+
+0.020     2017-06-17 01:39:34+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - ->encode and ->decode finish when upstream has no more data
+
+0.019     2017-06-17 01:33:18+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - ->sprintf_methods now defaults undef values, to avoid warnings. It
+    also gains some documentation in the process.
+
+
+0.018     2017-06-11 03:38:39+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->filter_isa - filter by object classes
+
+0.017     2017-05-31 23:14:01+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Documentation:
+
+    - bring much-needed clarity to the documentation for Ryu::Observable.
+
+0.016     2017-05-31 22:56:43+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->first - convenience wrapper for ->take(1)
+
+0.015     2017-05-22 21:22:25+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->each_as_source - similar to ->each, but treats items as sources
+    - ->switch_str - switch-like operator on stringified values
+
+0.014     2017-03-25 22:45:14+08:00 Asia/Kuala_Lumpur
+    New features:
+    - sprintf_methods as shorthand for ->map(sprintf '...', $_->x, $_->y, ...)
+    - Ryu::Source->from(Future), ->from(ARRAY)
+
+0.013     2017-03-14 00:10:19+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->rev_sort_by (and ->rev_nsort_by) for reverse sorting
+    - sorting functions are now guaranteed stable
+
+0.012     2017-03-10 00:38:22+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->with_index annotates items with index information
+    - ->sort_by for text sorting on a key
+    - ->nsort_by for numeric sorting
+    - ->extract_all for regex m//gc extraction
+
+0.011     2017-03-09 22:47:41+08:00 Asia/Kuala_Lumpur
+    Bug fixes:
+
+    - Base64 decode - too many parameters were being passed to MIME::Base64::decode_base64
+
+    New features:
+
+    - 'UTF-8' is now supported as an alias for utf8 in ->encode
+    and ->decode.
+    - ->catch for continuing after errors
+    - ->as_string and ->as_list / ->as_arrayref Future-returning methods
+    - ->prefix and ->suffix
+
+0.010     2017-03-04 14:20:06+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->say and ->print methods
+
+0.009     2017-03-04 00:00:46+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->encode and ->decode with a few basic transcoders
+
+0.008     2017-03-03 23:03:06+08:00 Asia/Kuala_Lumpur
+    Bug fixes:
+
+    - ->distinct now works more like it's described
+
+    New features:
+
+    - ->ordered_futures method
+    - ->distinct_until_changed
+
+0.007     2017-02-12 18:51:17+08:00 Asia/Kuala_Lumpur
+    Bug fixes:
+
+    - Discard values when finishing ->combine_latest and ->with_latest_from
+    - Better protection against finish-after-failure errors
+
+0.006     2017-01-29 01:06:51+08:00 Asia/Kuala_Lumpur
+    API changes:
+
+    - Ryu::Exception->future renamed to ->as_future, old method is
+    still available but will be dropped by 1.0.
+
+    New features:
+    - ->source and ->value for Ryu::Observable
+
+0.005     2017-01-16 20:26:27+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->set_numeric and ->set_string for Ryu::Observable
+
+    Cosmetic changes:
+
+    - Automatic labels for operators now omit the Ryu::Source:: prefix
+
+0.004     2017-01-16 02:34:22+08:00 Asia/Kuala_Lumpur
+    API changes:
+
+    - ->await now returns the source, not the completion Future.
+
+    Bug fixes:
+
+    - ->await didn't, instead it delegated to Future's ->await which provides
+    no guarantees about readiness when it returns. Fixed by looping until the
+    Future is ready.
+
+0.003     2017-01-16 01:38:09+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - Ryu::Observable->subscribe callbacks now receive value in $_ as well as @_
+
+    Dependency fixes:
+
+    - Missing deps - Variable::Disposition, etc. - added
+    - Moved some unessential modules to recommends/suggests
+
 0.002     2017-01-11 01:01:04+08:00 Asia/Kuala_Lumpur
     No new features.
 
     Dependency fixes:
-    * Removed references to Devel::Peek, Devel::Refcount and Devel::MAT
+
+    - Removed references to Devel::Peek, Devel::Refcount and Devel::MAT
     left over from earlier testing.
 
 0.001     2017-01-08 19:45:18+08:00 Asia/Kuala_Lumpur
     Initial CPAN release
+
