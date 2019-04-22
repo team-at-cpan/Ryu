@@ -1,4 +1,3 @@
-requires 'perl', '>= 5.018';
 requires 'parent', 0;
 requires 'curry', '>= 1.001';
 requires 'indirect', 0;
