@@ -11,7 +11,7 @@ jobs:
         command: |
           cpanm -n $(dzil authordeps)
           cpanm --installdeps .
-          make && make test
+          perl Makefile.PL && make && make test
         name: Run tests
     - save_cache:
         key: cpan
