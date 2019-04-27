@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.003     2019-04-28 00:15:57+08:00 Asia/Kuala_Lumpur
     Documentation fixes:
 
     - Incorrect `C<>` block, thanks to MANWAR for reporting+submitting a
