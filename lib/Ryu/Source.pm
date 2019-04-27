@@ -305,7 +305,7 @@ sub decode {
 
 =head2 print
 
-Shortcut for C< ->each(sub { print }) >, except this will
+Shortcut for C<< ->each(sub { print }) >>, except this will
 also save the initial state of C< $\ > and use that for each
 call for consistency.
 
@@ -593,6 +593,38 @@ sub chunksize : method {
     $self->each_while_source(sub {
         $buffer .= $_;
         $src->emit(substr $buffer, 0, $size, '') while length($buffer) >= $size;
+    }, $src);
+}
+
+=head2 batch
+
+Splits input into arrayref batches of a given size.
+
+Note that the last item emitted may have fewer elements (or none at all).
+
+ $src->batch(10)
+  ->map(sub { "Next 10 (or fewer) items: @$_" })
+  ->say;
+
+=cut
+
+sub batch : method {
+    my ($self, $size) = @_;
+    die 'need positive batch parameter' unless $size && $size > 0;
+
+    my $buffer = '';
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+    my @batch;
+    $self->completed->on_ready(sub {
+        return if $src->is_ready;
+        $src->emit([ splice @batch ]) if @batch;
+        shift->on_ready($src->completed);
+    });
+    $self->each_while_source(sub {
+        push @batch, $_;
+        while(@batch >= $size and my (@items) = splice @batch, 0, $size) {
+            $src->emit(\@items)
+        }
     }, $src);
 }
 
