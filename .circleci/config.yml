@@ -5,9 +5,15 @@ jobs:
     - image: tm604/perl-dzil
     steps:
     - checkout
+    - restore_cache:
+        key: cpan
     - run:
         command: |
           cpanm -n $(dzil authordeps)
           cpanm --installdeps .
-          dzil test
+          make && make test
         name: Run tests
+    - save_cache:
+        key: cpan
+        paths:
+            - /usr/local/lib/perl5/site_perl
