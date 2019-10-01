@@ -5,6 +5,8 @@ Revision history for {{$dist->name}}
 
     Bugs fixed:
 
+    - ->with_index and some other methods were not completing when the parent
+    was finished - thanks to Amin Marashi for reporting
     - lifetime handling for chained sources was simplified, ->each_while_source
     was supposed to attach handlers for the parent rather than the child source
     - dropped usage of namespace::clean
