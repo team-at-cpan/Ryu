@@ -10,7 +10,7 @@ jobs:
     - run:
         command: |
           cpanm -n $(dzil authordeps)
-          cpanm --installdeps --with-develop .
+          cpanm -n --installdeps --with-develop .
           perl Makefile.PL && make && make test
         name: Run tests
     - run:
