@@ -6,14 +6,18 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-        key: cpan
+        key: cpan-{{ checksum "cpanfile" }}
     - run:
         command: |
           cpanm -n $(dzil authordeps)
-          cpanm --installdeps .
+          cpanm --installdeps --with-develop .
           perl Makefile.PL && make && make test
         name: Run tests
+    - run:
+        command: |
+          cover -test -report coveralls
+        name: Coverage
     - save_cache:
-        key: cpan
+        key: cpan-{{ checksum "cpanfile" }}
         paths:
             - /usr/local/lib/perl5/site_perl
