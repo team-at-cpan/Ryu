@@ -26,10 +26,10 @@ concept. Where possible, it tries to provide a similar API. It is not a directly
 Eventually some documentation pages might appear, but at the moment they're unlikely to exist.
 
 - Network protocol implementations - if you're bored of stringing together `substr`, `pack`, `unpack`
-and `vec`, try [Ryu::Manual::Protocol](https://metacpan.org/pod/Ryu::Manual::Protocol)
+and `vec`, try [Ryu::Manual::Protocol](https://metacpan.org/pod/Ryu%3A%3AManual%3A%3AProtocol)
 - Extract, Transform, Load workflows (ETL) - need to pull data from somewhere, mangle it into shape, push it to
-a database? that'd be [Ryu::Manual::ETL](https://metacpan.org/pod/Ryu::Manual::ETL)
-- Reactive event handling - [Ryu::Manual::Reactive](https://metacpan.org/pod/Ryu::Manual::Reactive)
+a database? that'd be [Ryu::Manual::ETL](https://metacpan.org/pod/Ryu%3A%3AManual%3A%3AETL)
+- Reactive event handling - [Ryu::Manual::Reactive](https://metacpan.org/pod/Ryu%3A%3AManual%3A%3AReactive)
 
 As an expert software developer with a keen eye for useful code, you may already be bored of this documentation
 and on the verge of reaching for alternatives. The ["SEE ALSO"](#see-also) section may speed you on your way.
@@ -38,7 +38,7 @@ and on the verge of reaching for alternatives. The ["SEE ALSO"](#see-also) secti
 
 ### Sources
 
-A source emits items. See [Ryu::Source](https://metacpan.org/pod/Ryu::Source).
+A source emits items. See [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource).
 
 Items can be any scalar value - some examples:
 
@@ -51,11 +51,11 @@ Items can be any scalar value - some examples:
 
 ### Sinks
 
-A sink receives items. It's the counterpart to a source. See [Ryu::Sink](https://metacpan.org/pod/Ryu::Sink).
+A sink receives items. It's the counterpart to a source. See [Ryu::Sink](https://metacpan.org/pod/Ryu%3A%3ASink).
 
 ### Streams
 
-A stream is a thing with a source. See [Ryu::Stream](https://metacpan.org/pod/Ryu::Stream), which is likely to be something that does not yet
+A stream is a thing with a source. See [Ryu::Stream](https://metacpan.org/pod/Ryu%3A%3AStream), which is likely to be something that does not yet
 exist.
 
 ## What does this module do?
@@ -65,7 +65,7 @@ Nothing. It's just a top-level loader for pulling in all the other components.
 ## Some notes that might not relate to anything
 
 With a single parameter, ["from"](#from) and ["to"](#to) will use the given
-instance as a [Ryu::Source](https://metacpan.org/pod/Ryu::Source) or [Ryu::Sink](https://metacpan.org/pod/Ryu::Sink) respectively.
+instance as a [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource) or [Ryu::Sink](https://metacpan.org/pod/Ryu%3A%3ASink) respectively.
 
 Multiple parameters are a shortcut for instantiating the given source
 or sink:
@@ -90,11 +90,11 @@ is equivalent to
 
 ## from
 
-Helper method which returns a [Ryu::Source](https://metacpan.org/pod/Ryu::Source) from a list of items.
+Helper method which returns a [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource) from a list of items.
 
 ## just
 
-Helper method which returns a single-item [Ryu::Source](https://metacpan.org/pod/Ryu::Source).
+Helper method which returns a single-item [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource).
 
 # SEE ALSO
 
@@ -103,21 +103,21 @@ Helper method which returns a single-item [Ryu::Source](https://metacpan.org/pod
 Some perl modules of relevance:
 
 - [Future](https://metacpan.org/pod/Future) - fundamental building block for one-shot tasks
-- [POE::Filter](https://metacpan.org/pod/POE::Filter) - venerable and battle-tested, but slightly short on features due to the focus on protocols
-- [Data::Transform](https://metacpan.org/pod/Data::Transform) - standalone version of [POE::Filter](https://metacpan.org/pod/POE::Filter)
-- [List::Gen](https://metacpan.org/pod/List::Gen) - list mangling features
-- [HOP::Stream](https://metacpan.org/pod/HOP::Stream) - based on the Higher Order Perl book
-- [Flow](https://metacpan.org/pod/Flow) - quite similar in concept to this module, maybe a bit short on documentation, doesn't provide integration with other sources such as files or [IO::Async::Stream](https://metacpan.org/pod/IO::Async::Stream)
+- [POE::Filter](https://metacpan.org/pod/POE%3A%3AFilter) - venerable and battle-tested, but slightly short on features due to the focus on protocols
+- [Data::Transform](https://metacpan.org/pod/Data%3A%3ATransform) - standalone version of [POE::Filter](https://metacpan.org/pod/POE%3A%3AFilter)
+- [List::Gen](https://metacpan.org/pod/List%3A%3AGen) - list mangling features
+- [HOP::Stream](https://metacpan.org/pod/HOP%3A%3AStream) - based on the Higher Order Perl book
+- [Flow](https://metacpan.org/pod/Flow) - quite similar in concept to this module, maybe a bit short on documentation, doesn't provide integration with other sources such as files or [IO::Async::Stream](https://metacpan.org/pod/IO%3A%3AAsync%3A%3AStream)
 - [Flux](https://metacpan.org/pod/Flux) - more like the java8 streams API, sync-based
-- [Message::Passing](https://metacpan.org/pod/Message::Passing) - on initial glance seemed more of a commandline tool, sadly based on [AnyEvent](https://metacpan.org/pod/AnyEvent)
+- [Message::Passing](https://metacpan.org/pod/Message%3A%3APassing) - on initial glance seemed more of a commandline tool, sadly based on [AnyEvent](https://metacpan.org/pod/AnyEvent)
 - [Rx.pl](https://github.com/eilara/Rx.pl) - a Perl version of the [http://reactivex.io](http://reactivex.io) Reactive API
 - [Perlude](https://metacpan.org/pod/Perlude) - combines features of the shell / UNIX streams and Haskell, pipeline
 syntax is "backwards" (same as grep/map chains in Perl)
-- [IO::Pipeline](https://metacpan.org/pod/IO::Pipeline)
+- [IO::Pipeline](https://metacpan.org/pod/IO%3A%3APipeline)
 - [DS](https://metacpan.org/pod/DS)
 - [Evo](https://metacpan.org/pod/Evo)
-- [Async::Stream](https://metacpan.org/pod/Async::Stream) - early release, but seems to be very similar in concept to [Ryu::Source](https://metacpan.org/pod/Ryu::Source)
-- [Data::Monad](https://metacpan.org/pod/Data::Monad)
+- [Async::Stream](https://metacpan.org/pod/Async%3A%3AStream) - early release, but seems to be very similar in concept to [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource)
+- [Data::Monad](https://metacpan.org/pod/Data%3A%3AMonad)
 
 ## Other references
 

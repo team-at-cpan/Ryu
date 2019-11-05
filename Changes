@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.008     2019-11-06 00:05:39+08:00 Asia/Kuala_Lumpur
     New features:
 
     - support ->on_failed on Ryu::Source
