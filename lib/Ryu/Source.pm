@@ -1038,6 +1038,10 @@ sub ordered_futures {
         my $k = Scalar::Util::refaddr $_;
         $pending{$k} = 1;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
+        my $f = $_;
+        $src->completed->on_ready(sub {
+            $f->cancel if !$f->is_ready and !$src->completed->is_done;
+        });
         $_->on_done($src->curry::weak::emit)
           ->on_fail(sub { $weak_src->fail(@_) unless $weak_src->completed->is_failed })
           ->on_ready(sub {
