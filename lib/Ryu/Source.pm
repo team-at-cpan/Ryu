@@ -1026,7 +1026,6 @@ sub ordered_futures {
     my ($self) = @_;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my %pending;
-    Scalar::Util::weaken(my $weak_src = $src);
     Scalar::Util::weaken(my $upstream_completed = $self->completed);
     my $all_finished = 0;
     $upstream_completed->on_ready(sub {
@@ -1043,7 +1042,7 @@ sub ordered_futures {
             $f->cancel if !$f->is_ready and !$src->completed->is_done;
         });
         $_->on_done($src->curry::weak::emit)
-          ->on_fail(sub { $weak_src->fail(@_) unless $weak_src->completed->is_failed })
+          ->on_fail(sub { $src->fail(@_) unless $src->completed->is_failed; })
           ->on_ready(sub {
               delete $pending{$k};
               $log->tracef('Ordered futures now has %d pending after completion, upstream finish status is %d', 0 + keys(%pending), $all_finished);
