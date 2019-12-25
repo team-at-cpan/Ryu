@@ -1304,7 +1304,12 @@ sub skip_until {
             my $reached = 0;
             sub { return $src->emit($_) if $reached ||= $condition->($_); }
         } elsif(Scalar::Util::blessed($condition) && $condition->isa('Future')) {
-            $condition->on_fail($src->completed)->on_cancel($src->completed);
+            $condition->on_ready($src->$curry::weak(sub {
+                my ($src, $cond) = @_;
+                return if $src->is_ready;
+                $src->fail($cond->failure) if $cond->is_failed;
+                $src->cancel if $cond->is_cancelled
+            }));
             sub { $src->emit($_) if $condition->is_done; }
         } else {
             die 'unknown type for condition: ' . $condition;
@@ -1351,7 +1356,12 @@ sub take_until {
                 my $reached = 0;
                 sub { return $src->emit($_) unless $reached ||= $condition->($_); }
             } elsif(Scalar::Util::blessed($condition) && $condition->isa('Future')) {
-                $condition->on_fail($src->completed)->on_cancel($src->completed);
+                $condition->on_ready($src->$curry::weak(sub {
+                    my ($src, $cond) = @_;
+                    return if $src->is_ready;
+                    $src->fail($cond->failure) if $cond->is_failed;
+                    $src->cancel if $cond->is_cancelled
+                }));
                 sub { $src->emit($_) unless $condition->is_done; }
             } else {
                 die 'unknown type for condition: ' . $condition;
