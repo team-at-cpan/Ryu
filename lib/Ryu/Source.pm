@@ -758,7 +758,7 @@ sub buffer {
         my ($f) = @_;
         return if @pending;
         my $addr = Scalar::Util::refaddr($code);
-        my $count = List::UtilsBy::extract_by { $addr == refaddr($_) } @{$self->{on_item}};
+        my $count = List::UtilsBy::extract_by { $addr == Scalar::Util::refaddr($_) } @{$self->{on_item}};
         $f->on_ready($src->completed) unless $src->is_ready;
         $log->tracef("->each_while_source completed on %s for refaddr 0x%x, removed %d on_item handlers", $self->describe, Scalar::Util::refaddr($self), $count);
     });
@@ -1817,7 +1817,7 @@ sub notify_child_completion {
     }
 
     $log->warnf("Child %s (addr 0x%x) not found in list for %s", $child->describe, $self->describe);
-    $log->tracef("* %s (addr 0x%x)", $_->describe, refaddr($_)) for @{$self->{children}};
+    $log->tracef("* %s (addr 0x%x)", $_->describe, Scalar::Util::refaddr($_)) for @{$self->{children}};
     $self
 }
 
@@ -1944,7 +1944,7 @@ sub each_while_source {
         my ($f) = @_;
         $args{cleanup}->($f, $src) if exists $args{cleanup};
         my $addr = Scalar::Util::refaddr($code);
-        my $count = List::UtilsBy::extract_by { $addr == refaddr($_) } @{$self->{on_item}};
+        my $count = List::UtilsBy::extract_by { $addr == Scalar::Util::refaddr($_) } @{$self->{on_item}};
         $f->on_ready($src->completed) unless $src->is_ready;
         $log->tracef("->each_while_source completed on %s for refaddr 0x%x, removed %d on_item handlers", $self->describe, Scalar::Util::refaddr($self), $count);
     });
