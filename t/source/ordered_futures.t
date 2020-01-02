@@ -26,7 +26,7 @@ ok($ordered->completed->is_done, 'ordered futures complete after all Futures res
 cmp_deeply(\@actual, [ 1,2,0 ], 'ordered_futures operation was performed');
 
 
-subtest 'One of the emited itemes has faild' => sub {
+subtest 'One of the emitted items has failed' => sub {
     my $src = Ryu::Source->new;
     my $ordered = $src->ordered_futures;
     my @f = map Future->new, 0..2;
