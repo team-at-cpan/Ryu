@@ -88,6 +88,14 @@ is equivalent to
 - there's Rx for other languages, and this is based on the same ideas
 - 流 was too hard for me to type
 
+# METHODS
+
+Note that you're more likely to find useful methods in the following classes:
+
+- [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource)
+- [Ryu::Sink](https://metacpan.org/pod/Ryu%3A%3ASink)
+- [Ryu::Observable](https://metacpan.org/pod/Ryu%3A%3AObservable)
+
 ## from
 
 Helper method which returns a [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource) from a list of items.
@@ -129,8 +137,9 @@ There are various documents, specifications and discussions relating to the conc
 
 # AUTHOR
 
-Tom Molesworth <TEAM@cpan.org>
+Tom Molesworth `<TEAM@cpan.org>` with contributions from Mohammad S Anwar,
+Michael Mueller, Zak Elep and Mohanad Zarzour.
 
 # LICENSE
 
-Copyright Tom Molesworth 2011-2019. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2020. Licensed under the same terms as Perl itself.
