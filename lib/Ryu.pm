@@ -121,6 +121,22 @@ our $ryu = __PACKAGE__->new;
 
 our @EXPORT_OK = qw($ryu);
 
+=head1 METHODS
+
+Note that you're more likely to find useful methods in the following classes:
+
+=over 4
+
+=item * L<Ryu::Source>
+
+=item * L<Ryu::Sink>
+
+=item * L<Ryu::Observable>
+
+=back
+
+=cut
+
 sub new { bless { @_[1..$#_] }, $_[0] }
 
 =head2 from
@@ -208,9 +224,10 @@ There are various documents, specifications and discussions relating to the conc
 
 =head1 AUTHOR
 
-Tom Molesworth <TEAM@cpan.org>
+Tom Molesworth C<< <TEAM@cpan.org> >> with contributions from Mohammad S Anwar,
+Michael Mueller, Zak Elep and Mohanad Zarzour.
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2011-2019. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2020. Licensed under the same terms as Perl itself.
 
