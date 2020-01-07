@@ -1037,8 +1037,12 @@ sub ordered_futures {
         my $k = Scalar::Util::refaddr $_;
         $pending{$k} = 1;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
+        my $f = $_;
+        $src->completed->on_ready(sub {
+            $f->cancel unless $f->is_ready or $src->completed->is_done;
+        });
         $_->on_done($src->curry::weak::emit)
-          ->on_fail($src->curry::weak::fail)
+          ->on_fail(sub { $src->fail(@_) unless $src->completed->is_failed; })
           ->on_ready(sub {
               delete $pending{$k};
               $log->tracef('Ordered futures now has %d pending after completion, upstream finish status is %d', 0 + keys(%pending), $all_finished);
