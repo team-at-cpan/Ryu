@@ -1,11 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
-    no new features.
+    No new features.
 
-    Bug fixed:
+    Bugs fixed:
 
-    - ->ordered_futures cancel the pending items when the source fail.
+    - ->ordered_futures now cancels any pending Futures when the source fails.
 
 1.010     2019-12-25 20:55:38+08:00 Asia/Kuala_Lumpur
     No new features.
