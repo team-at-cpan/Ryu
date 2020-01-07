@@ -1017,9 +1017,18 @@ sub switch_str {
 =head2 ordered_futures
 
 Given a stream of L<Future>s, will emit the results as each L<Future>
-is marked ready. If any fail, the stream will fail.
+is marked ready.
 
-This is a terrible name for a method, expect it to change.
+If any L<Future> in the stream fails, that will mark this source as failed,
+and all remaining L<Future> instances will be cancelled. To avoid this behaviour
+and leave the L<Future> instances active, use:
+
+ $src->map('without_cancel')
+     ->ordered_futures
+
+See L<Future/without_cancel> for more details.
+
+This method is also available as L</resolve>.
 
 =cut
 
@@ -1027,11 +1036,11 @@ sub ordered_futures {
     my ($self) = @_;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my %pending;
-    Scalar::Util::weaken(my $upstream_completed = $self->completed);
+    my $src_completed = $src->completed;
     my $all_finished = 0;
-    $upstream_completed->on_ready(sub {
+    $self->completed->on_ready(sub {
         $all_finished = 1;
-        $src->completed->done unless %pending or $src->completed->is_ready;
+        $src->completed->done unless %pending or $src_completed->is_ready;
     });
 
     $self->each(sub {
@@ -1039,21 +1048,30 @@ sub ordered_futures {
         $pending{$k} = 1;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
         my $f = $_;
-        $src->completed->on_ready(sub {
-            $f->cancel unless $f->is_ready or $src->completed->is_done;
-        });
-        $_->on_done($src->curry::weak::emit)
-          ->on_fail(sub { $src->fail(@_) unless $src->completed->is_failed; })
+        $src_completed->on_ready(sub { $f->cancel });
+        $_->on_done(sub {
+            my @pending = @_;
+            while(@pending and not $src_completed->is_ready) {
+                $src->emit(shift @pending);
+            }
+        })
+          ->on_fail(sub { $src->fail(@_) unless $src_completed->is_ready; })
           ->on_ready(sub {
               delete $pending{$k};
               $log->tracef('Ordered futures now has %d pending after completion, upstream finish status is %d', 0 + keys(%pending), $all_finished);
               return if %pending;
-              $src->completed->done if $all_finished and not $src->completed->is_ready;
+              $src_completed->done if $all_finished and not $src_completed->is_ready;
           })
           ->retain
     });
     return $src;
 }
+
+=head2 resolve
+
+A synonym for L</ordered_futures>.
+
+=cut
 
 *resolve = *ordered_futures;
 
