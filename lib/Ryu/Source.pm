@@ -28,6 +28,7 @@ point.
 
 no indirect;
 
+use sort qw(stable);
 use Scalar::Util ();
 use Ref::Util ();
 use List::Util ();
@@ -1206,7 +1207,6 @@ See L</sort_by>.
 =cut
 
 sub rev_nsort_by {
-    use sort qw(stable);
     my ($self, $code) = @_;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my @items;
