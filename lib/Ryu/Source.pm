@@ -1039,7 +1039,7 @@ sub ordered_futures {
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
         my $f = $_;
         $src->completed->on_ready(sub {
-            $f->cancel if !$f->is_ready and !$src->completed->is_done;
+            $f->cancel unless $f->is_ready or $src->completed->is_done;
         });
         $_->on_done($src->curry::weak::emit)
           ->on_fail(sub { $src->fail(@_) unless $src->completed->is_failed; })
