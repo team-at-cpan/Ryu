@@ -42,6 +42,16 @@ a database? that'd be L<Ryu::Manual::ETL>
 As an expert software developer with a keen eye for useful code, you may already be bored of this documentation
 and on the verge of reaching for alternatives. The L</SEE ALSO> section may speed you on your way.
 
+=head2 Compatibility
+
+Since L<Mojo::Rx> follows the ReactiveX conventions quite closely, we'd expect to have
+the ability to connect L<Mojo::Rx> observable to a L<Ryu::Source>, and provide an
+adapter from a L<Ryu::Source> to act as a L<Mojo::Rx>-style observable. This is not yet
+implemented, but planned for a future version.
+
+Most of the other modules in L<SEE ALSO> are either not used widely enough or not a good
+semantic fit for a compatibility layer - but if you're interested in this, L<please ask|https://github.com/team-at-cpan/Ryu/issues>.
+
 =head2 Components
 
 =head3 Sources
@@ -205,6 +215,8 @@ syntax is "backwards" (same as grep/map chains in Perl)
 =item * L<Async::Stream> - early release, but seems to be very similar in concept to L<Ryu::Source>
 
 =item * L<Data::Monad>
+
+=item * L<Mojo::Rx> - Mojolicious-specific support for ReactiveX, follows the rxjs API quite closely
 
 =back
 
