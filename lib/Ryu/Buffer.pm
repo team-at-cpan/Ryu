@@ -186,6 +186,34 @@ my %character_sizes = map {
     $_ => length(pack("x[$_]", ""))
 } split //, $pack_characters;
 
+=head2 read_packed
+
+Uses L<pack> template notation to define a pattern to extract.
+Will attempt to accumulate enough bytes to fulfill the request,
+then unpack and extract from the buffer.
+
+This method only supports a B<very limited> subset of the
+full L<pack> functionality - currently, this includes
+sequences such as C<A4> or C<N1n1>, but does B<not> handle
+multi-stage templates such as C<N/a*>.
+
+These would need to parse the initial C<N1> bytes to
+determine the full extent of the data to be processed, and
+the logic for handling this is not yet implemented.
+
+Takes the following parameters:
+
+=over 4
+
+=item * C<$format> - a L<pack>-style format string
+
+=back
+
+Returns a L<Future> which will resolve to the requested items,
+of which there can be more than one depending on the format string.
+
+=cut
+
 sub read_packed {
     my ($self, $format) = @_;
     my $f = $self->new_future;

@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - basic ->read_packed support in Ryu::Buffer
 
 2.000     2020-06-09 00:37:33+08:00 Asia/Kuala_Lumpur
     New features:
