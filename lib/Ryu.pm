@@ -6,7 +6,7 @@ use warnings;
 # Older versions cannot complete the test suite successfully
 use 5.018;
 
-our $VERSION = '1.012';
+our $VERSION = '2.000';
 # AUTHORITY
 
 =encoding utf8
