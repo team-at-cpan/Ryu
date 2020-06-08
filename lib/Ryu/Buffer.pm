@@ -181,6 +181,48 @@ sub read_until {
     $f;
 }
 
+my $pack_characters = q{aAZbBhHcCWsSlLqQiInNvVjJfdFpPUwx};
+my %character_sizes = map {
+    $_ => length(pack("x[$_]", ""))
+} split //, $pack_characters;
+
+sub read_packed {
+    my ($self, $format) = @_;
+    my $f = $self->new_future;
+    my @handler;
+    my $simple_format = $format;
+
+    # Might as well avoid too much complexity
+    # in the parser
+    $simple_format =~ s{\[([0-9]+)\]}{$1}g;
+    $simple_format =~ s{\s+}{}g;
+    PARSER:
+    while(1) {
+        for($simple_format) {
+            if(my ($char, $count) = /\G([$pack_characters])[!><]?([0-9]*)/gc) {
+                $count *= $character_sizes{$char};
+                push @handler, {
+                    regex => qr/(.{$count})/,
+                }
+            }
+            last PARSER unless pos($_) < length($_);
+        }
+    }
+    my $re = join '', map { $_->{regex} } @handler;
+    push @{$self->{ops}}, $self->$curry::weak(sub {
+        my ($self) = @_;
+        return $f if $f->is_ready;
+        return $f unless length($self->{data});
+
+        return $f unless $self->{data} =~ m{^$re};
+        my @items = unpack $format, $self->{data};
+        $self->{data} =~ s{^$re}{};
+        $f->done(@items);
+    });
+    $self->process_pending;
+    $f;
+}
+
 =head2 write
 
 Add more data to the buffer.
