@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 # VERSION
+# AUTHORITY
 
 =head1 NAME
 
@@ -94,10 +95,6 @@ sub as_future {
     my ($self) = @_;
     return Future->fail($self->message, $self->type, $self->details);
 }
-
-# Legacy support - will be dropped in 1.0,
-# probably should warn before then anyway.
-*future = *as_future;
 
 =head2 from_future
 

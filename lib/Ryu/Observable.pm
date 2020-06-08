@@ -6,6 +6,7 @@ use warnings;
 use utf8;
 
 # VERSION
+# AUTHORITY
 
 =encoding utf8
 

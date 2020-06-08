@@ -6,6 +6,7 @@ use warnings;
 use parent qw(Ryu::Node);
 
 # VERSION
+# AUTHORITY
 
 =head1 NAME
 

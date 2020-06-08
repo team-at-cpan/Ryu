@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 # VERSION
+# AUTHORITY
 
 =head1 NAME
 
@@ -122,6 +123,8 @@ sub flow_control {
 sub label { shift->{label} }
 
 sub parent { shift->{parent} }
+
+sub new_future { shift->{new_future}->() }
 
 1;
 

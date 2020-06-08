@@ -7,6 +7,7 @@ use warnings;
 use 5.018;
 
 our $VERSION = '1.012';
+# AUTHORITY
 
 =encoding utf8
 
@@ -30,7 +31,7 @@ Eventually some documentation pages might appear, but at the moment they're unli
 =over 4
 
 =item * Network protocol implementations - if you're bored of stringing together C<substr>, C<pack>, C<unpack>
-and C<vec>, try L<Ryu::Manual::Protocol>
+and C<vec>, try L<Ryu::Manual::Protocol> or L<Ryu::Buffer>.
 
 =item * Extract, Transform, Load workflows (ETL) - need to pull data from somewhere, mangle it into shape, push it to
 a database? that'd be L<Ryu::Manual::ETL>
@@ -56,7 +57,8 @@ semantic fit for a compatibility layer - but if you're interested in this, L<ple
 
 =head3 Sources
 
-A source emits items. See L<Ryu::Source>.
+A source emits items. See L<Ryu::Source>. If in doubt, this is likely to be the class
+that you wanted.
 
 Items can be any scalar value - some examples:
 
@@ -83,11 +85,12 @@ A sink receives items. It's the counterpart to a source. See L<Ryu::Sink>.
 =head3 Streams
 
 A stream is a thing with a source. See L<Ryu::Stream>, which is likely to be something that does not yet
-exist.
+have much documentation - in practice, the L<Ryu::Source> implementation covers most use-cases.
 
-=head2 What does this module do?
+=head2 So what does this module do?
 
 Nothing. It's just a top-level loader for pulling in all the other components.
+You wanted L<Ryu::Source> instead, or possibly L<Ryu::Buffer>.
 
 =head2 Some notes that might not relate to anything
 
@@ -131,6 +134,10 @@ our $ryu = __PACKAGE__->new;
 
 our @EXPORT_OK = qw($ryu);
 
+our $FUTURE_FACTORY = sub {
+    Future->new->set_label($_[1])
+};
+
 =head1 METHODS
 
 Note that you're more likely to find useful methods in the following classes:
@@ -144,6 +151,12 @@ Note that you're more likely to find useful methods in the following classes:
 =item * L<Ryu::Observable>
 
 =back
+
+=cut
+
+=head2 new
+
+Instantiates a L<Ryu> object, allowing L</from>, L</just> and other methods.
 
 =cut
 
@@ -186,6 +199,8 @@ Some perl modules of relevance:
 =over 4
 
 =item * L<Future> - fundamental building block for one-shot tasks
+
+=item * L<Future::Queue> - a FIFO queue for L<Future> tasks
 
 =item * L<POE::Filter> - venerable and battle-tested, but slightly short on features due to the focus on protocols
 
