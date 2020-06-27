@@ -202,6 +202,8 @@ Some perl modules of relevance:
 
 =item * L<Future::Queue> - a FIFO queue for L<Future> tasks
 
+=item * L<Future::Buffer> - provides equivalent functionality to L<Ryu::Buffer>
+
 =item * L<POE::Filter> - venerable and battle-tested, but slightly short on features due to the focus on protocols
 
 =item * L<Data::Transform> - standalone version of L<POE::Filter>

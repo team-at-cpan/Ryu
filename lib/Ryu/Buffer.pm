@@ -21,6 +21,10 @@ and get them back out again.
 
 Typically of use for delimiter-based or fixed-size protocols.
 
+See also L<Future::Buffer>, if you're dealing exclusively with L<Future>
+instances and don't need the L<Ryu::Source> functionality then that's
+likely to be a better option.
+
 =cut
 
 use curry;
