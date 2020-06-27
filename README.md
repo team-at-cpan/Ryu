@@ -21,6 +21,9 @@ Ryu - asynchronous stream building blocks
 Provides data flow processing for asynchronous coding purposes. It's a bit like [ReactiveX](https://reactivex.io) in
 concept. Where possible, it tries to provide a similar API. It is not a directly-compatible implementation, however.
 
+For more information, start with [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource). That's where most of the
+useful parts are.
+
 ## Why would I be using this?
 
 Eventually some documentation pages might appear, but at the moment they're unlikely to exist.
@@ -128,6 +131,7 @@ Some perl modules of relevance:
 
 - [Future](https://metacpan.org/pod/Future) - fundamental building block for one-shot tasks
 - [Future::Queue](https://metacpan.org/pod/Future%3A%3AQueue) - a FIFO queue for [Future](https://metacpan.org/pod/Future) tasks
+- [Future::Buffer](https://metacpan.org/pod/Future%3A%3ABuffer) - provides equivalent functionality to [Ryu::Buffer](https://metacpan.org/pod/Ryu%3A%3ABuffer)
 - [POE::Filter](https://metacpan.org/pod/POE%3A%3AFilter) - venerable and battle-tested, but slightly short on features due to the focus on protocols
 - [Data::Transform](https://metacpan.org/pod/Data%3A%3ATransform) - standalone version of [POE::Filter](https://metacpan.org/pod/POE%3A%3AFilter)
 - [List::Gen](https://metacpan.org/pod/List%3A%3AGen) - list mangling features
@@ -144,6 +148,7 @@ syntax is "backwards" (same as grep/map chains in Perl)
 - [Async::Stream](https://metacpan.org/pod/Async%3A%3AStream) - early release, but seems to be very similar in concept to [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource)
 - [Data::Monad](https://metacpan.org/pod/Data%3A%3AMonad)
 - [Mojo::Rx](https://metacpan.org/pod/Mojo%3A%3ARx) - Mojolicious-specific support for ReactiveX, follows the rxjs API quite closely
+- [RxPerl](https://metacpan.org/pod/RxPerl) - same author as [Mojo::Rx](https://metacpan.org/pod/Mojo%3A%3ARx), this (will eventually!) provide a ReactiveX API without being tied to Mojolicious
 
 ## Other references
 
