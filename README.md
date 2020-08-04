@@ -161,7 +161,7 @@ There are various documents, specifications and discussions relating to the conc
 # AUTHOR
 
 Tom Molesworth `<TEAM@cpan.org>` with contributions from Mohammad S Anwar,
-Michael Mueller, Zak Elep and Mohanad Zarzour.
+Michael Mueller, Zak Elep, Mohanad Zarzour and Nael Alolwani.
 
 # LICENSE
 
