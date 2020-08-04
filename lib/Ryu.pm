@@ -259,7 +259,7 @@ There are various documents, specifications and discussions relating to the conc
 =head1 AUTHOR
 
 Tom Molesworth C<< <TEAM@cpan.org> >> with contributions from Mohammad S Anwar,
-Michael Mueller, Zak Elep and Mohanad Zarzour.
+Michael Mueller, Zak Elep, Mohanad Zarzour and Nael Alolwani.
 
 =head1 LICENSE
 

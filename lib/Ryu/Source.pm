@@ -1158,12 +1158,16 @@ sub ordered_futures {
         $src->completed->done unless %pending or $src_completed->is_ready;
     });
 
+    $src_completed->on_ready(sub {
+        my @pending = values %pending;
+        %pending = ();
+        $_->cancel for grep { $_ and not $_->is_ready } @pending;
+    });
     $self->each(sub {
         my $k = Scalar::Util::refaddr $_;
         $pending{$k} = 1;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
         my $f = $_;
-        $src_completed->on_ready(sub { $f->cancel });
         $_->on_done(sub {
             my @pending = @_;
             while(@pending and not $src_completed->is_ready) {

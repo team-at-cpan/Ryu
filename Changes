@@ -1,6 +1,13 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Bugs fixed:
+
+    - memory leak when using ->ordered_futures, due to accumulation of callbacks for
+    cancelling pending requests (thanks to Nael Alolwani for reporting and providing
+    a test case)
 
 2.002     2020-06-27 23:53:40+08:00 Asia/Kuala_Lumpur
     No new features.
