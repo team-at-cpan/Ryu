@@ -49,6 +49,7 @@ Once you have a source, you'll need two things:
 
 For the first, call L</emit>:
 
+ use Future::AsyncAwait;
  # 1s drifting periodic timer
  while(1) {
   await $loop->delay_future(after => 1);
