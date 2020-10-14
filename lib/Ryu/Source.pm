@@ -1153,10 +1153,10 @@ sub ordered_futures {
     my %pending;
     my $src_completed = $src->completed;
     my $all_finished = 0;
-    $self->completed->on_ready(sub {
+    $self->completed->on_ready($self->completed->$curry::weak(sub {
         $all_finished = 1;
-        $src->completed->done unless %pending or $src_completed->is_ready;
-    });
+        $src_completed->on_ready(shift) unless %pending;
+    }));
 
     $src_completed->on_ready(sub {
         my @pending = values %pending;
