@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.004     2020-12-03 00:38:42+08:00 Asia/Kuala_Lumpur
     No new features.
 
     Bugs fixed:
