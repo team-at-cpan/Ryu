@@ -69,6 +69,17 @@ subtest 'failure propagation' => sub {
     $f->done(1);
     ok($ordered->completed->is_ready, 'now ready');
     is($ordered->completed->failure, 'example error', 'propagated correct error');
+};
+
+subtest 'immediate failure propagation' => sub {
+    my $src = Ryu::Source->new;
+    my $ordered = $src->ordered_futures;
+    $src->emit(my $f = Future->new);
+    # after this, should have nothing pending!
+    $f->done;
+    $src->fail('example error');
+    ok($ordered->completed->is_ready, 'now ready');
+    is($ordered->completed->failure, 'example error', 'propagated correct error');
     done_testing;
 };
 done_testing;

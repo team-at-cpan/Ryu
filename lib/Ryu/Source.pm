@@ -1217,10 +1217,11 @@ sub ordered_futures {
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my %pending;
     my $src_completed = $src->completed;
+
     my $all_finished;
     $self->completed->on_ready(sub {
         $all_finished = shift;
-        $src_completed->on_ready(shift) unless %pending or $src_completed->is_ready;
+        $all_finished->on_ready($src_completed) unless %pending or $src_completed->is_ready;
     });
 
     $src_completed->on_ready(sub {
