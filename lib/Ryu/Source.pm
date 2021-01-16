@@ -1194,25 +1194,41 @@ and leave the L<Future> instances active, use:
 
 See L<Future/without_cancel> for more details.
 
+Takes the following named parameters:
+
+=over 4
+
+=item * C<high> - once at least this many unresolved L<Future> instances are pending,
+will L</pause> the upstream L<Ryu::Source>.
+
+=item * C<low> - if the pending count drops to this number, will L</resume>
+the upstream L<Ryu::Source>.
+
+=back
+
 This method is also available as L</resolve>.
 
 =cut
 
 sub ordered_futures {
-    my ($self) = @_;
+    my ($self, %args) = @_;
+    my $low = delete $args{low};
+    my $high = delete $args{high};
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my %pending;
     my $src_completed = $src->completed;
-    my $all_finished = 0;
+    my $all_finished;
     $self->completed->on_ready(sub {
-        $all_finished = 1;
-        $src->completed->done unless %pending or $src_completed->is_ready;
+        $all_finished = shift;
+        $src_completed->on_ready(shift) unless %pending or $src_completed->is_ready;
     });
 
     $src_completed->on_ready(sub {
         my @pending = values %pending;
         %pending = ();
-        $_->cancel for grep { $_ and not $_->is_ready } @pending;
+        for(@pending) {
+            $_->cancel if $_ and not $_->is_ready;
+        }
     });
     $self->each(sub {
         my $f = $_;
@@ -1221,6 +1237,7 @@ sub ordered_futures {
         # ->is_ready callback removes it
         $pending{$k} = $f;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
+        $src->pause if $high and keys(%pending) >= $high;
         $_->on_done(sub {
             my @pending = @_;
             while(@pending and not $src_completed->is_ready) {
@@ -1230,9 +1247,10 @@ sub ordered_futures {
           ->on_fail(sub { $src->fail(@_) unless $src_completed->is_ready; })
           ->on_ready(sub {
               delete $pending{$k};
+              $src->resume if $low and keys(%pending) <= $low;
               $log->tracef('Ordered futures now has %d pending after completion, upstream finish status is %d', 0 + keys(%pending), $all_finished);
               return if %pending;
-              $src_completed->done if $all_finished and not $src_completed->is_ready;
+              $all_finished->on_ready($src_completed) if $all_finished and not $src_completed->is_ready;
           })
     });
     return $src;
