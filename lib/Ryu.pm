@@ -257,8 +257,23 @@ There are various documents, specifications and discussions relating to the conc
 
 =head1 AUTHOR
 
-Tom Molesworth C<< <TEAM@cpan.org> >> with contributions from Mohammad S Anwar,
-Michael Mueller, Zak Elep, Mohanad Zarzour and Nael Alolwani.
+Tom Molesworth C<< <TEAM@cpan.org> >> with contributions from:
+
+=over 4
+
+=item * Mohammad S Anwar
+
+=item * Michael Mueller
+
+=item * Zak Elep
+
+=item * Mohanad Zarzour
+
+=item * Nael Alolwani
+
+=item * Amin Marashi
+
+=back
 
 =head1 LICENSE
 
