@@ -972,10 +972,17 @@ sub as_buffer {
         }
     );
 
+    Scalar::Util::weaken(my $weak_sauce = $src);
+    Scalar::Util::weaken(my $weak_buffer = $buffer);
     $self->each_while_source(sub {
-        $buffer->write($_);
-        $src->pause if $high and $buffer->size >= $high;
-        $src->resume if $low and $buffer->size <= $low;
+        my $src = $weak_sauce or return;
+        my $buf = $weak_buffer or do {
+            $src->finish;
+            return;
+        };
+        $buf->write($_);
+        $src->pause if $high and $buf->size >= $high;
+        $src->resume if $low and $buf->size <= $low;
     }, $src);
     return $buffer;
 }
