@@ -78,7 +78,10 @@ sub read_exactly {
         my ($self) = @_;
         return $f if $f->is_ready;
         return $f unless $size <= length($self->{data});
-        $f->done(substr($self->{data}, 0, $size, ''));
+        my $data = substr($self->{data}, 0, $size, '');
+        $f->done($data);
+        $self->on_change;
+        return $f;
     });
     $self->process_pending;
     $f;
@@ -111,7 +114,10 @@ sub read_atmost {
         my ($self) = @_;
         return $f if $f->is_ready;
         return $f unless length($self->{data});
-        $f->done(substr($self->{data}, 0, min($size, length($self->{data})), ''));
+        my $data = substr($self->{data}, 0, min($size, length($self->{data})), '');
+        $f->done($data);
+        $self->on_change;
+        return $f;
     });
     $self->process_pending;
     $f;
@@ -143,7 +149,10 @@ sub read_atleast {
         my ($self) = @_;
         return $f if $f->is_ready;
         return $f unless length($self->{data}) >= $size;
-        $f->done(substr($self->{data}, 0, max($size, length($self->{data})), ''));
+        my $data = substr($self->{data}, 0, max($size, length($self->{data})), '');
+        $f->done($data);
+        $self->on_change;
+        return $f;
     });
     $self->process_pending;
     $f;
@@ -179,7 +188,10 @@ sub read_until {
         return $f if $f->is_ready;
         return $f unless length($self->{data});
         return $f unless $self->{data} =~ /$match/g;
-        $f->done(substr($self->{data}, 0, pos($self->{data}), ''));
+        my $data = substr($self->{data}, 0, pos($self->{data}), '');
+        $f->done($data);
+        $self->on_change;
+        return $f;
     });
     $self->process_pending;
     $f;
@@ -250,6 +262,8 @@ sub read_packed {
         my @items = unpack $format, $self->{data};
         $self->{data} =~ s{^$re}{};
         $f->done(@items);
+        $self->on_change;
+        return $f;
     });
     $self->process_pending;
     $f;
@@ -316,6 +330,12 @@ sub process_pending {
         return unless $f->is_ready;
         shift @{$self->{ops}};
     }
+}
+
+sub on_change {
+    my ($self) = @_;
+    $self->{on_change}->($self) if $self->{on_change};
+    return;
 }
 
 =head2 new_future
