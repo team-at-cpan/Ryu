@@ -160,9 +160,15 @@ There are various documents, specifications and discussions relating to the conc
 
 # AUTHOR
 
-Tom Molesworth `<TEAM@cpan.org>` with contributions from Mohammad S Anwar,
-Michael Mueller, Zak Elep, Mohanad Zarzour and Nael Alolwani.
+Tom Molesworth `<TEAM@cpan.org>` with contributions from:
+
+- Mohammad S Anwar
+- Michael Mueller
+- Zak Elep
+- Mohanad Zarzour
+- Nael Alolwani
+- Amin Marashi
 
 # LICENSE
 
-Copyright Tom Molesworth 2011-2020. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2021. Licensed under the same terms as Perl itself.

@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.006     2021-01-17 03:02:18+08:00 Asia/Kuala_Lumpur
     New features:
 
     - ->ordered_futures (->resolve) now also takes low/high parameters for backpressure
