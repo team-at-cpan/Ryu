@@ -1,6 +1,20 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - ->as_buffer can take low/high parameters similar to ->buffer, providing backpressure
+    for buffer streams.
+
+    Bugs fixed:
+
+    - small amount of extra protection on Ryu::Observable->notify_all, which was
+    previously passing an alias to the internal value (so the notifier callback
+    was able to modify this directly). Now receives a copy.
+
+    Documentation updates:
+
+    - Mojo::Rx no longer exists, replaced with RxPerl references
 
 2.004     2020-12-03 00:38:42+08:00 Asia/Kuala_Lumpur
     No new features.
