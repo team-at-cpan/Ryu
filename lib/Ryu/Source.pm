@@ -318,19 +318,6 @@ sub never {
 
 =cut
 
-=head2 describe
-
-Returns a string describing this source and any parents - typically this will result in a chain
-like C<< from->combine_latest->count >>.
-
-=cut
-
-# It'd be nice if L<Future> already provided a method for this, maybe I should suggest it
-sub describe {
-    my ($self) = @_;
-    ($self->parent ? $self->parent->describe . '=>' : '') . $self->label . '(' . $self->completed->state . ')';
-}
-
 =head2 encode
 
 Passes each item through an encoder.
