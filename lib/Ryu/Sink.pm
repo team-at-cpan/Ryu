@@ -67,9 +67,11 @@ sub emit {
 
 sub source {
     my ($self) = @_;
-    $self->{source} //= (
-        $self->{new_source} //= sub { Ryu::Source->new }
-    )->()
+    $self->{source} //= do {
+        my $src = ($self->{new_source} //= sub { Ryu::Source->new })->();
+        Scalar::Util::weaken($src->{parent} = $self);
+        $src;
+    };
 }
 
 sub new_future {
