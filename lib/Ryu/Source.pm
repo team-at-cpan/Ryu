@@ -2109,7 +2109,7 @@ sub prepare_await {
     my ($self) = @_;
     (delete $self->{on_get})->() if $self->{on_get};
     return unless my $parent = $self->parent;
-    my $code = $parent->can('prepare_await');
+    my $code = $parent->can('prepare_await') or return;
     local @_ = ($parent);
     goto &$code;
 }
