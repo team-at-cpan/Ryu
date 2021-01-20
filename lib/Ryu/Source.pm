@@ -1225,7 +1225,7 @@ sub ordered_futures {
         # ->is_ready callback removes it
         $pending{$k} = $f;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
-        $src->pause if $high and keys(%pending) >= $high;
+        $src->pause if $high and keys(%pending) >= $high and not $src->is_paused;
         $_->on_done(sub {
             my @pending = @_;
             while(@pending and not $src_completed->is_ready) {
@@ -1235,7 +1235,7 @@ sub ordered_futures {
           ->on_fail(sub { $src->fail(@_) unless $src_completed->is_ready; })
           ->on_ready(sub {
               delete $pending{$k};
-              $src->resume if $low and keys(%pending) <= $low;
+              $src->resume if $low and keys(%pending) <= $low and $src->is_paused;
               $log->tracef('Ordered futures now has %d pending after completion, upstream finish status is %d', 0 + keys(%pending), $all_finished);
               return if %pending;
               $all_finished->on_ready($src_completed) if $all_finished and not $src_completed->is_ready;

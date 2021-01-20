@@ -81,6 +81,9 @@ sub new_future {
     )->(@_)
 }
 
+sub completed { shift->source->completed }
+sub notify_child_completion { }
+
 1;
 
 __END__
