@@ -3,6 +3,10 @@ requires 'parent', 0;
 requires 'curry', '>= 1.001';
 requires 'indirect', 0;
 requires 'Future', '>= 0.42';
+requires 'Future::Queue', 0;
+requires 'JSON::MaybeXS';
+requires 'MIME::Base64';
+requires 'Text::CSV';
 requires 'Scalar::Util', '>= 1.47';
 requires 'Ref::Util', '>= 0.111';
 requires 'List::UtilsBy', '>= 0.10';
@@ -35,4 +39,5 @@ on 'test' => sub {
 
 on 'develop' => sub {
     requires 'Devel::Cover::Report::Coveralls', '>= 0.11';
+    requires 'Devel::Cover';
 };

@@ -67,9 +67,11 @@ sub emit {
 
 sub source {
     my ($self) = @_;
-    $self->{source} //= (
-        $self->{new_source} //= sub { Ryu::Source->new }
-    )->()
+    $self->{source} //= do {
+        my $src = ($self->{new_source} //= sub { Ryu::Source->new })->();
+        Scalar::Util::weaken($src->{parent} = $self);
+        $src;
+    };
 }
 
 sub new_future {
@@ -81,6 +83,9 @@ sub new_future {
     )->(@_)
 }
 
+sub completed { shift->source->completed }
+sub notify_child_completion { }
+
 1;
 
 __END__
@@ -91,5 +96,5 @@ Tom Molesworth <TEAM@cpan.org>
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2011-2020. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2021. Licensed under the same terms as Perl itself.
 

@@ -49,6 +49,7 @@ Once you have a source, you'll need two things:
 
 For the first, call L</emit>:
 
+ use Future::AsyncAwait;
  # 1s drifting periodic timer
  while(1) {
   await $loop->delay_future(after => 1);
@@ -226,12 +227,26 @@ Creates a new source from things.
 The precise details of what this method supports may be somewhat ill-defined at this point in time.
 It is expected that the interface and internals of this method will vary greatly in versions to come.
 
+At the moment, the following inputs are supported:
+
+=over 4
+
+=item * arrayref - when called as C<< ->from([1,2,3]) >> this will emit the values from the arrayref,
+deferring until the source is started
+
+=item * L<Future> - given a L<Future> instance, will emit the results when that L<Future> is marked as done
+
+=item * file handle - if provided a filehandle, such as C<< ->from(\*STDIN) >>, this will read bytes and
+emit those until EOF
+
+=back
+
 =cut
 
 sub from {
     my $class = shift;
     my $src = (ref $class) ? $class : $class->new;
-    if(my $from_class = blessed($_[0])) {
+    if(my $from_class = Scalar::Util::blessed($_[0])) {
         if($from_class->isa('Future')) {
             $_[0]->on_ready(sub {
                 my ($f) = @_;
@@ -302,19 +317,6 @@ sub never {
 =head1 METHODS - Instance
 
 =cut
-
-=head2 describe
-
-Returns a string describing this source and any parents - typically this will result in a chain
-like C<< from->combine_latest->count >>.
-
-=cut
-
-# It'd be nice if L<Future> already provided a method for this, maybe I should suggest it
-sub describe {
-    my ($self) = @_;
-    ($self->parent ? $self->parent->describe . '=>' : '') . $self->label . '(' . $self->completed->state . ')';
-}
 
 =head2 encode
 
@@ -923,16 +925,52 @@ Intended for stream protocol handling - individual
 sized packets are perhaps better suited to the
 L<Ryu::Source> per-item behaviour.
 
+Supports the following named parameters:
+
+=over 4
+
+=item * C<low> - low waterlevel for buffer, start accepting more bytes
+once the L<Ryu::Buffer> has less content than this
+
+=item * C<high> - high waterlevel for buffer, will pause the parent stream
+if this is reached
+
+=back
+
+The backpressure (low/high) values default to undefined, meaning
+no backpressure is applied: the buffer will continue to fill
+indefinitely.
+
 =cut
 
 sub as_buffer {
-    my ($self) = @_;
+    my ($self, %args) = @_;
+    my $low = delete $args{low};
+    my $high = delete $args{high};
+    # We're creating a source but keeping it to ourselves here
+    my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
+
     my $buffer = Ryu::Buffer->new(
-        new_future => $self->{new_future}
+        new_future => $self->{new_future},
+        %args,
+        on_change => sub {
+            my ($self) = @_;
+            $src->resume if $low and $self->size <= $low;
+        }
     );
-    $self->each(sub {
-        $buffer->write($_)
-    });
+
+    Scalar::Util::weaken(my $weak_sauce = $src);
+    Scalar::Util::weaken(my $weak_buffer = $buffer);
+    $self->each_while_source(sub {
+        my $src = $weak_sauce or return;
+        my $buf = $weak_buffer or do {
+            $src->finish;
+            return;
+        };
+        $buf->write($_);
+        $src->pause if $high and $buf->size >= $high;
+        $src->resume if $low and $buf->size <= $low;
+    }, $src);
     return $buffer;
 }
 
@@ -1170,31 +1208,52 @@ and leave the L<Future> instances active, use:
 
 See L<Future/without_cancel> for more details.
 
+Takes the following named parameters:
+
+=over 4
+
+=item * C<high> - once at least this many unresolved L<Future> instances are pending,
+will L</pause> the upstream L<Ryu::Source>.
+
+=item * C<low> - if the pending count drops to this number, will L</resume>
+the upstream L<Ryu::Source>.
+
+=back
+
 This method is also available as L</resolve>.
 
 =cut
 
 sub ordered_futures {
-    my ($self) = @_;
+    my ($self, %args) = @_;
+    my $low = delete $args{low};
+    my $high = delete $args{high};
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my %pending;
     my $src_completed = $src->completed;
-    my $all_finished = 0;
+
+    my $all_finished;
     $self->completed->on_ready(sub {
-        $all_finished = 1;
-        $src->completed->done unless %pending or $src_completed->is_ready;
+        $all_finished = shift;
+        $all_finished->on_ready($src_completed) unless %pending or $src_completed->is_ready;
     });
 
     $src_completed->on_ready(sub {
         my @pending = values %pending;
         %pending = ();
-        $_->cancel for grep { $_ and not $_->is_ready } @pending;
+        for(@pending) {
+            $_->cancel if $_ and not $_->is_ready;
+        }
     });
     $self->each(sub {
         my $f = $_;
         my $k = Scalar::Util::refaddr $f;
+        # This will keep a copy of the Future around until the
+        # ->is_ready callback removes it
         $pending{$k} = $f;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
+        $pending{$k} = $f;
+        $src->pause if $high and keys(%pending) >= $high and not $src->is_paused;
         $_->on_done(sub {
             my @pending = @_;
             while(@pending and not $src_completed->is_ready) {
@@ -1204,11 +1263,11 @@ sub ordered_futures {
           ->on_fail(sub { $src->fail(@_) unless $src_completed->is_ready; })
           ->on_ready(sub {
               delete $pending{$k};
+              $src->resume if $low and keys(%pending) <= $low and $src->is_paused;
               $log->tracef('Ordered futures now has %d pending after completion, upstream finish status is %d', 0 + keys(%pending), $all_finished);
               return if %pending;
-              $src_completed->done if $all_finished and not $src_completed->is_ready;
+              $all_finished->on_ready($src_completed) if $all_finished and not $src_completed->is_ready;
           })
-          ->retain
     });
     return $src;
 }
@@ -2078,7 +2137,7 @@ sub prepare_await {
     my ($self) = @_;
     (delete $self->{on_get})->() if $self->{on_get};
     return unless my $parent = $self->parent;
-    my $code = $parent->can('prepare_await');
+    my $code = $parent->can('prepare_await') or return;
     local @_ = ($parent);
     goto &$code;
 }
@@ -2203,5 +2262,5 @@ Tom Molesworth <TEAM@cpan.org>
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2011-2020. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2021. Licensed under the same terms as Perl itself.
 

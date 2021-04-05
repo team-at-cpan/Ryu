@@ -5,6 +5,60 @@ Revision history for {{$dist->name}}
 
     - ->emit_from joins multiple sources into the current source
 
+2.007     2021-01-25 02:01:08+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - the `->source` provided by a Ryu::Sink is now a child of the sink itself,
+    to facilitate backpressure algorithms and help with common streaming configurations
+
+    Bugs fixed:
+
+    - ->ordered_futures would call ->pause or ->resume more often than required,
+    these are now only triggered when they would change state
+
+2.006     2021-01-17 03:02:18+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->ordered_futures (->resolve) now also takes low/high parameters for backpressure
+
+    Bugs fixed:
+
+    - original source failure propagates after any pending Future instances are resolved,
+    thanks to Amin Marashi (Github issue #8)
+
+2.005     2021-01-17 02:16:18+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->as_buffer can take low/high parameters similar to ->buffer, providing backpressure
+    for buffer streams.
+
+    Bugs fixed:
+
+    - small amount of extra protection on Ryu::Observable->notify_all, which was
+    previously passing an alias to the internal value (so the notifier callback
+    was able to modify this directly). Now receives a copy.
+
+    Documentation updates:
+
+    - Mojo::Rx no longer exists, replaced with RxPerl references
+
+2.004     2020-12-03 00:38:42+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - the `->from` method on a source was trying to call `blessed()` without importing
+    it (thanks to KARJALA for raising this one)
+
+2.003     2020-08-04 11:50:48+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - memory leak when using ->ordered_futures, due to accumulation of callbacks for
+    cancelling pending requests (thanks to Nael Alolwani for reporting and providing
+    a test case)
+
 2.002     2020-06-27 23:53:40+08:00 Asia/Kuala_Lumpur
     No new features.
 

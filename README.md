@@ -39,13 +39,14 @@ and on the verge of reaching for alternatives. The ["SEE ALSO"](#see-also) secti
 
 ## Compatibility
 
-Since [Mojo::Rx](https://metacpan.org/pod/Mojo%3A%3ARx) follows the ReactiveX conventions quite closely, we'd expect to have
-the ability to connect [Mojo::Rx](https://metacpan.org/pod/Mojo%3A%3ARx) observable to a [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource), and provide an
-adapter from a [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource) to act as a [Mojo::Rx](https://metacpan.org/pod/Mojo%3A%3ARx)-style observable. This is not yet
-implemented, but planned for a future version.
+Since [RxPerl](https://metacpan.org/pod/RxPerl) follows the ReactiveX conventions quite closely, we'd expect to have
+the ability to connect [RxPerl](https://metacpan.org/pod/RxPerl) observables to a [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource), and provide an
+adapter from a [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource) to act as an [RxPerl](https://metacpan.org/pod/RxPerl)-style observable. This is not yet
+implemented, but may be added in a future version.
 
 Most of the other modules in ["SEE ALSO"](#see-also) are either not used widely enough or not a good
-semantic fit for a compatibility layer - but if you're interested in this, [please ask](https://github.com/team-at-cpan/Ryu/issues).
+semantic fit for a compatibility layer - but if you're interested in this,
+[please ask about it](https://github.com/team-at-cpan/Ryu/issues) or provide patches!
 
 ## Components
 
@@ -147,8 +148,7 @@ syntax is "backwards" (same as grep/map chains in Perl)
 - [Evo](https://metacpan.org/pod/Evo)
 - [Async::Stream](https://metacpan.org/pod/Async%3A%3AStream) - early release, but seems to be very similar in concept to [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource)
 - [Data::Monad](https://metacpan.org/pod/Data%3A%3AMonad)
-- [Mojo::Rx](https://metacpan.org/pod/Mojo%3A%3ARx) - Mojolicious-specific support for ReactiveX, follows the rxjs API quite closely
-- [RxPerl](https://metacpan.org/pod/RxPerl) - same author as [Mojo::Rx](https://metacpan.org/pod/Mojo%3A%3ARx), this (will eventually!) provide a ReactiveX API without being tied to Mojolicious
+- [RxPerl](https://metacpan.org/pod/RxPerl) - previously known as [Mojo::Rx](https://metacpan.org/pod/Mojo%3A%3ARx), targets close compatibility with [rxjs](https://rxjs-dev.firebaseapp.com/guide/overview)
 
 ## Other references
 
@@ -160,9 +160,15 @@ There are various documents, specifications and discussions relating to the conc
 
 # AUTHOR
 
-Tom Molesworth `<TEAM@cpan.org>` with contributions from Mohammad S Anwar,
-Michael Mueller, Zak Elep and Mohanad Zarzour.
+Tom Molesworth `<TEAM@cpan.org>` with contributions from:
+
+- Mohammad S Anwar
+- Michael Mueller
+- Zak Elep
+- Mohanad Zarzour
+- Nael Alolwani
+- Amin Marashi
 
 # LICENSE
 
-Copyright Tom Molesworth 2011-2020. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2021. Licensed under the same terms as Perl itself.
