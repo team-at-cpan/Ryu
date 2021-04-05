@@ -1191,10 +1191,10 @@ sub ordered_futures {
         $_->cancel for grep { $_ and not $_->is_ready } @pending;
     });
     $self->each(sub {
-        my $k = Scalar::Util::refaddr $_;
-        $pending{$k} = 1;
-        $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
         my $f = $_;
+        my $k = Scalar::Util::refaddr $f;
+        $pending{$k} = $f;
+        $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
         $_->on_done(sub {
             my @pending = @_;
             while(@pending and not $src_completed->is_ready) {
