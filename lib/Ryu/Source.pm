@@ -1252,7 +1252,6 @@ sub ordered_futures {
         # ->is_ready callback removes it
         $pending{$k} = $f;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
-        $pending{$k} = $f;
         $src->pause if $high and keys(%pending) >= $high and not $src->is_paused;
         $_->on_done(sub {
             my @pending = @_;
