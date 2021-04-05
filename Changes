@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.008     2021-04-05 12:20:04+08:00 Asia/Kuala_Lumpur
     New features:
 
     - ->emit_from joins multiple sources into the current source
