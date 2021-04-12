@@ -106,7 +106,7 @@ sub unblocked {
     my ($self) = @_;
     $self->{unblocked} //= do {
         $self->is_paused
-        ? $self->{new_future}->()
+        ? $self->new_future
         : Future->done
     };
 }
