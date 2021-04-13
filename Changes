@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Bugs fixed:
+
+    - unblocked was calling an uninitiated future factory
 
 2.008     2021-04-05 12:20:04+08:00 Asia/Kuala_Lumpur
     New features:
