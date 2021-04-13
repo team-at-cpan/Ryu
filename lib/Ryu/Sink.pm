@@ -74,16 +74,8 @@ sub source {
     };
 }
 
-sub new_future {
-    my $self = shift;
-    (
-        $self->{new_future} //= sub {
-            Future->new->set_label(shift)
-        }
-    )->(@_)
-}
-
 sub completed { shift->source->completed }
+
 sub notify_child_completion { }
 
 1;

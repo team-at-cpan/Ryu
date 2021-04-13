@@ -2212,19 +2212,6 @@ sub map_source {
     }, $src);
 }
 
-=head2 new_future
-
-Used internally to get a L<Future>.
-
-=cut
-
-sub new_future {
-    my $self = shift;
-    (
-        $self->{new_future} //= $FUTURE_FACTORY
-    )->($self, @_)
-}
-
 sub DESTROY {
     my ($self) = @_;
     return if ${^GLOBAL_PHASE} eq 'DESTRUCT';

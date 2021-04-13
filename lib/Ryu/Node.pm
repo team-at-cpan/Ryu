@@ -137,7 +137,19 @@ sub label { shift->{label} }
 
 sub parent { shift->{parent} }
 
-sub new_future { shift->{new_future}->() }
+=head2 new_future
+
+Used internally to get a L<Future>.
+
+=cut
+
+sub new_future {
+    my $self = shift;
+    (
+        $self->{new_future} //= $Ryu::Source::FUTURE_FACTORY
+    )->($self, @_)
+}
+
 
 1;
 
