@@ -2013,7 +2013,7 @@ Returns a L<Future> indicating completion (or failure) of this stream.
 
 sub completed {
     my ($self) = @_;
-    $self->{completed} //= do {
+    ($self->{completed} //= do {
         my $f = $self->new_future(
             'completion'
         )->on_ready(
@@ -2021,7 +2021,7 @@ sub completed {
         );
         $self->prepare_await;
         $f
-    }
+    })->without_cancel
 }
 
 sub cleanup {
@@ -2116,8 +2116,13 @@ sub get {
     })->get
 }
 
-for my $k (qw(then cancel fail on_ready transform is_ready is_done is_failed failure is_cancelled else)) {
+for my $k (qw(then fail on_ready transform is_ready is_done is_failed failure else)) {
     do { no strict 'refs'; *$k = $_ } for sub { shift->completed->$k(@_) }
+}
+# Cancel operations are only available through the internal state, since we don't want anything
+# accidentally cancelling due to Future->wait_any(timeout, $src->completed) or similar constructs
+for my $k (qw(cancel is_cancelled)) {
+    do { no strict 'refs'; *$k = $_ } for sub { shift->{completed}->$k(@_) }
 }
 
 =head1 METHODS - Internal

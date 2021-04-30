@@ -104,11 +104,13 @@ otherwise L<ready|Future/is_ready>.
 
 sub unblocked {
     my ($self) = @_;
-    $self->{unblocked} //= do {
+    # Since we don't want stray callers to affect our internal state, we always return
+    # a non-cancellable version of our internal Future.
+    ($self->{unblocked} //= do {
         $self->is_paused
         ? $self->new_future
         : Future->done
-    };
+    })->without_cancel;
 }
 
 =head2 is_paused
