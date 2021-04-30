@@ -2027,8 +2027,9 @@ sub completed {
 sub cleanup {
     my ($self) = @_;
     $log->tracef("Cleanup for %s (f = %s)", $self->describe, 0 + $self->completed);
+    $_->cancel for values %{$self->{cancel_on_ready} || {}};
     $self->parent->notify_child_completion($self) if $self->parent;
-    delete @{$self}{qw(on_item)};
+    delete @{$self}{qw(on_item cancel_on_ready)};
     $log->tracef("Finished cleanup for %s", $self->describe);
 }
 
@@ -2069,6 +2070,40 @@ sub await {
     my $f = $self->completed;
     $f->await until $f->is_ready;
     $self
+}
+
+=head2 next
+
+Returns a L<Future> which will resolve to the next item emitted by this source.
+
+If the source completes before an item is emitted, the L<Future> will be cancelled.
+
+Note that these are independent - they don't stack, so if you call C<< ->next >>
+multiple times before an item is emitted, each of those would return the same value.
+
+See L<Ryu::Buffer> if you're dealing with protocols and want to extract sequences of
+bytes or characters.
+
+To access the sequence as a discrete stream of L<Future> instances, try L</as_queue>
+which will provide a L<Future::Queue>.
+
+=cut
+
+sub next : method {
+    my ($self) = @_;
+    my $f = $self->new_future(
+        'next'
+    )->on_ready($self->$curry::weak(sub {
+        my ($self, $f) = @_;
+        my $addr = Scalar::Util::refaddr($f);
+        List::UtilsBy::extract_by { Scalar::Util::refaddr($_) == $addr } @{$self->{on_item} || []};
+        delete $self->{cancel_on_ready}{$f};
+    }));
+    $self->{cancel_on_ready}{$f} = $f;
+    push @{$self->{on_item} ||= []}, sub {
+        $f->done(shift) unless $f->is_ready;
+    };
+    return $f;
 }
 
 =head2 finish
