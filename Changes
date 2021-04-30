@@ -1,6 +1,13 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [New features]
+    - ->next support
+
+    [Bugs fixed]
+    - the ->completed and ->unblocked methods now return uncancellable Futures, so that
+    they can be used with constructs such as Future->wait_any(timeout, $src->unblocked)
+    without affecting internal state
 
 2.009     2021-04-13 13:32:36+08:00 Asia/Kuala_Lumpur
     No new features.
