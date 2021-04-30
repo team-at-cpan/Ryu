@@ -75,6 +75,7 @@ sub source {
 }
 
 sub completed { shift->source->completed }
+sub _completed { shift->source->completed }
 
 sub notify_child_completion { }
 

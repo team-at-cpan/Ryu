@@ -46,6 +46,32 @@ sub describe {
     ($self->parent ? $self->parent->describe . '=>' : '') . $self->label . '(' . $self->completed->state . ')';
 }
 
+=head2 completed
+
+Returns a L<Future> indicating completion (or failure) of this stream.
+
+=cut
+
+sub completed {
+    my ($self) = @_;
+    return $self->_completed->without_cancel;
+}
+
+# Internal use only, since it's cancellable
+sub _completed {
+    my ($self) = @_;
+    $self->{completed} //= do {
+        my $f = $self->new_future(
+            'completion'
+        );
+        $f->on_ready(
+            $self->curry::weak::cleanup
+        ) if $self->can('cleanup');
+        $self->prepare_await if $self->can('prepare_await');
+        $f
+    }
+}
+
 =head2 pause
 
 Does nothing useful.
