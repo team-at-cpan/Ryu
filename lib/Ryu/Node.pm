@@ -107,7 +107,7 @@ sub resume {
     my $k = refaddr($src) // 0;
     delete $self->{is_paused}{$k} unless --$self->{is_paused}{$k} > 0;
     unless($self->{is_paused} and keys %{$self->{is_paused}}) {
-        my $f = $self->unblocked;
+        my $f = $self->_unblocked;
         $f->done unless $f->is_ready;
         if(my $parent = $self->parent) {
             $parent->resume($self) if $self->{pause_propagation};
@@ -129,14 +129,20 @@ otherwise L<ready|Future/is_ready>.
 =cut
 
 sub unblocked {
+    # Since we don't want stray callers to affect our internal state, we always return
+    # a non-cancellable version of our internal Future.
+    shift->_unblocked->without_cancel
+}
+
+sub _unblocked {
     my ($self) = @_;
     # Since we don't want stray callers to affect our internal state, we always return
     # a non-cancellable version of our internal Future.
-    ($self->{unblocked} //= do {
+    $self->{unblocked} //= do {
         $self->is_paused
         ? $self->new_future
         : Future->done
-    })->without_cancel;
+    };
 }
 
 =head2 is_paused
