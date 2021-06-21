@@ -44,6 +44,21 @@ use List::UtilsBy;
 
 use Ryu::Source;
 
+# Slightly odd way of applying this - we don't want to require Sentinel,
+# but the usual tricks of ->import or using *Sentinel::sentinel directly
+# only work for the pure-perl version. So, we try to load it, making the
+# syntax available, and we then use sentinel() as if it were a function...
+# providing a fallback *sentinel only when the load failed.
+BEGIN {
+    eval {
+        require Sentinel;
+        Sentinel->import;
+        1
+    } or do {
+        *sentinel = sub { die 'This requires the Sentinel module to be installed' };
+    }
+}
+
 =head1 METHODS
 
 Public API, such as it is.
@@ -187,6 +202,10 @@ sub source {
     };
 }
 
+=head1 LVALUE METHODS
+
+B<< These require L<Sentinel> to be installed >>.
+
 =head2 lvalue_str
 
 Returns a L<Sentinel> lvalue accessor for the string value.
@@ -202,21 +221,6 @@ Any attempt to retrieve or set the value will be redirected to L</as_string>
 or L</set_string> as appropriate.
 
 =cut
-
-# Slightly odd way of applying this - we don't want to require Sentinel,
-# but the usual tricks of ->import or using *Sentinel::sentinel directly
-# only work for the pure-perl version. So, we try to load it, making the
-# syntax available, and we then use sentinel() as if it were a function...
-# providing a fallback *sentinel only when the load failed.
-BEGIN {
-    eval {
-        require Sentinel;
-        Sentinel->import;
-        1
-    } or do {
-        *sentinel = sub { die 'This requires the Sentinel module to be installed' };
-    }
-}
 
 sub lvalue_str : lvalue {
     my ($self) = @_;
@@ -288,7 +292,7 @@ __END__
 
 =head1 AUTHOR
 
-Tom Molesworth <TEAM@cpan.org>
+Tom Molesworth C<< <TEAM@cpan.org> >>.
 
 =head1 LICENSE
 
