@@ -58,11 +58,17 @@ sub as_string { '' . shift->{value} }
 
 =head2 as_number
 
+=head2 as_numeric
+
 Returns the numeric representation of this value.
+
+(this method is available as C<as_number> or C<as_numeric>, both operate the same way)
 
 =cut
 
 sub as_number { 0 + shift->{value} }
+
+*as_numeric = *as_number;
 
 =head2 new
 
@@ -124,10 +130,14 @@ sub value { shift->{value} }
 
 =head2 set_numeric
 
+=head2 set_number
+
 Applies a new numeric value, and notifies subscribers if the value is numerically
 different to the previous one (or if we had no previous value).
 
 Returns C<$self>.
+
+(this method is available as C<set_number> or C<set_numeric>, both operate the same way)
 
 =cut
 
@@ -138,6 +148,8 @@ sub set_numeric {
     $self->{value} = $v;
     $self->notify_all
 }
+
+*set_number = *set_numeric;
 
 =head2 set_string
 
