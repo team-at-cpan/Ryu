@@ -187,6 +187,71 @@ sub source {
     };
 }
 
+=head2 lvalue_str
+
+Returns a L<Sentinel> lvalue accessor for the string value.
+
+This can be used with refaliasing or C<foreach> loops to reduce typing:
+
+    for($observable->lvalue_str) {
+      chomp;
+      s/_/-/g;
+    }
+
+Any attempt to retrieve or set the value will be redirected to L</as_string>
+or L</set_string> as appropriate.
+
+=cut
+
+# Slightly odd way of applying this - we don't want to require Sentinel,
+# but the usual tricks of ->import or using *Sentinel::sentinel directly
+# only work for the pure-perl version. So, we try to load it, making the
+# syntax available, and we then use sentinel() as if it were a function...
+# providing a fallback *sentinel only when the load failed.
+BEGIN {
+    eval {
+        require Sentinel;
+        Sentinel->import;
+        1
+    } or do {
+        *sentinel = sub { die 'This requires the Sentinel module to be installed' };
+    }
+}
+
+sub lvalue_str : lvalue {
+    my ($self) = @_;
+    sentinel(get => sub {
+        return $self->as_string(shift);
+    }, set => sub {
+        return $self->set_string(shift);
+    });
+}
+
+=head2 lvalue_num
+
+Returns a L<Sentinel> lvalue accessor for the numeric value.
+
+This can be used with refaliasing or C<foreach> loops to reduce typing:
+
+    for($observable->lvalue_num) {
+     ++$_;
+     $_ *= 3;
+    }
+
+Any attempt to retrieve or set the value will be redirected to L</as_number>
+or L</set_number> as appropriate.
+
+=cut
+
+sub lvalue_num : lvalue {
+    my ($self) = @_;
+    sentinel(get => sub {
+        return $self->as_number(shift);
+    }, set => sub {
+        return $self->set_number(shift);
+    });
+}
+
 =head1 METHODS - Internal
 
 Don't use these.
