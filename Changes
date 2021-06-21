@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.001     2021-06-21 08:19:28+08:00 Asia/Kuala_Lumpur
     [New features]
     - Ryu::Observable has aliases for ->as_numeric, ->as_number and ->set_numeric, ->set_number
     - Sentinel support for Ryu::Observable via ->lvalue_str and ->lvalue_num
