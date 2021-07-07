@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [Bugs fixed]
+    - in ->flat_map, any failure in the original or added Ryu::Source instances
+    will now propagate as a failure for the ->flat_map source as well
 
 3.001     2021-06-21 08:19:28+08:00 Asia/Kuala_Lumpur
     [New features]
