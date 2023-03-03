@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [New features]
+    - Ryu::Observable now has a ->finish method
 
 3.002     2021-07-07 17:48:25+08:00 Asia/Kuala_Lumpur
     [Bugs fixed]
