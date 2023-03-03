@@ -912,18 +912,47 @@ Returns a L<Future::Queue> instance which will
 L<Future::Queue/push> items whenever the source
 emits them.
 
-Unfortunately there is currently no way to tell
-when the queue will end, so you'd need to track
-that separately.
+The queue will be marked as finished when this source is completed.
+
+Parameters passed to this method will be given to the L<Future::Queue>
+constructor:
+
+ use Future::AsyncAwait qw(:experimental(suspend));
+ my $queue = $src->as_queue(
+  max_items => 100
+ );
+ SUSPEND { print "Waiting for more items\n" }
+ while(my @batch = await $queue->shift_atmost(10)) {
+  print "Had batch of @{[ 0 + @batch ]} items\n";
+ }
 
 =cut
 
 sub as_queue {
-    my ($self) = @_;
-    my $queue = Future::Queue->new;
-    $self->each(sub {
-        $queue->push($_)
-    });
+    my ($self, %args) = @_;
+    my $queue = Future::Queue->new(
+        prototype => $self->curry::weak::new_future,
+        %args
+    );
+
+    if($args{max_items}) {
+        $self->each($self->curry::weak(sub {
+            my ($self) = @_;
+            my $f = $queue->push($_);
+            return if $f->is_ready;
+            $self->pause;
+            $f->on_ready(sub { $self->resume });
+            return;
+        });
+    } else {
+        # Avoid the extra overhead when we know there isn't going to be any
+        # upper limit on accepted items.
+        $self->each(sub {
+            $queue->push($_);
+            return;
+        });
+    }
+    $self->completed->on_ready(sub { $queue->finish });
     return $queue;
 }
 
