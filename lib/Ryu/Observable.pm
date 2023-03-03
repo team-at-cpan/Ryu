@@ -256,6 +256,23 @@ sub lvalue_num : lvalue {
     });
 }
 
+=head2 finish
+
+Mark this observable as finished.
+
+No further events or notifications will be sent.
+
+=cut
+
+sub finish {
+    my $self = shift;
+    @{$self->{subscriptions}} = ();
+    if(my $src = $self->{source}) {
+        $src->finish unless $src->is_ready;
+    }
+    return $self;
+}
+
 =head1 METHODS - Internal
 
 Don't use these.
@@ -279,9 +296,7 @@ sub notify_all {
 sub DESTROY {
     my ($self) = @_;
     return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
-    if(my $src = $self->{source}) {
-        $src->finish;
-    }
+    $self->finish;
     delete $self->{value};
     return;
 }
