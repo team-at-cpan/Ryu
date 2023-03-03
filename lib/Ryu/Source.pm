@@ -1265,7 +1265,7 @@ sub ordered_futures {
         $pending{$k} = $f;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
         $src->pause if $high and keys(%pending) >= $high and not $src->is_paused;
-        $_->on_done(sub {
+        $f->on_done(sub {
             my @pending = @_;
             while(@pending and not $src_completed->is_ready) {
                 $src->emit(shift @pending);
