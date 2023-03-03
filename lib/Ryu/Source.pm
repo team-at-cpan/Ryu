@@ -610,7 +610,6 @@ sub flat_map {
     $src
 }
 
-
 =head2 split
 
 Splits the input on the given delimiter.

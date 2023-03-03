@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [New features]
+    - Ryu::Source->as_queue allows `max_items` and will pause the stream while waiting for the queue to drain
 
 3.003     2023-03-03 20:51:58+08:00 Asia/Singapore
     [New features]
