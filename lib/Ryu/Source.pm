@@ -428,7 +428,7 @@ sub hexdump {
             $in = $_;
             $offset = 0;
         }
-        while(length(my $bytes = substr $in, 0, 16, '')) {
+        while(length(my $bytes = substr $in, 0, List::Util::min(length($in), 16), '')) {
             my $encoded = join '', unpack 'H*' => $bytes;
             $encoded =~ s/[[:xdigit:]]{2}\K(?=[[:xdigit:]])/ /g;
             my $ascii = $bytes =~ s{[^[:print:]]}{.}gr;
