@@ -7,7 +7,7 @@ Revision history for {{$dist->name}}
 
     [Bugs fixed]
     - extra single-use Futures were being created, which caused complaints from Future::XS since they were
-    abandoned
+    abandoned (the ->without_cancel calls in Ryu::Node)
     - chained nodes were still being called after completion, which would lead to some odd-looking debug messages
     from nodes such as `->take(5)`
 
