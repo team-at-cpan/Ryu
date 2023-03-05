@@ -7,6 +7,8 @@ Revision history for {{$dist->name}}
     [Bugs fixed]
     - extra single-use Futures were being created, which caused complaints from Future::XS since they were
     abandoned
+    - chained nodes were still being called after completion, which would lead to some odd-looking debug messages
+    from nodes such as `->take(5)`
 
 3.003     2023-03-03 20:51:58+08:00 Asia/Singapore
     [New features]

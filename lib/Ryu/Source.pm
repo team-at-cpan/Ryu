@@ -2236,13 +2236,15 @@ parent completes.
 sub each_while_source {
     my ($self, $code, $src, %args) = @_;
     $self->each($code);
+    $src->_completed->on_ready(sub {
+        my $addr = Scalar::Util::refaddr($code);
+        my $count = List::UtilsBy::extract_by { $addr == Scalar::Util::refaddr($_) } @{$self->{on_item}};
+        $log->tracef("->each_while_source completed on %s for refaddr 0x%x, removed %d on_item handlers", $self->describe, Scalar::Util::refaddr($self), $count);
+    });
     $self->_completed->on_ready(sub {
         my ($f) = @_;
         $args{cleanup}->($f, $src) if exists $args{cleanup};
-        my $addr = Scalar::Util::refaddr($code);
-        my $count = List::UtilsBy::extract_by { $addr == Scalar::Util::refaddr($_) } @{$self->{on_item}};
         $f->on_ready($src->_completed) unless $src->is_ready;
-        $log->tracef("->each_while_source completed on %s for refaddr 0x%x, removed %d on_item handlers", $self->describe, Scalar::Util::refaddr($self), $count);
     });
     $src
 }
