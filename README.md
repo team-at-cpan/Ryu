@@ -171,4 +171,4 @@ Tom Molesworth `<TEAM@cpan.org>` with contributions from:
 
 # LICENSE
 
-Copyright Tom Molesworth 2011-2021. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2023. Licensed under the same terms as Perl itself.

@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.004     2023-03-05 14:36:17+08:00 Asia/Singapore
     [New features]
     - Ryu::Source->as_queue allows `max_items` and will pause the stream while waiting for the queue to drain
     - flag a warning when someone tries to use `->completed->done/fail` directly, since that's not likely to work as expected
