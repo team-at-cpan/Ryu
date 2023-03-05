@@ -4,6 +4,10 @@ Revision history for {{$dist->name}}
     [New features]
     - Ryu::Source->as_queue allows `max_items` and will pause the stream while waiting for the queue to drain
 
+    [Bugs fixed]
+    - extra single-use Futures were being created, which caused complaints from Future::XS since they were
+    abandoned
+
 3.003     2023-03-03 20:51:58+08:00 Asia/Singapore
     [New features]
     - Ryu::Observable now has a ->finish method
