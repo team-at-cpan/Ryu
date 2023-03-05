@@ -2073,7 +2073,7 @@ sub notify_child_completion {
         return $self;
     }
 
-    $log->warnf("Child %s (addr 0x%x) not found in list for %s", $child->describe, $self->describe);
+    $log->warnf("Child %s (addr 0x%x) not found in list for %s", $child->describe, $addr, $self->describe);
     $log->tracef("* %s (addr 0x%x)", $_->describe, Scalar::Util::refaddr($_)) for @{$self->{children}};
     $self
 }
