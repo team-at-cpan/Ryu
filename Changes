@@ -15,6 +15,10 @@ Revision history for {{$dist->name}}
     [New features]
     - Ryu::Observable now has a ->finish method
 
+3.003     2023-03-03 20:51:58+08:00 Asia/Singapore
+    [New features]
+    - Ryu::Observable now has a ->finish method
+
 3.002     2021-07-07 17:48:25+08:00 Asia/Kuala_Lumpur
     [Bugs fixed]
     - in ->flat_map, any failure in the original or added Ryu::Source instances
