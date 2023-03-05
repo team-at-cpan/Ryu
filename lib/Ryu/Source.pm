@@ -942,7 +942,7 @@ sub as_queue {
             $self->pause;
             $f->on_ready(sub { $self->resume });
             return;
-        });
+        }));
     } else {
         # Avoid the extra overhead when we know there isn't going to be any
         # upper limit on accepted items.
