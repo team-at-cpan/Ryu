@@ -218,6 +218,7 @@ sub new {
     my ($self, %args) = @_;
     $args{label} //= 'unknown';
     $args{on_item} //= [];
+    $args{on_batch} //= [];
     $self->SUPER::new(%args);
 }
 
@@ -2011,6 +2012,37 @@ sub emit {
         }
     }
     $self
+}
+
+=head2 emit_batch
+
+=cut
+
+sub emit_batch {
+    my $self = shift;
+    my $completion = $self->_completed;
+    if(my @handlers = $self->{on_batch}->@*) {
+        for (@_) {
+            die 'already completed' if $completion->is_ready;
+            for my $code (@handlers) {
+                try {
+                    $code->($_);
+                } catch {
+                    my $ex = $@;
+                    $log->warnf("Exception raised in %s - %s", (eval { $self->describe } // "<failed>"), "$ex");
+                    $completion->fail($ex, source => 'exception in on_batch callback');
+                    die $ex;
+                }
+            }
+        }
+    }
+
+    # Support item-at-a-time callbacks if we have any
+    return $self unless $self->{on_item}->@*;
+    for my $batch (@_) {
+        $self->emit($_) for $batch->@*;
+    }
+    return $self;
 }
 
 =head2 each
