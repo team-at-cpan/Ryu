@@ -217,6 +217,7 @@ Note that this is rarely called directly, see L</from>, L</empty> and L</never> 
 sub new {
     my ($self, %args) = @_;
     $args{label} //= 'unknown';
+    $args{on_item} //= [];
     $self->SUPER::new(%args);
 }
 
@@ -1990,7 +1991,8 @@ Emits the given item.
 sub emit {
     my $self = shift;
     my $completion = $self->_completed;
-    my @handlers = @{$self->{on_item} || []} or return $self;
+    my @handlers = $self->{on_item}->@*
+        or return $self;
     for (@_) {
         die 'already completed' if $completion->is_ready;
         for my $code (@handlers) {
@@ -2049,7 +2051,8 @@ sub cleanup {
     $log->tracef("Cleanup for %s (f = %s)", $self->describe, 0 + $self->_completed);
     $_->cancel for values %{$self->{cancel_on_ready} || {}};
     $self->parent->notify_child_completion($self) if $self->parent;
-    delete @{$self}{qw(on_item cancel_on_ready)};
+    splice $self->{on_item}->@*;
+    delete @{$self->{cancel_on_ready}}{keys %{$self->{cancel_on_ready}}};
     $log->tracef("Finished cleanup for %s", $self->describe);
 }
 
@@ -2120,7 +2123,7 @@ sub next : method {
         delete $self->{cancel_on_ready}{$f};
     }));
     $self->{cancel_on_ready}{$f} = $f;
-    push @{$self->{on_item} ||= []}, sub {
+    push @{$self->{on_item}}, sub {
         $f->done(shift) unless $f->is_ready;
     };
     return $f;
