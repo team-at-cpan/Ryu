@@ -1020,6 +1020,32 @@ sub as_buffer {
     return $buffer;
 }
 
+=head2 as_last
+
+Returns a L<Future> which resolves to the last value received.
+
+=cut
+
+sub as_last {
+    my ($self) = @_;
+    my $v;
+    $self->each(sub {
+        $v = $_;
+    });
+    $self->_completed->transform(done => sub { $v })
+}
+
+=head2 as_void
+
+Returns a L<Future> which resolves to an empty list.
+
+=cut
+
+sub as_void {
+    my ($self) = @_;
+    $self->_completed->transform(done => sub { () })
+}
+
 =head2 combine_latest
 
 Takes the most recent item from one or more L<Ryu::Source>s, and emits
