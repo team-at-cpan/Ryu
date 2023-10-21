@@ -2081,6 +2081,16 @@ sub each : method {
     $self;
 }
 
+=head2 each_batch
+
+=cut
+
+sub each_batch : method {
+    my ($self, $code, %args) = @_;
+    push @{$self->{on_batch}}, $code;
+    $self;
+}
+
 =head2 each_as_source
 
 =cut
