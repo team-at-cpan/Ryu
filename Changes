@@ -1,6 +1,12 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [New features]
+    - Ryu::Source->emit_batch provides initial support for batches, for more efficient
+    handling of larger volumes of data. Use `on_batch` to deal with the results.
+    - Ryu::Source->as_void gives you an empty result, useful if you want to await
+    without caring about the result
+    - Ryu::Source->as_last allows you to wait for the last emitted value
 
 3.004     2023-03-05 14:36:17+08:00 Asia/Singapore
     [New features]
@@ -12,10 +18,6 @@ Revision history for {{$dist->name}}
     abandoned (the ->without_cancel calls in Ryu::Node)
     - chained nodes were still being called after completion, which would lead to some odd-looking debug messages
     from nodes such as `->take(5)`
-
-3.003     2023-03-03 20:51:58+08:00 Asia/Singapore
-    [New features]
-    - Ryu::Observable now has a ->finish method
 
 3.003     2023-03-03 20:51:58+08:00 Asia/Singapore
     [New features]
