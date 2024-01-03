@@ -1,0 +1,769 @@
+=encoding utf8
+
+=for comment POD_DERIVED_INDEX_GENERATED
+The following documentation is automatically generated.  Please do not edit
+this file, but rather the original, inline with Ryu::Source
+at lib/Ryu/Source.pm
+(on the system that originally ran this).
+If you do edit this file, and don't want your changes to be removed, make
+sure you change the first line.
+
+=cut
+
+=head1 NAME
+
+Ryu::Source - base representation for a source of events
+
+=head1 SYNOPSIS
+
+ my $src = Ryu::Source->new;
+ my $chained = $src->map(sub { $_ * $_ })->prefix('value: ')->say;
+ $src->emit($_) for 1..5;
+ $src->finish;
+
+=head1 DESCRIPTION
+
+This is probably the module you'd want to start with, if you were going to be
+using any of this. There's a disclaimer in L<Ryu> that may be relevant at this
+point.
+
+=head2 Quick start
+
+You'd normally want to start by creating a L<Ryu::Source> instance:
+
+ my $src = Ryu::Source->new;
+
+If you're dealing with L<IO::Async> code, use L<Ryu::Async> to ensure that you
+get properly awaitable L<Future> instances:
+
+ $loop->add(my $ryu = Ryu::Async->new);
+ my $src = $ryu->source;
+
+Once you have a source, you'll need two things:
+
+=over 4
+
+=item * items to put into one end
+
+=item * processing to attach to the other end
+
+=back
+
+For the first, call L</emit>:
+
+ use Future::AsyncAwait;
+ # 1s drifting periodic timer
+ while(1) {
+  await $loop->delay_future(after => 1);
+  $src->emit('');
+ }
+
+For the second, this would be L</each>:
+
+ $src->each(sub { print "Had timer tick\n" });
+
+So far, not so useful - the power of this type of reactive programming is in the
+ability to chain and combine disparate event sources.
+
+At this point, L<https://rxmarbles.com> is worth a visit - this provides a clear
+visual demonstration of how to combine multiple event streams using the chaining
+methods. Most of the API here is modelled after similar principles.
+
+First, the L</map> method: this provides a way to transform each item into
+something else:
+
+ $src->map(do { my $count = 0; sub { ++$count } })
+     ->each(sub { print "Count is now $_\n" })
+
+Next, L</filter> provides an equivalent to Perl's L<grep> functionality:
+
+ $src->map(do { my $count = 0; sub { ++$count } })
+     ->filter(sub { $_ % 2 })
+     ->each(sub { print "Count is now at an odd number: $_\n" })
+
+You can stack these:
+
+ $src->map(do { my $count = 0; sub { ++$count } })
+     ->filter(sub { $_ % 2 })
+     ->filter(sub { $_ % 5 })
+     ->each(sub { print "Count is now at an odd number which is not divisible by 5: $_\n" })
+
+or:
+
+ $src->map(do { my $count = 0; sub { ++$count } })
+     ->map(sub { $_ % 3 ? 'fizz' : $_ })
+     ->map(sub { $_ % 5 ? 'buzz' : $_ })
+     ->each(sub { print "An imperfect attempt at the fizz-buzz game: $_\n" })
+
+=head1 GLOBALS
+
+=head2 $FUTURE_FACTORY
+
+This is a coderef which should return a new L<Future>-compatible instance.
+
+Example overrides might include:
+
+ $Ryu::Source::FUTURE_FACTORY = sub { Mojo::Future->new->set_label($_[1]) };
+
+=head2 %ENCODER
+
+An encoder is a coderef which takes input and returns output.
+
+=head1 METHODS
+
+=head2 new
+
+Takes named parameters, such as:
+
+=over 4
+
+=item * label - the label used in descriptions
+
+=back
+
+Note that this is rarely called directly, see L</from>, L</empty> and L</never> instead.
+
+=head2 from
+
+Creates a new source from things.
+
+The precise details of what this method supports may be somewhat ill-defined at this point in time.
+It is expected that the interface and internals of this method will vary greatly in versions to come.
+
+At the moment, the following inputs are supported:
+
+=over 4
+
+=item * arrayref - when called as C<< ->from([1,2,3]) >> this will emit the values from the arrayref,
+deferring until the source is started
+
+=item * L<Future> - given a L<Future> instance, will emit the results when that L<Future> is marked as done
+
+=item * file handle - if provided a filehandle, such as C<< ->from(\*STDIN) >>, this will read bytes and
+emit those until EOF
+
+=back
+
+=head2 empty
+
+Creates an empty source, which finishes immediately.
+
+=head2 never
+
+An empty source that never finishes.
+
+=head1 METHODS - Instance
+
+=head2 encode
+
+Passes each item through an encoder.
+
+The first parameter is the encoder to use, the remainder are
+used as options for the selected encoder.
+
+Examples:
+
+ $src->encode('json')
+ $src->encode('utf8')
+ $src->encode('base64')
+
+=head2 decode
+
+Passes each item through a decoder.
+
+The first parameter is the decoder to use, the remainder are
+used as options for the selected decoder.
+
+Examples:
+
+ $src->decode('json')
+ $src->decode('utf8')
+ $src->decode('base64')
+
+=head2 print
+
+Shortcut for C<< ->each(sub { print }) >>, except this will
+also save the initial state of C< $\ > and use that for each
+call for consistency.
+
+=head2 say
+
+Shortcut for C<< ->each(sub { print "$_\n" }) >>.
+
+=head2 hexdump
+
+Convert input bytes to a hexdump representation, for example:
+
+ 00000000 00 00 12 04 00 00 00 00 00 00 03 00 00 00 80 00 >................<
+ 00000010 04 00 01 00 00 00 05 00 ff ff ff 00 00 04 08 00 >................<
+ 00000020 00 00 00 00 7f ff 00 00                         >........<
+
+One line is emitted for each 16 bytes.
+
+Takes the following named parameters:
+
+=over 4
+
+=item * C<continuous> - accumulates data for a continuous stream, and
+does not reset the offset counter. Note that this may cause the last
+output to be delayed until the source completes.
+
+=back
+
+=head2 throw
+
+Throws something. I don't know what, maybe a chair.
+
+=head2 debounce
+
+Not yet implemented.
+
+Requires timing support, see implementations such as L<Ryu::Async> instead.
+
+=head2 chomp
+
+Chomps all items with the given delimiter.
+
+Once you've instantiated this, it will stick with the delimiter which was in force at the time of instantiation.
+Said delimiter follows the usual rules of C<$/>, whatever they happen to be.
+
+Example:
+
+ $ryu->stdin
+     ->chomp("\n")
+     ->say
+
+=head2 map
+
+A bit like L<perlfunc/map>.
+
+Takes a single parameter - the coderef to execute for each item. This should return
+a scalar value which will be used as the next item.
+
+Often useful in conjunction with a C<do> block to provide a closure.
+
+Examples:
+
+ $src->map(do {
+   my $idx = 0;
+   sub {
+    [ @$_, ++$idx ]
+   }
+ })
+
+=head2 flat_map
+
+Similar to L</map>, but will flatten out some items:
+
+=over 4
+
+=item * an arrayref will be expanded out to emit the individual elements
+
+=item * for a L<Ryu::Source>, passes on any emitted elements
+
+=back
+
+This also means you can "merge" items from a series of sources.
+
+Note that this is not recursive - an arrayref of arrayrefs will be expanded out
+into the child arrayrefs, but no further.
+
+Failure on any input source will cause this source to be marked as failed as well.
+
+=head2 split
+
+Splits the input on the given delimiter.
+
+By default, will split into characters.
+
+Note that each item will be processed separately - the buffer won't be
+retained across items, see L</by_line> for that.
+
+=head2 chunksize
+
+Splits input into fixed-size chunks.
+
+Note that output is always guaranteed to be a full chunk - if there is partial input
+at the time the input stream finishes, those extra bytes will be discarded.
+
+=head2 batch
+
+Splits input into arrayref batches of a given size.
+
+Note that the last item emitted may have fewer elements (or none at all).
+
+ $src->batch(10)
+  ->map(sub { "Next 10 (or fewer) items: @$_" })
+  ->say;
+
+=head2 by_line
+
+Emits one item for each line in the input. Similar to L</split> with a C<\n> parameter,
+except this will accumulate the buffer over successive items and only emit when a complete
+line has been extracted.
+
+=head2 prefix
+
+Applies a string prefix to each item.
+
+=head2 suffix
+
+Applies a string suffix to each item.
+
+=head2 sprintf_methods
+
+Convenience method for generating a string from a L</sprintf>-style format
+string and a set of method names to call.
+
+Note that any C<undef> items will be mapped to an empty string.
+
+Example:
+
+ $src->sprintf_methods('%d has name %s', qw(id name))
+     ->say
+     ->await;
+
+=head2 ignore
+
+Receives items, but ignores them entirely.
+
+Emits nothing and eventually completes when the upstream L<Ryu::Source> is done.
+
+Might be useful for keeping a source alive.
+
+=head2 buffer
+
+Accumulate items while any downstream sources are paused.
+
+Takes the following named parameters:
+
+=over 4
+
+=item * C<high> - once at least this many items are buffered, will L</pause>
+the upstream L<Ryu::Source>.
+
+=item * C<low> - if the buffered count drops to this number, will L</resume>
+the upstream L<Ryu::Source>.
+
+=back
+
+=head2 as_list
+
+Resolves to a list consisting of all items emitted by this source.
+
+=head2 as_arrayref
+
+Resolves to a single arrayref consisting of all items emitted by this source.
+
+=head2 as_string
+
+Concatenates all items into a single string.
+
+Returns a L<Future> which will resolve on completion.
+
+=head2 as_queue
+
+Returns a L<Future::Queue> instance which will
+L<Future::Queue/push> items whenever the source
+emits them.
+
+The queue will be marked as finished when this source is completed.
+
+Parameters passed to this method will be given to the L<Future::Queue>
+constructor:
+
+ use Future::AsyncAwait qw(:experimental(suspend));
+ my $queue = $src->as_queue(
+  max_items => 100
+ );
+ SUSPEND { print "Waiting for more items\n" }
+ while(my @batch = await $queue->shift_atmost(10)) {
+  print "Had batch of @{[ 0 + @batch ]} items\n";
+ }
+
+=head2 as_buffer
+
+Returns a L<Ryu::Buffer> instance, which will
+L<Ryu::Buffer/write> any emitted items from this
+source to the buffer as they arrive.
+
+Intended for stream protocol handling - individual
+sized packets are perhaps better suited to the
+L<Ryu::Source> per-item behaviour.
+
+Supports the following named parameters:
+
+=over 4
+
+=item * C<low> - low waterlevel for buffer, start accepting more bytes
+once the L<Ryu::Buffer> has less content than this
+
+=item * C<high> - high waterlevel for buffer, will pause the parent stream
+if this is reached
+
+=back
+
+The backpressure (low/high) values default to undefined, meaning
+no backpressure is applied: the buffer will continue to fill
+indefinitely.
+
+=head2 combine_latest
+
+Takes the most recent item from one or more L<Ryu::Source>s, and emits
+an arrayref containing the values in order.
+
+An item is emitted for each update as soon as all sources have provided
+at least one value. For example, given 2 sources, if the first emits C<1>
+then C<2>, then the second emits C<a>, this would emit a single C<[2, 'a']>
+item.
+
+=head2 with_index
+
+Emits arrayrefs consisting of C<[ $item, $idx ]>.
+
+=head2 with_latest_from
+
+Similar to L</combine_latest>, but will start emitting as soon as
+we have any values. The arrayref will contain C<undef> for any
+sources which have not yet emitted any items.
+
+=head2 merge
+
+Emits items as they are generated by the given sources.
+
+Example:
+
+ $numbers->merge($letters)->say # 1, 'a', 2, 'b', 3, 'c'...
+
+=head2 emit_from
+
+Emits items as they are generated by the given sources.
+
+Example:
+
+ my $src = Ryu::Source->new;
+ $src->say;
+ $src->emit_from(
+  $numbers,
+  $letters
+ );
+
+=head2 apply
+
+Used for setting up multiple streams.
+
+Accepts a variable number of coderefs, will call each one and gather L<Ryu::Source>
+results.
+
+=head2 switch_str
+
+Given a condition, will select one of the alternatives based on stringified result.
+
+Example:
+
+ $src->switch_str(
+  sub { $_->name }, # our condition
+  smith => sub { $_->id }, # if this matches the condition, the code will be called with $_ set to the current item
+  jones => sub { $_->parent->id },
+  sub { undef } # and this is our default case
+ );
+
+=head2 ordered_futures
+
+Given a stream of L<Future>s, will emit the results as each L<Future>
+is marked ready.
+
+If any L<Future> in the stream fails, that will mark this source as failed,
+and all remaining L<Future> instances will be cancelled. To avoid this behaviour
+and leave the L<Future> instances active, use:
+
+ $src->map('without_cancel')
+     ->ordered_futures
+
+See L<Future/without_cancel> for more details.
+
+Takes the following named parameters:
+
+=over 4
+
+=item * C<high> - once at least this many unresolved L<Future> instances are pending,
+will L</pause> the upstream L<Ryu::Source>.
+
+=item * C<low> - if the pending count drops to this number, will L</resume>
+the upstream L<Ryu::Source>.
+
+=back
+
+This method is also available as L</resolve>.
+
+=head2 resolve
+
+A synonym for L</ordered_futures>.
+
+=head2 concurrent
+
+=head2 distinct
+
+Emits new distinct items, using string equality with an exception for
+C<undef> (i.e. C<undef> is treated differently from empty string or 0).
+
+Given 1,2,3,undef,2,3,undef,'2',2,4,1,5, you'd expect to get the sequence 1,2,3,undef,4,5.
+
+=head2 distinct_until_changed
+
+Removes contiguous duplicates, defined by string equality.
+
+=head2 sort_by
+
+Emits items sorted by the given key. This is a stable sort function.
+
+The algorithm is taken from L<List::UtilsBy>.
+
+=head2 nsort_by
+
+Emits items numerically sorted by the given key. This is a stable sort function.
+
+See L</sort_by>.
+
+=head2 rev_sort_by
+
+Emits items sorted by the given key. This is a stable sort function.
+
+The algorithm is taken from L<List::UtilsBy>.
+
+=head2 rev_nsort_by
+
+Emits items numerically sorted by the given key. This is a stable sort function.
+
+See L</sort_by>.
+
+=head2 extract_all
+
+Expects a regular expression and emits hashrefs containing
+the named capture buffers.
+
+The regular expression will be applied using the m//gc operator.
+
+Example:
+
+ $src->extract_all(qr{/(?<component>[^/]+)})
+ # emits { component => '...' }, { component => '...' }
+
+=head2 skip
+
+Skips the first N items.
+
+=head2 skip_last
+
+Skips the last N items.
+
+=head2 skip_until
+
+Skips the items that arrive before a given condition is reached.
+
+=over 4
+
+=item * Either a L<Future> instance (we skip all items until it's marked as `done`), or a coderef,
+which we call for each item until it first returns true
+
+=back
+
+=head2 take_until
+
+Passes through items that arrive until a given condition is reached.
+
+Expects a single parameter, which can be one of the following:
+
+=over 4
+
+=item * a L<Future> instance - we will skip all items until it's marked as C<done>
+
+=item * a coderef, which we call for each item until it first returns true
+
+=item * or a L<Ryu::Source>, in which case we stop when that first emits a value
+
+=back
+
+=head2 take
+
+Takes a limited number of items.
+
+Given a sequence of C< 1,2,3,4,5 > and C<< ->take(3) >>, you'd get 1,2,3 and then the stream
+would finish.
+
+=head2 first
+
+Returns a source which provides the first item from the stream.
+
+=head2 some
+
+Applies the given code to each item, and emits a single item:
+
+=over 4
+
+=item * 0 if the code never returned true or no items were received
+
+=item * 1 if the code ever returned a true value
+
+=back
+
+=head2 every
+
+Similar to L</some>, except this requires the coderef to return true for
+all values in order to emit a C<1> value.
+
+=head2 count
+
+Emits the count of items seen once the parent source completes.
+
+=head2 sum
+
+Emits the numeric sum of items seen once the parent completes.
+
+=head2 mean
+
+Emits the mean (average) numerical value of all seen items.
+
+=head2 max
+
+Emits the maximum numerical value of all seen items.
+
+=head2 min
+
+Emits the minimum numerical value of all seen items.
+
+=head2 statistics
+
+Emits a single hashref of statistics once the source completes.
+
+This will contain the following keys:
+
+=over 4
+
+=item * count
+
+=item * sum
+
+=item * min
+
+=item * max
+
+=item * mean
+
+=back
+
+=head2 filter
+
+Applies the given parameter to filter values.
+
+The parameter can be a regex or coderef. You can also
+pass (key, value) pairs to filter hashrefs or objects
+based on regex or coderef values.
+
+Examples:
+
+ $src->filter(name => qr/^[A-Z]/, id => sub { $_ % 2 })
+
+=head2 filter_isa
+
+Emits only the items which C<< ->isa >> one of the given parameters.
+Will skip non-blessed items.
+
+=head2 emit
+
+Emits the given item.
+
+=head2 each
+
+=head2 each_as_source
+
+=head2 await
+
+Block until this source finishes.
+
+=head2 next
+
+Returns a L<Future> which will resolve to the next item emitted by this source.
+
+If the source completes before an item is emitted, the L<Future> will be cancelled.
+
+Note that these are independent - they don't stack, so if you call C<< ->next >>
+multiple times before an item is emitted, each of those would return the same value.
+
+See L<Ryu::Buffer> if you're dealing with protocols and want to extract sequences of
+bytes or characters.
+
+To access the sequence as a discrete stream of L<Future> instances, try L</as_queue>
+which will provide a L<Future::Queue>.
+
+=head2 finish
+
+Mark this source as completed.
+
+=head1 METHODS - Proxied
+
+The following methods are proxied to our completion L<Future>:
+
+=over 4
+
+=item * then
+
+=item * is_ready
+
+=item * is_done
+
+=item * failure
+
+=item * is_cancelled
+
+=item * else
+
+=back
+
+=head1 METHODS - Internal
+
+=head2 prepare_await
+
+Run any pre-completion callbacks (recursively) before
+we go into an await cycle.
+
+Used for compatibility with sync bridges when there's
+no real async event loop available.
+
+=head2 chained
+
+Returns a new L<Ryu::Source> chained from this one.
+
+=head2 each_while_source
+
+Like L</each>, but removes the source from the callback list once the
+parent completes.
+
+=head2 map_source
+
+Provides a L</chained> source which has more control over what it
+emits than a standard L</map> or L</filter> implementation.
+
+ $original->map_source(sub {
+  my ($item, $src) = @_;
+  $src->emit('' . reverse $item);
+ });
+
+=head1 INHERITED METHODS
+
+=over 4
+
+=item L<Ryu::Node>
+
+L<completed|Ryu::Node/completed>, L<describe|Ryu::Node/describe>, L<flow_control|Ryu::Node/flow_control>, L<is_paused|Ryu::Node/is_paused>, L<label|Ryu::Node/label>, L<new_future|Ryu::Node/new_future>, L<parent|Ryu::Node/parent>, L<pause|Ryu::Node/pause>, L<resume|Ryu::Node/resume>, L<unblocked|Ryu::Node/unblocked>
+
+=back
+
+=head1 AUTHOR
+
+Tom Molesworth <TEAM@cpan.org>
+
+=head1 LICENSE
+
+Copyright Tom Molesworth 2011-2023. Licensed under the same terms as Perl itself.
+

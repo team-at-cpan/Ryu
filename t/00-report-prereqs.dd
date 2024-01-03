@@ -1,0 +1,79 @@
+do { my $x = {
+       'configure' => {
+                        'requires' => {
+                                        'ExtUtils::MakeMaker' => '0'
+                                      }
+                      },
+       'develop' => {
+                      'requires' => {
+                                      'Devel::Cover' => '0',
+                                      'Devel::Cover::Report::Coveralls' => '0.11',
+                                      'Dist::Zilla' => '5',
+                                      'Dist::Zilla::PluginBundle::Author::TEAM' => '0',
+                                      'Software::License::Perl_5' => '0',
+                                      'Test::CPAN::Changes' => '0.19',
+                                      'Test::CPAN::Meta' => '0',
+                                      'Test::EOL' => '0',
+                                      'Test::MinimumVersion' => '0',
+                                      'Test::Mojibake' => '0',
+                                      'Test::More' => '0.88',
+                                      'Test::NoTabs' => '0',
+                                      'Test::Pod' => '1.41',
+                                      'Test::Portability::Files' => '0',
+                                      'Test::Version' => '1'
+                                    }
+                    },
+       'runtime' => {
+                      'recommends' => {
+                                        'JSON::MaybeUTF8' => '1.002',
+                                        'MIME::Base64' => '0',
+                                        'Text::CSV' => '0'
+                                      },
+                      'requires' => {
+                                      'Encode' => '1.98',
+                                      'Future' => '0.42',
+                                      'Future::Queue' => '0.52',
+                                      'JSON::MaybeXS' => '0',
+                                      'List::UtilsBy' => '0.10',
+                                      'Log::Any' => '1.045',
+                                      'Log::Any::Adapter' => '1.045',
+                                      'MIME::Base64' => '0',
+                                      'Ref::Util' => '0.111',
+                                      'Scalar::Util' => '1.47',
+                                      'Syntax::Keyword::Try' => '0.04',
+                                      'Text::CSV' => '0',
+                                      'curry' => '1.001',
+                                      'indirect' => '0',
+                                      'parent' => '0',
+                                      'perl' => '5.018'
+                                    },
+                      'suggests' => {
+                                      'JSON::SL' => 'v1.0.6',
+                                      'Sentinel' => '0.06',
+                                      'XML::LibXML::SAX::ChunkParser' => '0.00008'
+                                    }
+                    },
+       'test' => {
+                   'recommends' => {
+                                     'CPAN::Meta' => '2.120900',
+                                     'Test::HexString' => '0.03'
+                                   },
+                   'requires' => {
+                                   'ExtUtils::MakeMaker' => '0',
+                                   'File::Spec' => '0',
+                                   'IO::Handle' => '0',
+                                   'IPC::Open3' => '0',
+                                   'Log::Any::Adapter::TAP' => '0.003002',
+                                   'Test::CheckDeps' => '0.010',
+                                   'Test::Deep' => '1.124',
+                                   'Test::Fatal' => '0.010',
+                                   'Test::Files' => '0.14',
+                                   'Test::More' => '0.98',
+                                   'Test::Refcount' => '0.07',
+                                   'Test::Warnings' => '0.024',
+                                   'Variable::Disposition' => '0.004'
+                                 }
+                 }
+     };
+  $x;
+ }
