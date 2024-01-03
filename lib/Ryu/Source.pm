@@ -935,12 +935,16 @@ sub as_queue {
     );
 
     if($args{max_items}) {
-        $self->each($self->curry::weak(sub {
+        my $f;
+        $self->each($self->$curry::weak(sub {
             my ($self) = @_;
-            my $f = $queue->push($_);
-            return if $f->is_ready;
-            $self->pause;
-            $f->on_ready(sub { $self->resume });
+            unless(
+                (my $f = $queue->push($_))->is_ready
+                    and not $self->is_paused
+            ) {
+                $f->on_ready(sub { $self->resume });
+                $self->pause;
+            }
             return;
         }));
     } else {
