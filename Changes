@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.005     2024-01-04 04:21:40+08:00 Asia/Singapore
     [Bugs fixed]
 
     - handle the `max_items` parameter to `->as_queue`
