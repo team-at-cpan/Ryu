@@ -1,6 +1,13 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [Bugs fixed]
+
+    - handle the `max_items` parameter to `->as_queue`
+
+    [Dependencies]
+
+    - update to latest Future::Queue to avoid deep-recursion scenario
 
 3.004     2023-03-05 14:36:17+08:00 Asia/Singapore
     [New features]
