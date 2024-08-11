@@ -40,6 +40,10 @@ sub new {
 
 Given a source, will attach it as the input for this sink.
 
+The key difference between L</from> and L</drain_from> is that this method will mark the sink as completed
+when the source is finished. L</drain_from> allows sequencing of multiple sources, keeping the sink active
+as each of those completes.
+
 =cut
 
 sub from {
@@ -48,16 +52,44 @@ sub from {
     die 'expected a subclass of Ryu::Source, received ' . $src . ' instead' unless $src->isa('Ryu::Source');
 
     $self = $self->new unless ref $self;
+    $self->drain_from($src);
+    $src->completed->on_ready(sub {
+        my $f = $self->source->completed;
+        shift->on_ready($f) unless $f->is_ready;
+    });
+    return $self
+}
+
+sub drain_from {
+    my ($self, $src) = @_;
+    die 'expected a subclass of Ryu::Source, received ' . $src . ' instead' unless $src->isa('Ryu::Source');
+
+    push $self->{sources}->@*, $src;
+    $self->start_drain;
+    $self->source->emit($data);
+    $self
+}
+
+sub start_drain {
+    my ($self) = @_;
+    return $self if $self->is_draining;
+
+    my $src = shift $self->{sources}->@*
+        or return $self;
+
+    $self->{active_source} = $src;
     $src->each_while_source(sub {
         $self->emit($_)
     }, $self->source);
     $src->completed->on_ready(sub {
         my $f = $self->source->completed;
         shift->on_ready($f) unless $f->is_ready;
+        undef $self->{active_source};
+        $self->start_drain;
     });
-# $self->{source} = $src;
-    return $self
 }
+
+sub is_draining { !!shift->{active_source} }
 
 sub emit {
     my ($self, $data) = @_;
