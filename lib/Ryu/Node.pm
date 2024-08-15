@@ -43,7 +43,7 @@ like C<< from->combine_latest->count >>.
 # It'd be nice if L<Future> already provided a method for this, maybe I should suggest it
 sub describe {
     my ($self) = @_;
-    ($self->parent ? $self->parent->describe . '=>' : '') . $self->label . '(' . $self->completed->state . ')';
+    ($self->parent ? $self->parent->describe . '=>' : '') . '[' . ($self->label // 'unknown') . '](' . $self->completed->state . ')';
 }
 
 =head2 completed
