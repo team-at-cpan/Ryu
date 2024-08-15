@@ -2319,7 +2319,7 @@ sub each_while_source {
     $self->_completed->on_ready(sub {
         my ($f) = @_;
         $args{cleanup}->($f, $src) if exists $args{cleanup};
-        $f->on_ready($src->_completed) unless $src->is_ready;
+        $f->on_ready($src->_completed) unless $src->is_ready or !($args{finish_source} // 1);
     });
     $src
 }

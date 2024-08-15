@@ -95,9 +95,9 @@ sub start_drain {
         undef $self->{active_source};
         $self->start_drain;
     });
-    $src->each(sub {
+    $src->each_while_source(sub {
         $self->emit($_)
-    });
+    }, $self->source, finish_source => 0);
     $src->resume if $src->is_paused;
     return $self;
 }
