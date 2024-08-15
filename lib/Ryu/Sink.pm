@@ -140,6 +140,12 @@ sub _completed {
 
 sub notify_child_completion { }
 
+sub DESTROY {
+    my ($self) = @_;
+    return unless my $src = delete $self->{source};
+    $src->finish;
+}
+
 1;
 
 __END__
