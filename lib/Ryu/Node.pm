@@ -55,7 +55,8 @@ Returns a L<Future> indicating completion (or failure) of this stream.
 
 sub completed {
     my ($self) = @_;
-    my $completion = $self->_completed;
+    my $completion = $self->_completed
+        or return undef;
     return $completion->without_cancel->on_ready(sub {
         my $f = shift;
         my ($expected) = $f->state =~ /^(\S+)/;
