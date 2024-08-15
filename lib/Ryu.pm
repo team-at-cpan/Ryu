@@ -94,7 +94,8 @@ have much documentation - in practice, the L<Ryu::Source> implementation covers 
 =head2 So what does this module do?
 
 Nothing. It's just a top-level loader for pulling in all the other components.
-You wanted L<Ryu::Source> instead, or possibly L<Ryu::Buffer>.
+You wanted L<Ryu::Source> instead, or possibly L<Ryu::Buffer>. The other half of a
+L<Ryu::Source> is a L<Ryu::Sink>.
 
 =head2 Some notes that might not relate to anything
 
