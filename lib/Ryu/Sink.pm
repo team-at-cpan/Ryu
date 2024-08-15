@@ -138,7 +138,6 @@ sub source {
 
 sub _completed {
     my ($self) = @_;
-    return undef unless $self->{source};
     return $self->source->_completed;
 }
 
