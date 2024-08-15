@@ -811,6 +811,7 @@ sub buffer {
     $self->_completed->on_ready(sub {
         shift->on_ready($src->_completed) unless $src->_completed->is_ready or @pending;
     });
+    my $fc = $src->flow_control;
     my $item_handler = do {
         Scalar::Util::weaken(my $weak_self = $self);
         Scalar::Util::weaken(my $weak_src = $src);
@@ -835,8 +836,7 @@ sub buffer {
                 if $self->_completed->is_ready and not $src->_completed->is_ready;
         }
     };
-    $src->flow_control
-        ->each($item_handler)->retain;
+    $fc->each($item_handler)->retain;
     $self->each(my $code = sub {
         push @pending, $_;
         $item_handler->()
