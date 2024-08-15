@@ -126,7 +126,8 @@ sub finish {
 sub source {
     my ($self) = @_;
     $self->{source} //= do {
-        my $src = ($self->{new_source} //= sub { Ryu::Source->new })->();
+        $log->tracef('Creating source for sink %s', "$self");
+        my $src = ($self->{new_source} //= sub { Ryu::Source->new(label => 'sink source') })->();
         Scalar::Util::weaken($src->{parent} = $self);
         $src;
     };
