@@ -2,11 +2,13 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
     [New features]
+
     - Ryu::Source->emit_batch provides initial support for batches, for more efficient
     handling of larger volumes of data. Use `on_batch` to deal with the results.
     - Ryu::Source->as_void gives you an empty result, useful if you want to await
     without caring about the result
     - Ryu::Source->as_last allows you to wait for the last emitted value
+    - Ryu::Sink->drain_from allow sequential processing of sources as inputs to a sink
 
 3.005     2024-01-04 04:21:40+08:00 Asia/Singapore
     [Bugs fixed]
