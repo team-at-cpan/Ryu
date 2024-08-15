@@ -110,6 +110,19 @@ sub emit {
     $self
 }
 
+sub finish {
+    my ($self) = @_;
+    delete $self->{new_source};
+    my @src = splice $self->{sources}->@*;
+    push @src, delete $self->{active_source} if $self->{active_source};
+    for my $src (@src) {
+        $src->resume if $src->is_paused;
+    }
+    return $self unless my $src = delete $self->{source};
+    $src->finish;
+    return $self;
+}
+
 sub source {
     my ($self) = @_;
     $self->{source} //= do {
