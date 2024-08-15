@@ -852,6 +852,21 @@ sub buffer {
     $src;
 }
 
+sub remove_handler {
+    my ($self, $code) = @_;
+    my $addr = Scalar::Util::refaddr($code);
+    my $count = List::UtilsBy::extract_by {
+        $addr == Scalar::Util::refaddr($_)
+    } @{$self->{on_item}};
+    $log->tracef(
+        "Removing handler on %s with refaddr 0x%x, matched %d total",
+        $self->describe,
+        Scalar::Util::refaddr($self),
+        $count
+    );
+    return $self;
+}
+
 sub retain {
     my ($self) = @_;
     $self->{_self} = $self;
