@@ -111,6 +111,8 @@ sub emit {
 
 sub finish {
     my ($self) = @_;
+    return $self if $self->{is_finished};
+    $self->{is_finished} = 1;
     delete $self->{new_source};
     my @src = splice $self->{sources}->@*;
     push @src, delete $self->{active_source} if $self->{active_source};
