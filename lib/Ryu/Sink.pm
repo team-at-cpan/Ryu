@@ -68,7 +68,6 @@ sub drain_from {
 
     $log->tracef('Will drain from %s, with %d sources in queue already', $src->describe, 0 + $self->{sources}->@*);
     push $self->{sources}->@*, (my $buffered = $src->buffer)->pause;
-    $buffered->each(sub { $log->tracef('Buffered source had item %s', $_) });
     return $self->start_drain;
 }
 
