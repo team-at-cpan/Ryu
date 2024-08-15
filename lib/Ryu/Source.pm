@@ -824,15 +824,15 @@ sub buffer {
                 while @pending
                 and not($src->is_paused)
                 and @{$self->{children}};
-            if($self) {
-                $self->resume($src) if @pending < $args{low} and $self->is_paused($src);
+            $self->resume($src) if @pending < $args{low} and $self->is_paused($src);
 
-                # It's common to have a situation where the parent chain completes while we're
-                # paused waiting for the queue to drain. In this situation, we want to propagate
-                # completion only once the queue is empty.
-                $self->_completed->on_ready($src->_completed)
-                    if $self->_completed->is_ready and not @pending and not $src->_completed->is_ready;
-            }
+            return if @pending;
+
+            # It's common to have a situation where the parent chain completes while we're
+            # paused waiting for the queue to drain. In this situation, we want to propagate
+            # completion only once the queue is empty.
+            $self->_completed->on_ready($src->_completed)
+                if $self->_completed->is_ready and not $src->_completed->is_ready;
         }
     };
     $src->flow_control
