@@ -66,29 +66,40 @@ sub drain_from {
     my ($self, $src) = @_;
     die 'expected a subclass of Ryu::Source, received ' . $src . ' instead' unless $src->isa('Ryu::Source');
 
-    push $self->{sources}->@*, $src;
-    $self->start_drain;
-    $self->source->emit($data);
-    $self
+    $log->tracef('Will drain from %s, with %d sources in queue already', $src->describe, 0 + $self->{sources}->@*);
+    push $self->{sources}->@*, (my $buffered = $src->buffer)->pause;
+    $buffered->each(sub { $log->tracef('Buffered source had item %s', $_) });
+    return $self->start_drain;
 }
 
 sub start_drain {
     my ($self) = @_;
-    return $self if $self->is_draining;
+    if($self->is_draining) {
+        $log->tracef('Still draining from %s, no need to start new source yet', $self->{active_source}->describe);
+        return $self;
+    }
+    unless($self->{sources}->@*) {
+        $log->tracef('No need to start draining, we have no pending sources in queue');
+        return $self;
+    }
 
     my $src = shift $self->{sources}->@*
-        or return $self;
+        or do {
+            $log->warnf('Invalid pending source');
+            return $self;
+        };
 
+    $log->tracef('Draining from source %s', $src->describe);
     $self->{active_source} = $src;
-    $src->each_while_source(sub {
-        $self->emit($_)
-    }, $self->source);
     $src->completed->on_ready(sub {
-        my $f = $self->source->completed;
-        shift->on_ready($f) unless $f->is_ready;
         undef $self->{active_source};
         $self->start_drain;
     });
+    $src->each(sub {
+        $self->emit($_)
+    });
+    $src->resume if $src->is_paused;
+    return $self;
 }
 
 sub is_draining { !!shift->{active_source} }
