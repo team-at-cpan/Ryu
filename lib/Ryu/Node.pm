@@ -173,9 +173,16 @@ sub is_paused {
 
 sub flow_control {
     my ($self) = @_;
-    $self->{flow_control} //= Ryu::Source->new(
-        new_future => $self->{new_future}
-    )
+    $self->{flow_control} //= do {
+        my $fc = Ryu::Source->new(
+            new_future => $self->{new_future}
+        );
+        $self->_completed->on_ready(sub {
+            my $fc = delete $self->{flow_control};
+            $fc->finish;
+        });
+        $fc
+    };
 }
 
 sub label { shift->{label} }
