@@ -55,15 +55,15 @@ Returns a L<Future> indicating completion (or failure) of this stream.
 
 sub completed {
     my ($self) = @_;
-    return do {
-        my $completion = $self->_completed;
-        $completion->without_cancel->on_ready(sub {
-            my $f = shift;
-            if($f->state ne $completion->state) {
-                warn "Completed state does not match internal state - if you are calling ->completed->@{[$f->state]}, this will not work: use ->finish or ->fail instead";
-            }
-        });
-    };
+    my $completion = $self->_completed;
+    return $completion->without_cancel->on_ready(sub {
+        my $f = shift;
+        my ($expected) = $f->state =~ /^(\S+)/;
+        my ($actual) = $completion->state =~ /^(\S+)/;
+        if($expected ne $actual) {
+            warn "Completed state $actual does not match internal state $expected - if you are calling ->completed->$expected, this will not work: use ->finish or ->fail instead";
+        }
+    });
 }
 
 # Internal use only, since it's cancellable
