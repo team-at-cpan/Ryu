@@ -126,12 +126,14 @@ sub finish {
 
 sub source {
     my ($self) = @_;
-    $self->{source} //= do {
-        $log->tracef('Creating source for sink %s', "$self");
-        my $src = ($self->{new_source} //= sub { Ryu::Source->new(label => 'sink source') })->();
-        Scalar::Util::weaken($src->{parent} = $self);
-        $src;
-    };
+    return $self->{source} if $self->{source};
+    $log->tracef('Creating source for sink %s', "$self");
+    my $src = ($self->{new_source} //= sub { Ryu::Source->new(label => 'sink source') })->();
+
+    $self->{source} = $src;
+    Scalar::Util::weaken($src->{parent} = $self);
+    $src->finish if $self->{is_finished};
+    return $src;
 }
 
 sub _completed {
