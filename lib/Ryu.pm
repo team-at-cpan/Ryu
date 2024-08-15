@@ -133,6 +133,7 @@ is equivalent to
 use Exporter qw(import export_to_level);
 
 use Ryu::Source;
+use Ryu::Sink;
 
 our $ryu = __PACKAGE__->new;
 
