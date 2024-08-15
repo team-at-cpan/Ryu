@@ -24,6 +24,7 @@ This is currently of limited utility.
 =cut
 
 use Future;
+use Log::Any qw($log);
 
 =head1 METHODS
 
