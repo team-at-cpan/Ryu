@@ -33,6 +33,7 @@ use Log::Any qw($log);
 sub new {
     my $class = shift;
     $class->SUPER::new(
+        sources => [],
         @_
     )
 }
