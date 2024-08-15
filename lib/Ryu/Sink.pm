@@ -119,7 +119,7 @@ sub finish {
     for my $src (@src) {
         $src->resume if $src->is_paused;
     }
-    return $self unless my $src = delete $self->{source};
+    return $self unless my $src = $self->{source};
     $src->finish;
     return $self;
 }
