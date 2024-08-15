@@ -847,7 +847,7 @@ sub buffer {
         my $addr = Scalar::Util::refaddr($code);
         my $count = List::UtilsBy::extract_by { $addr == Scalar::Util::refaddr($_) } @{$self->{on_item}};
         $f->on_ready($src->_completed) unless $src->is_ready;
-        $log->tracef("->each_while_source completed on %s for refaddr 0x%x, removed %d on_item handlers", $self->describe, Scalar::Util::refaddr($self), $count);
+        $log->tracef("->buffer completed on %s for refaddr 0x%x, removed %d on_item handlers", $self->describe, Scalar::Util::refaddr($self), $count);
     });
     $src;
 }
