@@ -76,7 +76,8 @@ have much documentation - in practice, the [Ryu::Source](https://metacpan.org/po
 ## So what does this module do?
 
 Nothing. It's just a top-level loader for pulling in all the other components.
-You wanted [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource) instead, or possibly [Ryu::Buffer](https://metacpan.org/pod/Ryu%3A%3ABuffer).
+You wanted [Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource) instead, or possibly [Ryu::Buffer](https://metacpan.org/pod/Ryu%3A%3ABuffer). The other half of a
+[Ryu::Source](https://metacpan.org/pod/Ryu%3A%3ASource) is a [Ryu::Sink](https://metacpan.org/pod/Ryu%3A%3ASink).
 
 ## Some notes that might not relate to anything
 
@@ -171,4 +172,4 @@ Tom Molesworth `<TEAM@cpan.org>` with contributions from:
 
 # LICENSE
 
-Copyright Tom Molesworth 2011-2023. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2011-2024. Licensed under the same terms as Perl itself.

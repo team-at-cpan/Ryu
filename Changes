@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+4.000     2024-08-19 00:54:18+08:00 Asia/Singapore
     [New features]
 
     - Ryu::Source->emit_batch provides initial support for batches, for more efficient
