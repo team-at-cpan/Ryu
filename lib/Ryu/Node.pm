@@ -77,7 +77,6 @@ sub _completed {
     $f->on_ready(
         $self->curry::weak::cleanup
     ) if $self->can('cleanup');
-    $self->prepare_await if $self->can('prepare_await');
     $f
 }
 
