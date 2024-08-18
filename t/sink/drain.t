@@ -68,6 +68,21 @@ subtest 'two sources with interleaved emission should maintain order' => sub {
     done_testing;
 };
 
+subtest 'drain from regular source and arrayref' => sub {
+    my $sink = new_ok('Ryu::Sink');
+    my $rslt = $sink->source->as_list;
+    my $src = new_ok('Ryu::Source');
+    $sink->drain_from($src);
+    $sink->drain_from([ qw(d e f) ]);
+    $src->emit($_) for qw(a b c);
+    $src->finish;
+    ok(!$rslt->is_ready, 'sink is not yet finished after source drain');
+    $sink->source->finish;
+    ok($rslt->is_ready, 'sink is now finished');
+    cmp_deeply([ $rslt->get ], [ qw(a b c d e f) ], 'items match');
+    done_testing;
+};
+
 done_testing;
 __END__
 # This test may not be what we wanted - we should be able to drain from sources at any time,
