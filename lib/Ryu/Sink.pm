@@ -105,6 +105,7 @@ sub start_drain {
         $self->emit($_)
     }, $self->source, finish_source => 0);
     $src->resume if $src->is_paused;
+    $src->prepare_await;
     return $self;
 }
 
