@@ -192,14 +192,13 @@ until the observable is destroyed.
 
 sub source {
     my ($self) = @_;
-    $self->{source} //= do {
-        my $src = Ryu::Source->new;
-        Scalar::Util::weaken(my $copy = $self);
-        $src->completed->on_ready(sub {
-            delete $copy->{source} if $copy
-        });
-        $src;
-    };
+    return $self->{source} if $self->{source};
+    $self->{source} = my $src = Ryu::Source->new;
+    Scalar::Util::weaken(my $copy = $self);
+    $src->_completed->on_ready(sub {
+        delete $copy->{source} if $copy
+    });
+    $src;
 }
 
 =head1 LVALUE METHODS

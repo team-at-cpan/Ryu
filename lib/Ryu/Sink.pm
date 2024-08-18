@@ -97,7 +97,7 @@ sub start_drain {
 
     $log->tracef('Draining from source %s', $src->describe);
     $self->{active_source} = $src;
-    $src->completed->on_ready(sub {
+    $src->_completed->on_ready(sub {
         undef $self->{active_source};
         $self->start_drain;
     });
