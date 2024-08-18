@@ -70,16 +70,15 @@ sub completed {
 # Internal use only, since it's cancellable
 sub _completed {
     my ($self) = @_;
-    $self->{completed} //= do {
-        my $f = $self->new_future(
-            'completion'
-        );
-        $f->on_ready(
-            $self->curry::weak::cleanup
-        ) if $self->can('cleanup');
-        $self->prepare_await if $self->can('prepare_await');
-        $f
-    }
+    return $self->{completed} if $self->{completed};
+    $self->{completed} = my $f = $self->new_future(
+        'completion'
+    );
+    $f->on_ready(
+        $self->curry::weak::cleanup
+    ) if $self->can('cleanup');
+    $self->prepare_await if $self->can('prepare_await');
+    $f
 }
 
 =head2 pause
