@@ -64,6 +64,13 @@ sub from {
 
 sub drain_from {
     my ($self, $src) = @_;
+    if(ref $src eq 'ARRAY') {
+        my $data = $src;
+        $src = Ryu::Source->new(
+            new_future => $self->{new_future},
+            label      => 'array',
+        )->from($data);
+    }
     die 'expected a subclass of Ryu::Source, received ' . $src . ' instead' unless $src->isa('Ryu::Source');
 
     $log->tracef('Will drain from %s, with %d sources in queue already', $src->describe, 0 + $self->{sources}->@*);
