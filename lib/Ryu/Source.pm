@@ -267,8 +267,11 @@ sub from {
         }
     } elsif(my $ref = ref($_[0])) {
         if($ref eq 'ARRAY') {
+            my $data = $_[0];
             $src->{on_get} = sub {
-                $src->emit($_) for @{$_[0]};
+                while($data->@*) {
+                    $src->emit(shift $data->@*);
+                }
                 $src->finish;
             };
             return $src;
