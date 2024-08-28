@@ -88,7 +88,9 @@ Does nothing useful.
 
 sub pause {
     my ($self, $src) = @_;
-    my $k = refaddr($src) // 0;
+    my $k = (defined $src and ref $src)
+        ? refaddr($src // $self) // 0
+        : $src // 0;
 
     my $was_paused = $self->{is_paused} && keys %{$self->{is_paused}};
     if(!$was_paused && $self->{unblocked} and $self->{unblocked}->is_ready) {
@@ -112,7 +114,9 @@ Is about as much use as L</pause>.
 
 sub resume {
     my ($self, $src) = @_;
-    my $k = refaddr($src) // 0;
+    my $k = (defined $src and ref $src)
+        ? refaddr($src // $self) // 0
+        : $src // 0;
     delete $self->{is_paused}{$k} unless --$self->{is_paused}{$k} > 0;
     unless($self->{is_paused} and keys %{$self->{is_paused}}) {
         if(my $f = $self->{unblocked}) {
@@ -162,9 +166,11 @@ Might return 1 or 0, but is generally meaningless.
 =cut
 
 sub is_paused {
-    my ($self, $obj) = @_;
-    return keys %{ $self->{is_paused} } ? 1 : 0 unless defined $obj;
-    my $k = refaddr($obj);
+    my ($self, $src) = @_;
+    return keys %{ $self->{is_paused} } ? 1 : 0 unless defined $src;
+    my $k = (defined $src and ref $src)
+        ? refaddr($src // $self) // 0
+        : $src // 0;
     return exists $self->{is_paused}{$k}
     ? 0 + $self->{is_paused}{$k}
     : 0;
