@@ -167,7 +167,7 @@ Might return 1 or 0, but is generally meaningless.
 
 sub is_paused {
     my ($self, $src) = @_;
-    return keys %{ $self->{is_paused} } ? 1 : 0 unless defined $src;
+    return keys(%{ $self->{is_paused} }) ? 1 : 0 unless defined $src;
     my $k = (defined $src and ref $src)
         ? refaddr($src // $self) // 0
         : $src // 0;
