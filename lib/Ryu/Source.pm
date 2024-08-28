@@ -1317,7 +1317,7 @@ This method is also available as L</resolve>.
 sub ordered_futures {
     my ($self, %args) = @_;
     my $high = delete $args{high};
-    my $low = delete $args{low} // $high // 0;
+    my $low = (delete $args{low}) // $high // 0;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my %pending;
     my $src_completed = $src->_completed;
@@ -1343,8 +1343,8 @@ sub ordered_futures {
         # ->is_ready callback removes it
         $pending{$k} = $f;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
-        unless($paused) {
-            $src->pause if $high and keys(%pending) >= $high;
+        if(!$paused and $high and keys(%pending) >= $high) {
+            $src->pause;
             ++$paused;
         }
         $f->on_done(sub {
@@ -1356,8 +1356,9 @@ sub ordered_futures {
           ->on_fail(sub { $src->fail(@_) unless $src_completed->is_ready; })
           ->on_ready(sub {
               delete $pending{$k};
-              if($paused) {
-                  $src->resume if keys(%pending) <= $low;
+              if($paused and keys(%pending) <= $low) {
+                  $src->resume;
+                  --$paused;
               }
               $log->tracef('Ordered futures now has %d pending after completion, upstream finish status is %d', 0 + keys(%pending), $all_finished);
               return if %pending;
