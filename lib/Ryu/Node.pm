@@ -140,7 +140,7 @@ sub unblocked {
     # Since we don't want stray callers to affect our internal state, we always return
     # a non-cancellable version of our internal Future.
     my $self = shift;
-    return $self->{unblocked_without_cancel} //= $self->_unblocked->without_cancel
+    return $self->_unblocked->without_cancel
 }
 
 sub _unblocked {
