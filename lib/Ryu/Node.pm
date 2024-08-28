@@ -118,16 +118,16 @@ sub resume {
         ? refaddr($src // $self) // 0
         : $src // 0;
     delete $self->{is_paused}{$k} unless --$self->{is_paused}{$k} > 0;
-    unless($self->{is_paused} and keys %{$self->{is_paused}}) {
-        if(my $f = $self->{unblocked}) {
-            $f->done unless $f->is_ready;
-        }
-        if(my $parent = $self->parent) {
-            $parent->resume($self) if $self->{pause_propagation};
-        }
-        if(my $flow_control = $self->{flow_control}) {
-            $flow_control->emit(1);
-        }
+    return $self if $self->{is_paused} and keys %{$self->{is_paused}};
+
+    if(my $f = $self->{unblocked}) {
+        $f->done unless $f->is_ready;
+    }
+    if(my $parent = $self->parent) {
+        $parent->resume($self) if $self->{pause_propagation};
+    }
+    if(my $flow_control = $self->{flow_control}) {
+        $flow_control->emit(1);
     }
     $self
 }
