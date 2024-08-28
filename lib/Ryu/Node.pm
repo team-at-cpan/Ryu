@@ -93,7 +93,7 @@ sub pause {
         : $src // 0;
 
     my $was_paused = $self->{is_paused} && keys %{$self->{is_paused}};
-    if(!$was_paused && $self->{unblocked} and $self->{unblocked}->is_ready) {
+    if($self->{unblocked} and $self->{unblocked}->is_ready) {
         delete $self->{unblocked};
     }
     ++$self->{is_paused}{$k};
