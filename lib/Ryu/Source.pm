@@ -828,7 +828,7 @@ sub buffer {
                 while @pending
                 and not($src->is_paused)
                 and @{$self->{children}};
-            $self->resume($src) if @pending < $args{low} and $self->is_paused($src);
+            $self->resume($src) if @pending <= $args{low} and $self->is_paused($src);
 
             return if @pending;
 
