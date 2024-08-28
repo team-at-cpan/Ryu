@@ -1316,8 +1316,8 @@ This method is also available as L</resolve>.
 
 sub ordered_futures {
     my ($self, %args) = @_;
-    my $low = delete $args{low};
     my $high = delete $args{high};
+    my $low = delete $args{low} // $high // 0;
     my $src = $self->chained(label => (caller 0)[3] =~ /::([^:]+)$/);
     my %pending;
     my $src_completed = $src->_completed;
@@ -1335,6 +1335,7 @@ sub ordered_futures {
             $_->cancel if $_ and not $_->is_ready;
         }
     });
+    my $paused = 0;
     $self->each(sub {
         my $f = $_;
         my $k = Scalar::Util::refaddr $f;
@@ -1342,7 +1343,10 @@ sub ordered_futures {
         # ->is_ready callback removes it
         $pending{$k} = $f;
         $log->tracef('Ordered futures has %d pending', 0 + keys %pending);
-        $src->pause if $high and keys(%pending) >= $high and not $src->is_paused;
+        unless($paused) {
+            $src->pause if $high and keys(%pending) >= $high;
+            ++$paused;
+        }
         $f->on_done(sub {
             my @pending = @_;
             while(@pending and not $src_completed->is_ready) {
@@ -1352,7 +1356,9 @@ sub ordered_futures {
           ->on_fail(sub { $src->fail(@_) unless $src_completed->is_ready; })
           ->on_ready(sub {
               delete $pending{$k};
-              $src->resume if $low and keys(%pending) <= $low and $src->is_paused;
+              if($paused) {
+                  $src->resume if keys(%pending) <= $low;
+              }
               $log->tracef('Ordered futures now has %d pending after completion, upstream finish status is %d', 0 + keys(%pending), $all_finished);
               return if %pending;
               $all_finished->on_ready($src_completed) if $all_finished and not $src_completed->is_ready;
