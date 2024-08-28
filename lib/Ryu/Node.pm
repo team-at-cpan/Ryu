@@ -91,8 +91,8 @@ sub pause {
     my $k = refaddr($src) // 0;
 
     my $was_paused = $self->{is_paused} && keys %{$self->{is_paused}};
-    unless($was_paused) {
-        delete @{$self}{qw(unblocked unblocked_without_cancel)} if $self->{unblocked} and $self->{unblocked}->is_ready;
+    if(!$was_paused && $self->{unblocked} and $self->{unblocked}->is_ready) {
+        delete $self->{unblocked};
     }
     ++$self->{is_paused}{$k};
     if(my $parent = $self->parent) {
@@ -115,8 +115,9 @@ sub resume {
     my $k = refaddr($src) // 0;
     delete $self->{is_paused}{$k} unless --$self->{is_paused}{$k} > 0;
     unless($self->{is_paused} and keys %{$self->{is_paused}}) {
-        my $f = $self->_unblocked;
-        $f->done unless $f->is_ready;
+        if(my $f = $self->{unblocked}) {
+            $f->done unless $f->is_ready;
+        }
         if(my $parent = $self->parent) {
             $parent->resume($self) if $self->{pause_propagation};
         }
