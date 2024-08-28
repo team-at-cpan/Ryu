@@ -839,6 +839,9 @@ sub buffer {
                 if $self->_completed->is_ready and not $src->_completed->is_ready;
         }
     };
+    $src->_completed->on_ready(sub {
+        $self->resume($src) if $self and $self->is_paused($src);
+    });
     $fc->each($item_handler)->retain;
     $self->each(my $code = sub {
         push @pending, $_;
