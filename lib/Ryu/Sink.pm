@@ -97,8 +97,11 @@ sub start_drain {
 
     $log->tracef('Draining from source %s', $src->describe);
     $self->{active_source} = $src;
+    my $original_parent = delete $self->{parent};
+    $self->{parent} = $src;
     $src->_completed->on_ready(sub {
         undef $self->{active_source};
+        $self->{parent} = $original_parent;
         $self->start_drain;
     });
     $src->each_while_source(sub {
