@@ -56,8 +56,7 @@ sub from {
     $self = $self->new unless ref $self;
     $self->drain_from($src);
     $src->completed->on_ready(sub {
-        my $f = $self->source->completed;
-        shift->on_ready($f) unless $f->is_ready;
+        $self->finish;
     });
     return $self
 }
